@@ -1,0 +1,11 @@
+export { default as userRepository } from './userRepository';
+export { default as roleRepository } from './roleRepository';
+export { default as jobseekerProfileRepository } from './jobseekerProfileRepository';
+export { default as companyRepository } from './companyRepository';
+export { default as companyMemberRepository } from './companyMemberRepository';
+export { default as jobRepository } from './jobRepository';
+export { default as skillRepository } from './skillRepository';
+export { default as jobSkillRepository } from './jobSkillRepository';
+export { default as applicationRepository } from './applicationRepository';
+export { default as applicationStatusHistoryRepository } from './applicationStatusHistoryRepository';
+export { default as interviewRepository } from './interviewRepository';
