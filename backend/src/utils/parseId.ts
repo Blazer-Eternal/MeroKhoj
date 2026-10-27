@@ -31,7 +31,12 @@ export const parsePositiveInt = (
   min = 1,
   max = Number.MAX_SAFE_INTEGER,
 ): number => {
-  const parsed = typeof value === 'string' ? parseInt(value, 10) : (value as number);
-  if (Number.isNaN(parsed)) return fallback;
-  return Math.min(Math.max(parsed, min), max);
+  let parsed: number;
+  if (typeof value === 'string') parsed = parseInt(value, 10);
+  else if (typeof value === 'number') parsed = value;
+  else parsed = NaN;
+
+  // Guards against undefined, null, non-numeric strings, NaN and Infinity.
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(Math.max(Math.trunc(parsed), min), max);
 };

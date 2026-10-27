@@ -16,3 +16,4 @@ export * from './applicationSourceEnum';
 export * from './interviewTypeEnum';
 export * from './interviewStatusEnum';
 export * from './skillStatusEnum';
+export * from './catalogStatusEnum';

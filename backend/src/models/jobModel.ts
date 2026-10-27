@@ -30,6 +30,9 @@ class Job extends Model<IJob, IJobCreation> implements IJob {
   public status!: JobStatus;
   public published_at!: Date | null;
   public closed_at!: Date | null;
+  public category_id!: string | null;
+  public industry_id!: string | null;
+  public location_id!: string | null;
 
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
@@ -38,6 +41,9 @@ class Job extends Model<IJob, IJobCreation> implements IJob {
   public readonly creator?: unknown;
   public readonly skills?: unknown;
   public readonly applications?: unknown;
+  public readonly category?: unknown;
+  public readonly industry?: unknown;
+  public readonly job_location?: unknown;
 }
 
 export type JobCreationAttributes = Optional<
@@ -122,6 +128,24 @@ export const initJobModel = (sequelize: Sequelize): typeof Job => {
       },
       published_at: { type: DataTypes.DATE, allowNull: true },
       closed_at: { type: DataTypes.DATE, allowNull: true },
+      category_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: { model: 'job_categories', key: 'id' },
+        onDelete: 'SET NULL',
+      },
+      industry_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: { model: 'industries', key: 'id' },
+        onDelete: 'SET NULL',
+      },
+      location_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: { model: 'locations', key: 'id' },
+        onDelete: 'SET NULL',
+      },
       ...timestampAttributes,
     },
     {
@@ -139,6 +163,9 @@ export const initJobModel = (sequelize: Sequelize): typeof Job => {
         { fields: ['experience_level'] },
         { fields: ['location'] },
         { fields: ['application_deadline'] },
+        { fields: ['category_id'] },
+        { fields: ['industry_id'] },
+        { fields: ['location_id'] },
         // Composite index supporting the common "published jobs by recency" query.
         { fields: ['status', 'published_at'] },
       ],

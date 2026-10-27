@@ -22,6 +22,7 @@ export interface ICompany extends ITimestamps {
   address: string | null;
   city: string | null;
   country: string;
+  industry_id: string | null;
   verification_status: CompanyVerificationStatus;
   status: CompanyStatus;
 }
@@ -39,6 +40,7 @@ export interface ICompanyCreation {
   address?: string | null;
   city?: string | null;
   country?: string;
+  industry_id?: string | null;
   verification_status?: CompanyVerificationStatus;
   status?: CompanyStatus;
 }

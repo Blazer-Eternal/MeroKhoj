@@ -24,6 +24,7 @@ class Company extends Model<ICompany, ICompanyCreation> implements ICompany {
   public address!: string | null;
   public city!: string | null;
   public country!: string;
+  public industry_id!: string | null;
   public verification_status!: CompanyVerificationStatus;
   public status!: CompanyStatus;
 
@@ -33,6 +34,7 @@ class Company extends Model<ICompany, ICompanyCreation> implements ICompany {
   public readonly members?: unknown;
   public readonly jobs?: unknown;
   public readonly owner?: unknown;
+  public readonly industry?: unknown;
 }
 
 export type CompanyCreationAttributes = Optional<
@@ -76,6 +78,12 @@ export const initCompanyModel = (sequelize: Sequelize): typeof Company => {
         allowNull: false,
         defaultValue: 'Nepal',
       },
+      industry_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: { model: 'industries', key: 'id' },
+        onDelete: 'SET NULL',
+      },
       verification_status: {
         type: DataTypes.ENUM(...Object.values(CompanyVerificationStatus)),
         allowNull: false,
@@ -100,6 +108,7 @@ export const initCompanyModel = (sequelize: Sequelize): typeof Company => {
         { fields: ['verification_status'] },
         { fields: ['status'] },
         { fields: ['city'] },
+        { fields: ['industry_id'] },
       ],
     },
   );

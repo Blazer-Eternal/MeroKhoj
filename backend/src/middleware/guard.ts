@@ -68,8 +68,17 @@ export const requireAdmin = requireAnyRole(RoleName.ADMIN, RoleName.SUPER_ADMIN)
 /** Require that the user acts as a jobseeker. */
 export const requireJobseeker = requireAnyRole(RoleName.JOBSEEKER);
 
-/** Require that the user acts as an employer (recruiter / company admin). */
-export const requireEmployer = requireAnyRole(RoleName.RECRUITER, RoleName.COMPANY_ADMIN);
+/**
+ * Require that the user acts as an employer (recruiter / company admin).
+ * Platform administrators are included so they can administer any company;
+ * fine-grained company membership is still enforced in the service layer.
+ */
+export const requireEmployer = requireAnyRole(
+  RoleName.RECRUITER,
+  RoleName.COMPANY_ADMIN,
+  RoleName.ADMIN,
+  RoleName.SUPER_ADMIN,
+);
 
 /** Convenience: assert the request is authenticated (throws otherwise). */
 export const getAuthUser = (req: ICustomRequest) => {

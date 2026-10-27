@@ -22,6 +22,9 @@ export interface IJob extends ITimestamps {
   status: JobStatus;
   published_at: Date | null;
   closed_at: Date | null;
+  category_id: string | null;
+  industry_id: string | null;
+  location_id: string | null;
 }
 
 export interface IJobCreation {
@@ -43,6 +46,9 @@ export interface IJobCreation {
   status?: JobStatus;
   published_at?: Date | null;
   closed_at?: Date | null;
+  category_id?: string | null;
+  industry_id?: string | null;
+  location_id?: string | null;
 }
 
 export type IJobUpdate = Partial<Omit<IJobCreation, 'company_id' | 'created_by' | 'slug'>>;
@@ -58,4 +64,7 @@ export interface IJobSearchQuery {
   salary_max?: number;
   category?: string;
   status?: JobStatus;
+  category_id?: string;
+  industry_id?: string;
+  location_id?: string;
 }
