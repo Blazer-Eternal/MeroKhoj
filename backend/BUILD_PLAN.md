@@ -9,6 +9,7 @@
 - [x] 18 locations (lat/lng bounds)
 - [x] jobs: + category_id, industry_id, location_id; companies: + industry_id (ALTER migration)
 - [x] seeder: sample categories, industries, Nepal locations
+- [x] tsc + eslint clean; migrations + seeders ran
 
 ## Phase 2: Administration, verification & auditing (29–32)
 - [x] 29 company_verifications (sync companies.verification_status; history preserved)

@@ -17,3 +17,5 @@ export * from './interviewTypeEnum';
 export * from './interviewStatusEnum';
 export * from './skillStatusEnum';
 export * from './catalogStatusEnum';
+export * from './moderationActionEnum';
+export * from './reportStatusEnum';

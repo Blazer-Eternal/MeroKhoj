@@ -21,6 +21,39 @@ const ADMIN_ID = '00000000-0000-4000-8000-000000000001';
 const DEMO_COMPANY_ID = '00000000-0000-4000-8000-000000000003';
 const ADMIN_COMPANY_MEMBER_ID = '00000000-0000-4000-8000-000000000004';
 
+/** Deterministic UUIDs for seeded taxonomy so FKs stay stable across runs. */
+const TAXONOMY_ID = (n: number) =>
+  `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+
+const SEEDED_CATEGORIES = [
+  { id: TAXONOMY_ID(101), name: 'Software & IT', slug: 'software-it', parent_id: null },
+  { id: TAXONOMY_ID(102), name: 'Frontend Development', slug: 'frontend-development', parent_id: TAXONOMY_ID(101) },
+  { id: TAXONOMY_ID(103), name: 'Backend Development', slug: 'backend-development', parent_id: TAXONOMY_ID(101) },
+  { id: TAXONOMY_ID(104), name: 'Data & Analytics', slug: 'data-analytics', parent_id: null },
+  { id: TAXONOMY_ID(105), name: 'Marketing', slug: 'marketing', parent_id: null },
+  { id: TAXONOMY_ID(106), name: 'Finance & Accounting', slug: 'finance-accounting', parent_id: null },
+  { id: TAXONOMY_ID(107), name: 'Healthcare', slug: 'healthcare', parent_id: null },
+  { id: TAXONOMY_ID(108), name: 'Education', slug: 'education', parent_id: null },
+];
+
+const SEEDED_INDUSTRIES = [
+  { id: TAXONOMY_ID(201), name: 'Information Technology', slug: 'information-technology' },
+  { id: TAXONOMY_ID(202), name: 'Banking & Finance', slug: 'banking-finance' },
+  { id: TAXONOMY_ID(203), name: 'Healthcare', slug: 'healthcare-industry' },
+  { id: TAXONOMY_ID(204), name: 'Education', slug: 'education-industry' },
+  { id: TAXONOMY_ID(205), name: 'Telecommunications', slug: 'telecommunications' },
+  { id: TAXONOMY_ID(206), name: 'Retail & E-Commerce', slug: 'retail-ecommerce' },
+];
+
+const SEEDED_LOCATIONS = [
+  { id: TAXONOMY_ID(301), country: 'Nepal', province: 'Bagmati', district: 'Kathmandu', city: 'Kathmandu' },
+  { id: TAXONOMY_ID(302), country: 'Nepal', province: 'Bagmati', district: 'Lalitpur', city: 'Lalitpur' },
+  { id: TAXONOMY_ID(303), country: 'Nepal', province: 'Bagmati', district: 'Bhaktapur', city: 'Bhaktapur' },
+  { id: TAXONOMY_ID(304), country: 'Nepal', province: 'Gandaki', district: 'Kaski', city: 'Pokhara' },
+  { id: TAXONOMY_ID(305), country: 'Nepal', province: 'Lumbini', district: 'Rupandehi', city: 'Bhairahawa' },
+  { id: TAXONOMY_ID(306), country: 'Nepal', province: 'Koshi', district: 'Morang', city: 'Biratnagar' },
+];
+
 const ROLE_NAMES = [
   'JOBSEEKER',
   'RECRUITER',
@@ -149,10 +182,78 @@ const seedAdmin = async (queryInterface: QueryInterface): Promise<void> => {
   console.log('  • seeded admin account + demo company');
 };
 
+const seedTaxonomy = async (queryInterface: QueryInterface): Promise<void> => {
+  const sequelize = queryInterface.sequelize;
+  const now = new Date();
+
+  // ---- Job categories ---------------------------------------------------
+  const [catCount] = (await sequelize.query(
+    'SELECT COUNT(*)::int AS count FROM job_categories',
+  )) as unknown as [Array<{ count: number }>];
+  if (catCount[0].count === 0) {
+    await queryInterface.bulkInsert(
+      'job_categories',
+      SEEDED_CATEGORIES.map((c) => ({
+        ...c,
+        description: null,
+        status: 'ACTIVE',
+        created_at: now,
+        updated_at: now,
+      })),
+    );
+    console.log(`  • seeded ${SEEDED_CATEGORIES.length} job categories`);
+  } else {
+    console.log('  • job categories already seeded, skipping');
+  }
+
+  // ---- Industries -------------------------------------------------------
+  const [indCount] = (await sequelize.query(
+    'SELECT COUNT(*)::int AS count FROM industries',
+  )) as unknown as [Array<{ count: number }>];
+  if (indCount[0].count === 0) {
+    await queryInterface.bulkInsert(
+      'industries',
+      SEEDED_INDUSTRIES.map((i) => ({
+        ...i,
+        description: null,
+        status: 'ACTIVE',
+        created_at: now,
+        updated_at: now,
+      })),
+    );
+    console.log(`  • seeded ${SEEDED_INDUSTRIES.length} industries`);
+  } else {
+    console.log('  • industries already seeded, skipping');
+  }
+
+  // ---- Locations --------------------------------------------------------
+  const [locCount] = (await sequelize.query(
+    'SELECT COUNT(*)::int AS count FROM locations',
+  )) as unknown as [Array<{ count: number }>];
+  if (locCount[0].count === 0) {
+    await queryInterface.bulkInsert(
+      'locations',
+      SEEDED_LOCATIONS.map((l) => ({
+        ...l,
+        address: null,
+        postal_code: null,
+        latitude: null,
+        longitude: null,
+        created_at: now,
+        updated_at: now,
+      })),
+    );
+    console.log(`  • seeded ${SEEDED_LOCATIONS.length} locations`);
+  } else {
+    console.log('  • locations already seeded, skipping');
+  }
+};
+
 export const up = async (queryInterface: QueryInterface): Promise<void> => {
   console.log('Seeding MeroKhoj reference data...');
   await seedRoles(queryInterface);
   await seedAdmin(queryInterface);
+  await seedTaxonomy(queryInterface);
 };
 
 export const down = async (queryInterface: QueryInterface): Promise<void> => {
@@ -162,6 +263,9 @@ export const down = async (queryInterface: QueryInterface): Promise<void> => {
   await queryInterface.bulkDelete('user_roles', { user_id: ADMIN_ID });
   await queryInterface.bulkDelete('users', { id: ADMIN_ID });
   await queryInterface.bulkDelete('roles', {});
+  await queryInterface.bulkDelete('locations', {});
+  await queryInterface.bulkDelete('industries', {});
+  await queryInterface.bulkDelete('job_categories', {});
 };
 
 export default { up, down };

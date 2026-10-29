@@ -13,3 +13,7 @@ export * from './resumeInterface';
 export * from './jobCategoryInterface';
 export * from './industryInterface';
 export * from './locationInterface';
+export * from './companyVerificationInterface';
+export * from './jobModerationInterface';
+export * from './reportInterface';
+export * from './auditLogInterface';

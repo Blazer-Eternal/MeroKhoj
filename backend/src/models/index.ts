@@ -17,6 +17,16 @@ import {
   default as ApplicationStatusHistory,
 } from './applicationStatusHistoryModel';
 import { initInterviewModel, default as Interview } from './interviewModel';
+import { initEducationModel, default as Education } from './educationModel';
+import { initWorkExperienceModel, default as WorkExperience } from './workExperienceModel';
+import { initResumeModel, default as Resume } from './resumeModel';
+import { initJobCategoryModel, default as JobCategory } from './jobCategoryModel';
+import { initIndustryModel, default as Industry } from './industryModel';
+import { initLocationModel, default as Location } from './locationModel';
+import { initCompanyVerificationModel, default as CompanyVerification } from './companyVerificationModel';
+import { initJobModerationModel, default as JobModeration } from './jobModerationModel';
+import { initReportModel, default as Report } from './reportModel';
+import { initAuditLogModel, default as AuditLog } from './auditLogModel';
 
 import { defineAssociations } from './associations';
 
@@ -33,6 +43,16 @@ export {
   Application,
   ApplicationStatusHistory,
   Interview,
+  Education,
+  WorkExperience,
+  Resume,
+  JobCategory,
+  Industry,
+  Location,
+  CompanyVerification,
+  JobModeration,
+  Report,
+  AuditLog,
 };
 
 /** A mapping of every model keyed by its Sequelize modelName. */
@@ -49,6 +69,16 @@ export interface DBModels {
   Application: typeof Application;
   ApplicationStatusHistory: typeof ApplicationStatusHistory;
   Interview: typeof Interview;
+  Education: typeof Education;
+  WorkExperience: typeof WorkExperience;
+  Resume: typeof Resume;
+  JobCategory: typeof JobCategory;
+  Industry: typeof Industry;
+  Location: typeof Location;
+  CompanyVerification: typeof CompanyVerification;
+  JobModeration: typeof JobModeration;
+  Report: typeof Report;
+  AuditLog: typeof AuditLog;
 }
 
 /**
@@ -68,6 +98,16 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
   initApplicationModel(sequelize);
   initApplicationStatusHistoryModel(sequelize);
   initInterviewModel(sequelize);
+  initEducationModel(sequelize);
+  initWorkExperienceModel(sequelize);
+  initResumeModel(sequelize);
+  initJobCategoryModel(sequelize);
+  initIndustryModel(sequelize);
+  initLocationModel(sequelize);
+  initCompanyVerificationModel(sequelize);
+  initJobModerationModel(sequelize);
+  initReportModel(sequelize);
+  initAuditLogModel(sequelize);
 
   defineAssociations(sequelize);
 
@@ -84,6 +124,16 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
     Application,
     ApplicationStatusHistory,
     Interview,
+    Education,
+    WorkExperience,
+    Resume,
+    JobCategory,
+    Industry,
+    Location,
+    CompanyVerification,
+    JobModeration,
+    Report,
+    AuditLog,
   };
 };
 

@@ -1,7 +1,14 @@
 import { AppError, slugify, ensureUniqueSlug, getPaginationParams, IPaginationQuery } from '../utils';
 import { IJob, IJobCreation, IJobUpdate, IJobSearchQuery, IJobSkillCreation } from '../interfaces';
 import { JobStatus, JOB_STATUS_TRANSITIONS, JOB_VISIBLE_STATUSES, CompanyVerificationStatus } from '../enums';
-import { jobRepository, companyRepository, jobSkillRepository } from '../repositories';
+import {
+  jobRepository,
+  companyRepository,
+  jobSkillRepository,
+  jobCategoryRepository,
+  industryRepository,
+  locationRepository,
+} from '../repositories';
 import { assertCanManageJobs, loadJobOrThrow } from './accessControl';
 import { IAuthUser } from '../interfaces';
 
@@ -12,11 +19,32 @@ import { IAuthUser } from '../interfaces';
  *   DRAFT → PENDING_REVIEW → PUBLISHED ⇄ PAUSED → CLOSED
  * Only verified companies may publish. published_at is stamped on first publish.
  */
+
+/** Validate that referenced classification entities exist (when provided). */
+const assertValidClassification = async (input: {
+  category_id?: string | null;
+  industry_id?: string | null;
+  location_id?: string | null;
+}): Promise<void> => {
+  if (input.category_id) {
+    const category = await jobCategoryRepository.findById(input.category_id);
+    if (!category) throw AppError.badRequest('Referenced job category does not exist');
+  }
+  if (input.industry_id) {
+    const industry = await industryRepository.findById(input.industry_id);
+    if (!industry) throw AppError.badRequest('Referenced industry does not exist');
+  }
+  if (input.location_id) {
+    const location = await locationRepository.findById(input.location_id);
+    if (!location) throw AppError.badRequest('Referenced location does not exist');
+  }
+};
 export const createJob = async (
   user: IAuthUser,
   input: Omit<IJobCreation, 'slug' | 'company_id' | 'created_by'> & { company_id: string },
 ): Promise<IJob> => {
   await assertCanManageJobs(user, input.company_id);
+  await assertValidClassification(input);
 
   const baseSlug = slugify(input.title);
   const slug = await ensureUniqueSlug(baseSlug, (candidate) => jobRepository.slugExists(candidate));
@@ -53,6 +81,8 @@ export const updateJob = async (
       }
     }
   }
+
+  await assertValidClassification(updates);
 
   const updated = await jobRepository.update(jobId, updates);
   if (!updated) throw AppError.notFound('Job not found');

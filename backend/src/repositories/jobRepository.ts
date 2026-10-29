@@ -1,6 +1,9 @@
 import { Op, fn, col } from 'sequelize';
 import Job from '../models/jobModel';
 import Company from '../models/companyModel';
+import JobCategory from '../models/jobCategoryModel';
+import Industry from '../models/industryModel';
+import Location from '../models/locationModel';
 import { IJob, IJobCreation, IJobSearchQuery } from '../interfaces';
 import { JobStatus, EmploymentType, ExperienceLevel } from '../enums';
 import { plain, IPaginationParams, buildPaginationMeta } from '../utils';
@@ -66,13 +69,25 @@ class JobRepository {
     if (query.status) where.status = query.status;
     if (query.salary_min) where.salary_max = { [Op.gte]: query.salary_min };
     if (query.salary_max) where.salary_min = { [Op.lte]: query.salary_max };
+    if (query.category_id) where.category_id = query.category_id;
+    if (query.industry_id) where.industry_id = query.industry_id;
+    if (query.location_id) where.location_id = query.location_id;
 
     const { count, rows } = await Job.findAndCountAll({
       where,
       limit: pagination.limit,
       offset: pagination.offset,
       order: [['published_at', 'DESC']],
-      include: [{ model: Company, as: 'company', attributes: ['id', 'name', 'slug', 'logo_url'] }],
+      include: [
+        { model: Company, as: 'company', attributes: ['id', 'name', 'slug', 'logo_url'] },
+        { model: JobCategory, as: 'category', attributes: ['id', 'name', 'slug'] },
+        { model: Industry, as: 'industry', attributes: ['id', 'name', 'slug'] },
+        {
+          model: Location,
+          as: 'job_location',
+          attributes: ['id', 'country', 'province', 'district', 'city'],
+        },
+      ],
     });
 
     return {

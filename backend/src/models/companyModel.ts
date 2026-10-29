@@ -34,7 +34,7 @@ class Company extends Model<ICompany, ICompanyCreation> implements ICompany {
   public readonly members?: unknown;
   public readonly jobs?: unknown;
   public readonly owner?: unknown;
-  public readonly industry?: unknown;
+  public readonly company_industry?: unknown;
 }
 
 export type CompanyCreationAttributes = Optional<

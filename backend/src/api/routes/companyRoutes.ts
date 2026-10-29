@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { companyControllers, jobControllers } from '../controllers';
+import { companyControllers, jobControllers, companyVerificationControllers } from '../controllers';
 import { requireAuth, requireEmployer, validate } from '../../middleware';
 import {
   createCompanySchema,
   updateCompanySchema,
   addCompanyMemberSchema,
   updateCompanyMemberSchema,
+  submitVerificationSchema,
 } from '../../validators';
 
 const router = Router();
@@ -37,5 +38,17 @@ router.delete('/:companyId/members/:memberId', companyControllers.removeMember);
 
 // Nested jobs belonging to the company
 router.get('/:companyId/jobs', jobControllers.listCompanyJobs);
+
+// Nested company verification workflow (entity 29)
+router.post(
+  '/:companyId/verifications',
+  validate({ body: submitVerificationSchema }),
+  companyVerificationControllers.submitVerification,
+);
+router.get('/:companyId/verifications', companyVerificationControllers.listVerifications);
+router.get(
+  '/:companyId/verifications/latest',
+  companyVerificationControllers.getLatestVerification,
+);
 
 export default router;

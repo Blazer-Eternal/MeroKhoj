@@ -12,6 +12,16 @@ import JobSkill from './jobSkillModel';
 import Application from './applicationModel';
 import ApplicationStatusHistory from './applicationStatusHistoryModel';
 import Interview from './interviewModel';
+import Education from './educationModel';
+import WorkExperience from './workExperienceModel';
+import Resume from './resumeModel';
+import JobCategory from './jobCategoryModel';
+import Industry from './industryModel';
+import Location from './locationModel';
+import CompanyVerification from './companyVerificationModel';
+import JobModeration from './jobModerationModel';
+import Report from './reportModel';
+import AuditLog from './auditLogModel';
 
 /**
  * Central place where every model relationship is declared.
@@ -108,4 +118,61 @@ export const defineAssociations = (sequelize: Sequelize): void => {
   Interview.belongsTo(Application, { foreignKey: 'application_id', as: 'application' });
   Interview.belongsTo(User, { foreignKey: 'scheduled_by', as: 'scheduler' });
   User.hasMany(Interview, { foreignKey: 'scheduled_by', as: 'scheduled_interviews' });
+
+  // ---- JobseekerProfile ↔ Education / WorkExperience / Resume (1:N) ---
+  JobseekerProfile.hasMany(Education, { foreignKey: 'jobseeker_id', as: 'educations' });
+  Education.belongsTo(JobseekerProfile, { foreignKey: 'jobseeker_id', as: 'jobseeker_profile' });
+
+  JobseekerProfile.hasMany(WorkExperience, { foreignKey: 'jobseeker_id', as: 'work_experiences' });
+  WorkExperience.belongsTo(JobseekerProfile, {
+    foreignKey: 'jobseeker_id',
+    as: 'jobseeker_profile',
+  });
+
+  JobseekerProfile.hasMany(Resume, { foreignKey: 'jobseeker_id', as: 'resumes' });
+  Resume.belongsTo(JobseekerProfile, { foreignKey: 'jobseeker_id', as: 'jobseeker_profile' });
+
+  // ---- JobCategory (self-referential hierarchy) -----------------------
+  JobCategory.belongsTo(JobCategory, { foreignKey: 'parent_id', as: 'parent' });
+  JobCategory.hasMany(JobCategory, { foreignKey: 'parent_id', as: 'children' });
+
+  // ---- Job ↔ Category / Industry / Location ---------------------------
+  Job.belongsTo(JobCategory, { foreignKey: 'category_id', as: 'category' });
+  JobCategory.hasMany(Job, { foreignKey: 'category_id', as: 'jobs' });
+
+  Job.belongsTo(Industry, { foreignKey: 'industry_id', as: 'industry' });
+  Industry.hasMany(Job, { foreignKey: 'industry_id', as: 'jobs' });
+
+  Job.belongsTo(Location, { foreignKey: 'location_id', as: 'job_location' });
+  Location.hasMany(Job, { foreignKey: 'location_id', as: 'jobs' });
+
+  // ---- Company ↔ Industry ---------------------------------------------
+  // NOTE: alias is `company_industry` because Company already has a legacy
+  // `industry` string column that would collide with an `industry` alias.
+  Company.belongsTo(Industry, { foreignKey: 'industry_id', as: 'company_industry' });
+  Industry.hasMany(Company, { foreignKey: 'industry_id', as: 'companies' });
+
+  // ---- Company ↔ CompanyVerification (1:N, append-only history) --------
+  Company.hasMany(CompanyVerification, { foreignKey: 'company_id', as: 'verifications' });
+  CompanyVerification.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+  CompanyVerification.belongsTo(User, { foreignKey: 'submitted_by', as: 'submitter' });
+  CompanyVerification.belongsTo(User, { foreignKey: 'reviewed_by', as: 'reviewer' });
+  User.hasMany(CompanyVerification, { foreignKey: 'submitted_by', as: 'submitted_verifications' });
+  User.hasMany(CompanyVerification, { foreignKey: 'reviewed_by', as: 'reviewed_verifications' });
+
+  // ---- Job ↔ JobModeration (1:N, append-only) -------------------------
+  Job.hasMany(JobModeration, { foreignKey: 'job_id', as: 'moderations' });
+  JobModeration.belongsTo(Job, { foreignKey: 'job_id', as: 'job' });
+  JobModeration.belongsTo(User, { foreignKey: 'reviewed_by', as: 'reviewer' });
+  User.hasMany(JobModeration, { foreignKey: 'reviewed_by', as: 'moderated_jobs' });
+
+  // ---- Report (polymorphic target, reported_by/resolved_by users) ------
+  Report.belongsTo(User, { foreignKey: 'reported_by', as: 'reporter' });
+  Report.belongsTo(User, { foreignKey: 'resolved_by', as: 'resolver' });
+  User.hasMany(Report, { foreignKey: 'reported_by', as: 'filed_reports' });
+  User.hasMany(Report, { foreignKey: 'resolved_by', as: 'resolved_reports' });
+
+  // ---- AuditLog (user nullable for system actions) ---------------------
+  AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+  User.hasMany(AuditLog, { foreignKey: 'user_id', as: 'audit_logs' });
 };

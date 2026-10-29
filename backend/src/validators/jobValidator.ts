@@ -20,6 +20,9 @@ const createJobBaseSchema = z.object({
   experience_requirement: z.string().trim().max(1000).optional().nullable(),
   location: z.string().trim().max(255).optional().nullable(),
   application_deadline: z.coerce.date().optional().nullable(),
+  category_id: z.string().uuid().optional().nullable(),
+  industry_id: z.string().uuid().optional().nullable(),
+  location_id: z.string().uuid().optional().nullable(),
 });
 
 // Base object (before cross-field refinement) — used to derive the update schema.
@@ -63,6 +66,9 @@ export const jobSearchQuerySchema = z.object({
   salary_min: z.coerce.number().min(0).optional(),
   salary_max: z.coerce.number().min(0).optional(),
   status: z.nativeEnum(JobStatus).optional(),
+  category_id: z.string().uuid().optional(),
+  industry_id: z.string().uuid().optional(),
+  location_id: z.string().uuid().optional(),
   page: z.coerce.number().int().min(1).optional(),
   perPage: z.coerce.number().int().min(1).max(100).optional(),
 });
