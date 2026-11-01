@@ -19,3 +19,8 @@ export { default as companyVerificationRepository } from './companyVerificationR
 export { default as jobModerationRepository } from './jobModerationRepository';
 export { default as reportRepository } from './reportRepository';
 export { default as auditLogRepository } from './auditLogRepository';
+export { default as savedJobRepository } from './savedJobRepository';
+export { default as jobAlertRepository } from './jobAlertRepository';
+export { default as notificationRepository } from './notificationRepository';
+export { default as talentRosterRepository } from './talentRosterRepository';
+export { default as talentRosterMemberRepository } from './talentRosterMemberRepository';

@@ -15,3 +15,7 @@ export * from './companyVerificationValidator';
 export * from './jobModerationValidator';
 export * from './reportValidator';
 export * from './auditLogValidator';
+export * from './savedJobValidator';
+export * from './jobAlertValidator';
+export * from './notificationValidator';
+export * from './talentRosterValidator';

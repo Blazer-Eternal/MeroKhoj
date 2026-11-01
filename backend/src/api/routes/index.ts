@@ -18,6 +18,10 @@ import companyVerificationRoutes from './companyVerificationRoutes';
 import jobModerationRoutes from './jobModerationRoutes';
 import reportRoutes from './reportRoutes';
 import auditLogRoutes from './auditLogRoutes';
+import savedJobRoutes from './savedJobRoutes';
+import jobAlertRoutes from './jobAlertRoutes';
+import notificationRoutes from './notificationRoutes';
+import talentRosterRoutes from './talentRosterRoutes';
 
 /**
  * Central route hub mounted under /api.
@@ -43,5 +47,9 @@ router.use('/admin/verifications', companyVerificationRoutes);
 router.use('/admin/moderation', jobModerationRoutes);
 router.use('/reports', reportRoutes);
 router.use('/audit-logs', auditLogRoutes);
+router.use('/saved-jobs', savedJobRoutes);
+router.use('/job-alerts', jobAlertRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/', talentRosterRoutes);
 
 export default router;

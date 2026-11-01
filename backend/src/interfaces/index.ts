@@ -17,3 +17,8 @@ export * from './companyVerificationInterface';
 export * from './jobModerationInterface';
 export * from './reportInterface';
 export * from './auditLogInterface';
+export * from './savedJobInterface';
+export * from './jobAlertInterface';
+export * from './notificationInterface';
+export * from './talentRosterInterface';
+export * from './talentRosterMemberInterface';

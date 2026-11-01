@@ -27,6 +27,11 @@ import { initCompanyVerificationModel, default as CompanyVerification } from './
 import { initJobModerationModel, default as JobModeration } from './jobModerationModel';
 import { initReportModel, default as Report } from './reportModel';
 import { initAuditLogModel, default as AuditLog } from './auditLogModel';
+import { initSavedJobModel, default as SavedJob } from './savedJobModel';
+import { initJobAlertModel, default as JobAlert } from './jobAlertModel';
+import { initNotificationModel, default as Notification } from './notificationModel';
+import { initTalentRosterModel, default as TalentRoster } from './talentRosterModel';
+import { initTalentRosterMemberModel, default as TalentRosterMember } from './talentRosterMemberModel';
 
 import { defineAssociations } from './associations';
 
@@ -53,6 +58,11 @@ export {
   JobModeration,
   Report,
   AuditLog,
+  SavedJob,
+  JobAlert,
+  Notification,
+  TalentRoster,
+  TalentRosterMember,
 };
 
 /** A mapping of every model keyed by its Sequelize modelName. */
@@ -79,6 +89,11 @@ export interface DBModels {
   JobModeration: typeof JobModeration;
   Report: typeof Report;
   AuditLog: typeof AuditLog;
+  SavedJob: typeof SavedJob;
+  JobAlert: typeof JobAlert;
+  Notification: typeof Notification;
+  TalentRoster: typeof TalentRoster;
+  TalentRosterMember: typeof TalentRosterMember;
 }
 
 /**
@@ -108,6 +123,11 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
   initJobModerationModel(sequelize);
   initReportModel(sequelize);
   initAuditLogModel(sequelize);
+  initSavedJobModel(sequelize);
+  initJobAlertModel(sequelize);
+  initNotificationModel(sequelize);
+  initTalentRosterModel(sequelize);
+  initTalentRosterMemberModel(sequelize);
 
   defineAssociations(sequelize);
 
@@ -134,6 +154,11 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
     JobModeration,
     Report,
     AuditLog,
+    SavedJob,
+    JobAlert,
+    Notification,
+    TalentRoster,
+    TalentRosterMember,
   };
 };
 

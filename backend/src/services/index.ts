@@ -18,3 +18,7 @@ export { default as auditLogServices } from './auditLogServices';
 export { default as companyVerificationServices } from './companyVerificationServices';
 export { default as jobModerationServices } from './jobModerationServices';
 export { default as reportServices } from './reportServices';
+export { default as savedJobServices } from './savedJobServices';
+export { default as jobAlertServices } from './jobAlertServices';
+export { default as notificationServices } from './notificationServices';
+export { default as talentRosterServices } from './talentRosterServices';

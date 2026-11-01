@@ -15,3 +15,7 @@ export { default as companyVerificationControllers } from './companyVerification
 export { default as jobModerationControllers } from './jobModerationControllers';
 export { default as reportControllers } from './reportControllers';
 export { default as auditLogControllers } from './auditLogControllers';
+export { default as savedJobControllers } from './savedJobControllers';
+export { default as jobAlertControllers } from './jobAlertControllers';
+export { default as notificationControllers } from './notificationControllers';
+export { default as talentRosterControllers } from './talentRosterControllers';

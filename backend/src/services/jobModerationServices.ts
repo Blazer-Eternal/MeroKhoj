@@ -1,5 +1,5 @@
 import { AppError } from '../utils';
-import { IJobModeration, IJobModerationCreation, IAuthUser } from '../interfaces';
+import { IJobModeration, IAuthUser } from '../interfaces';
 import {
   ModerationAction,
   MODERATION_JOB_STATUS,

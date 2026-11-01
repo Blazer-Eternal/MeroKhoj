@@ -19,3 +19,5 @@ export * from './skillStatusEnum';
 export * from './catalogStatusEnum';
 export * from './moderationActionEnum';
 export * from './reportStatusEnum';
+export * from './notificationTypeEnum';
+export * from './jobAlertFrequencyEnum';

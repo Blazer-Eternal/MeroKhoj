@@ -1,4 +1,3 @@
-import { Op } from 'sequelize';
 import AuditLog from '../models/auditLogModel';
 import { IAuditLog, IAuditLogCreation, IAuditLogQuery } from '../interfaces';
 import { plain } from '../utils';

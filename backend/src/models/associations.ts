@@ -22,6 +22,11 @@ import CompanyVerification from './companyVerificationModel';
 import JobModeration from './jobModerationModel';
 import Report from './reportModel';
 import AuditLog from './auditLogModel';
+import SavedJob from './savedJobModel';
+import JobAlert from './jobAlertModel';
+import Notification from './notificationModel';
+import TalentRoster from './talentRosterModel';
+import TalentRosterMember from './talentRosterMemberModel';
 
 /**
  * Central place where every model relationship is declared.
@@ -175,4 +180,40 @@ export const defineAssociations = (sequelize: Sequelize): void => {
   // ---- AuditLog (user nullable for system actions) ---------------------
   AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
   User.hasMany(AuditLog, { foreignKey: 'user_id', as: 'audit_logs' });
+
+  // ---- User ↔ SavedJob ↔ Job (bookmark) -------------------------------
+  User.hasMany(SavedJob, { foreignKey: 'user_id', as: 'saved_jobs' });
+  SavedJob.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+  SavedJob.belongsTo(Job, { foreignKey: 'job_id', as: 'job' });
+  Job.hasMany(SavedJob, { foreignKey: 'job_id', as: 'saved_by_users' });
+
+  // ---- User ↔ JobAlert (saved search) ---------------------------------
+  User.hasMany(JobAlert, { foreignKey: 'user_id', as: 'job_alerts' });
+  JobAlert.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+  JobAlert.belongsTo(JobCategory, { foreignKey: 'category_id', as: 'alert_category' });
+  JobAlert.belongsTo(Location, { foreignKey: 'location_id', as: 'alert_location' });
+
+  // ---- User ↔ Notification (in-app inbox) -----------------------------
+  User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
+  Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+  // ---- Company ↔ TalentRoster ↔ JobseekerProfile ----------------------
+  Company.hasMany(TalentRoster, { foreignKey: 'company_id', as: 'talent_rosters' });
+  TalentRoster.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+  TalentRoster.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+  User.hasMany(TalentRoster, { foreignKey: 'created_by', as: 'created_rosters' });
+
+  TalentRoster.hasMany(TalentRosterMember, { foreignKey: 'roster_id', as: 'members' });
+  TalentRosterMember.belongsTo(TalentRoster, { foreignKey: 'roster_id', as: 'roster' });
+  TalentRosterMember.belongsTo(JobseekerProfile, {
+    foreignKey: 'jobseeker_id',
+    as: 'jobseeker_profile',
+  });
+  TalentRosterMember.belongsTo(User, { foreignKey: 'added_by', as: 'adder' });
+  User.hasMany(TalentRosterMember, { foreignKey: 'added_by', as: 'added_roster_members' });
+  // Reverse lookup: which rosters is this jobseeker on?
+  JobseekerProfile.hasMany(TalentRosterMember, {
+    foreignKey: 'jobseeker_id',
+    as: 'roster_memberships',
+  });
 };
