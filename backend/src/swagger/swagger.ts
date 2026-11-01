@@ -1,34 +1,51 @@
 import swaggerUi from 'swagger-ui-express';
 import { env } from '../config';
 
+import { securitySchemes, parameters, schemas, responses } from './components';
+import authPaths from './paths/authPaths';
+import jobPaths from './paths/jobPaths';
+import companyPaths from './paths/companyPaths';
+import applicationPaths from './paths/applicationPaths';
+import profilePaths from './paths/profilePaths';
+import taxonomyPaths from './paths/taxonomyPaths';
+import moderationPaths from './paths/moderationPaths';
+import jobseekerPaths from './paths/jobseekerPaths';
+import talentPaths from './paths/talentPaths';
+
 /**
- * Minimal OpenAPI 3 spec for MeroKhoj.
- * Expanded over time; kept inline so there's no build step for docs.
+ * OpenAPI 3 spec for MeroKhoj, assembled from per-domain path modules.
+ * Kept in code (no build step) so docs ship with the API.
  */
 export const swaggerSpec = {
   openapi: '3.0.3',
   info: {
     title: 'MeroKhoj API',
-    version: '1.0.0',
+    version: '1.1.0',
     description:
-      "MeroKhoj:Find what's yours. API for the MeroKhoj job portal. " +
-      '"Khoj" is a function, not a channel: seekers discover jobs, employers discover talent.',
+      "MeroKhoj: Find what's yours. API for the MeroKhoj job portal. " +
+      '"Khoj" is a function, not a channel: seekers discover jobs, employers discover talent.\n\n' +
+      'All endpoints return `{ success, data }` on success and ' +
+      '`{ success: false, error: { code, message } }` on failure.',
     contact: { name: 'MeroKhoj' },
   },
-  servers: [
-    { url: `http://localhost:${env.app.port}/api`, description: 'Local' },
-  ],
+  servers: [{ url: `http://localhost:${env.app.port}/api`, description: 'Local' }],
   components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-    },
+    securitySchemes,
+    parameters,
+    schemas,
+    responses,
   },
   security: [{ bearerAuth: [] }],
   paths: {
+    ...authPaths,
+    ...jobPaths,
+    ...companyPaths,
+    ...applicationPaths,
+    ...profilePaths,
+    ...taxonomyPaths,
+    ...moderationPaths,
+    ...jobseekerPaths,
+    ...talentPaths,
     '/health': {
       get: {
         tags: ['System'],
@@ -37,74 +54,26 @@ export const swaggerSpec = {
         responses: { '200': { description: 'Service healthy' } },
       },
     },
-    '/auth/register': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Register a new account',
-        security: [],
-        responses: { '201': { description: 'Account created' } },
-      },
-    },
-    '/auth/login': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Authenticate and obtain tokens',
-        security: [],
-        responses: { '200': { description: 'Tokens issued' } },
-      },
-    },
-    '/auth/refresh': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Exchange a refresh token for a new token pair',
-        security: [],
-        responses: { '200': { description: 'New tokens issued' } },
-      },
-    },
-    '/auth/me': {
-      get: {
-        tags: ['Auth'],
-        summary: 'Current authenticated user',
-        responses: { '200': { description: 'User + roles' } },
-      },
-    },
-    '/jobs': {
-      get: {
-        tags: ['Jobs'],
-        summary: 'Search published jobs',
-        security: [],
-        responses: { '200': { description: 'Paginated jobs' } },
-      },
-      post: {
-        tags: ['Jobs'],
-        summary: 'Create a job (employer)',
-        responses: { '201': { description: 'Job created as DRAFT' } },
-      },
-    },
-    '/jobs/{id}': {
-      get: {
-        tags: ['Jobs'],
-        summary: 'Get a job by id',
-        security: [],
-        parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        ],
-        responses: { '200': { description: 'Job' } },
-      },
-    },
-    '/applications': {
-      get: {
-        tags: ['Applications'],
-        summary: 'My applications (jobseeker)',
-        responses: { '200': { description: 'Paginated applications' } },
-      },
-    },
   },
   tags: [
     { name: 'System', description: 'Health and metadata' },
     { name: 'Auth', description: 'Registration, login, tokens' },
+    { name: 'Users', description: 'Account and jobseeker profile' },
     { name: 'Jobs', description: 'Job postings and search' },
+    { name: 'Skills', description: 'Skill catalog' },
+    { name: 'Companies', description: 'Company profiles and members' },
     { name: 'Applications', description: 'The recruitment pipeline' },
+    { name: 'Interviews', description: 'Interview scheduling' },
+    { name: 'Profile', description: 'Educations, experience, resumes' },
+    { name: 'Taxonomy', description: 'Categories, industries, locations' },
+    { name: 'Verification', description: 'Company verification workflow' },
+    { name: 'Moderation', description: 'Job moderation (admin)' },
+    { name: 'Reports', description: 'User/company/job reports' },
+    { name: 'Audit', description: 'Immutable audit trail (admin)' },
+    { name: 'Saved Jobs', description: 'Jobseeker bookmarks' },
+    { name: 'Job Alerts', description: 'Saved searches with dispatch' },
+    { name: 'Notifications', description: 'In-app inbox' },
+    { name: 'Talent', description: 'Company talent rosters' },
   ],
 } as const;
 

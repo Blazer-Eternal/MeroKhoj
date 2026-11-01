@@ -67,6 +67,8 @@ export const env = {
     tagline: "Find what's yours",
     port: optionalInt('PORT', 5000),
     apiVersion: optional('API_VERSION', 'v1'),
+    // How often (in minutes) the in-process job-alert worker runs.
+    alertDispatchIntervalMinutes: optionalInt('ALERT_DISPATCH_INTERVAL_MINUTES', 15),
   },
 
   db: {

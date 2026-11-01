@@ -18,11 +18,12 @@
 - [x] 32 audit_logs (append-only; admin list; helper used by later phases)
 
 ## Phase 3: Jobseeker & talent management (24–28)
-- [ ] 24 saved_jobs (unique; PUBLISHED only)
-- [ ] 25 job_alerts (+ worker service; setInterval scheduler in server.ts)
-- [ ] 26 notifications (read_at; index user_id+is_read+created_at; create helper)
-- [ ] 27 talent_rosters (company isolation)
-- [ ] 28 talent_roster_members (unique; visibility checks)
+- [x] 24 saved_jobs (unique; PUBLISHED only)
+- [x] 25 job_alerts (+ worker service; setInterval scheduler in server.ts)
+- [x] 26 notifications (read_at; index user_id+is_read+created_at; create helper)
+- [x] 27 talent_rosters (company isolation)
+- [x] 28 talent_roster_members (unique; visibility checks)
+- [x] Swagger spec expanded to cover Phases 1–3 endpoints
 
 ## Phase 4: Screening, applications & hiring (19–23)
 - [ ] 19 job_questions (type↔options rules; locked once applications exist)
