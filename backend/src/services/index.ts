@@ -22,3 +22,7 @@ export { default as savedJobServices } from './savedJobServices';
 export { default as jobAlertServices } from './jobAlertServices';
 export { default as notificationServices } from './notificationServices';
 export { default as talentRosterServices } from './talentRosterServices';
+export { default as jobQuestionServices } from './jobQuestionServices';
+export { default as applicationAnswerServices } from './applicationAnswerServices';
+export { default as interviewFeedbackServices } from './interviewFeedbackServices';
+export { default as hiringDecisionServices } from './hiringDecisionServices';

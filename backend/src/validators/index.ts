@@ -19,3 +19,7 @@ export * from './savedJobValidator';
 export * from './jobAlertValidator';
 export * from './notificationValidator';
 export * from './talentRosterValidator';
+export * from './jobQuestionValidator';
+export * from './applicationAnswerValidator';
+export * from './interviewFeedbackValidator';
+export * from './hiringDecisionValidator';

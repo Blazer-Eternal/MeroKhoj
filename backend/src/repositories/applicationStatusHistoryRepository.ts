@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import ApplicationStatusHistory from '../models/applicationStatusHistoryModel';
 import {
   IApplicationStatusHistory,
@@ -14,8 +15,11 @@ import { plain } from '../utils';
 class ApplicationStatusHistoryRepository {
   async create(
     payload: IApplicationStatusHistoryCreation,
+    options?: { transaction?: Transaction },
   ): Promise<IApplicationStatusHistory> {
-    const row = await ApplicationStatusHistory.create(payload);
+    const row = await ApplicationStatusHistory.create(payload, {
+      transaction: options?.transaction,
+    });
     return plain(row) as IApplicationStatusHistory;
   }
 

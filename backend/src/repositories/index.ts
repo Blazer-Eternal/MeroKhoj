@@ -24,3 +24,8 @@ export { default as jobAlertRepository } from './jobAlertRepository';
 export { default as notificationRepository } from './notificationRepository';
 export { default as talentRosterRepository } from './talentRosterRepository';
 export { default as talentRosterMemberRepository } from './talentRosterMemberRepository';
+export { default as jobQuestionRepository } from './jobQuestionRepository';
+export { default as questionOptionRepository } from './questionOptionRepository';
+export { default as applicationAnswerRepository } from './applicationAnswerRepository';
+export { default as interviewFeedbackRepository } from './interviewFeedbackRepository';
+export { default as hiringDecisionRepository } from './hiringDecisionRepository';

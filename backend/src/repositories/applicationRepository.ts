@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import Application from '../models/applicationModel';
 import Job from '../models/jobModel';
 import User from '../models/userModel';
@@ -47,10 +47,14 @@ class ApplicationRepository {
     return plain(app) as IApplication;
   }
 
-  async update(id: string, updates: Partial<IApplication>): Promise<IApplication | null> {
-    const app = await Application.findByPk(id);
+  async update(
+    id: string,
+    updates: Partial<IApplication>,
+    options?: { transaction?: Transaction },
+  ): Promise<IApplication | null> {
+    const app = await Application.findByPk(id, { transaction: options?.transaction });
     if (!app) return null;
-    await app.update(updates);
+    await app.update(updates, { transaction: options?.transaction });
     return plain(app) as IApplication;
   }
 
