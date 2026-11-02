@@ -2,41 +2,41 @@ import { Sequelize } from 'sequelize';
 
 import { getSequelize } from '../config';
 
-import { initUserModel, default as User } from './userModel';
-import { initRoleModel, default as Role } from './roleModel';
-import { initUserRoleModel, default as UserRole } from './userRoleModel';
-import { initJobseekerProfileModel, default as JobseekerProfile } from './jobseekerProfileModel';
-import { initCompanyModel, default as Company } from './companyModel';
-import { initCompanyMemberModel, default as CompanyMember } from './companyMemberModel';
-import { initJobModel, default as Job } from './jobModel';
-import { initSkillModel, default as Skill } from './skillModel';
-import { initJobSkillModel, default as JobSkill } from './jobSkillModel';
-import { initApplicationModel, default as Application } from './applicationModel';
+import { initUserModel, default as User } from './user/userModel';
+import { initRoleModel, default as Role } from './administration/roleModel';
+import { initUserRoleModel, default as UserRole } from './administration/userRoleModel';
+import { initJobseekerProfileModel, default as JobseekerProfile } from './jobseeker/jobseekerProfileModel';
+import { initCompanyModel, default as Company } from './company/companyModel';
+import { initCompanyMemberModel, default as CompanyMember } from './company/companyMemberModel';
+import { initJobModel, default as Job } from './job/jobModel';
+import { initSkillModel, default as Skill } from './job/skillModel';
+import { initJobSkillModel, default as JobSkill } from './job/jobSkillModel';
+import { initApplicationModel, default as Application } from './application/applicationModel';
 import {
   initApplicationStatusHistoryModel,
   default as ApplicationStatusHistory,
-} from './applicationStatusHistoryModel';
-import { initInterviewModel, default as Interview } from './interviewModel';
-import { initEducationModel, default as Education } from './educationModel';
-import { initWorkExperienceModel, default as WorkExperience } from './workExperienceModel';
-import { initResumeModel, default as Resume } from './resumeModel';
-import { initJobCategoryModel, default as JobCategory } from './jobCategoryModel';
-import { initIndustryModel, default as Industry } from './industryModel';
-import { initLocationModel, default as Location } from './locationModel';
-import { initCompanyVerificationModel, default as CompanyVerification } from './companyVerificationModel';
-import { initJobModerationModel, default as JobModeration } from './jobModerationModel';
-import { initReportModel, default as Report } from './reportModel';
-import { initAuditLogModel, default as AuditLog } from './auditLogModel';
-import { initSavedJobModel, default as SavedJob } from './savedJobModel';
-import { initJobAlertModel, default as JobAlert } from './jobAlertModel';
-import { initNotificationModel, default as Notification } from './notificationModel';
-import { initTalentRosterModel, default as TalentRoster } from './talentRosterModel';
-import { initTalentRosterMemberModel, default as TalentRosterMember } from './talentRosterMemberModel';
-import { initJobQuestionModel, default as JobQuestion } from './jobQuestionModel';
-import { initQuestionOptionModel, default as QuestionOption } from './questionOptionModel';
-import { initApplicationAnswerModel, default as ApplicationAnswer } from './applicationAnswerModel';
-import { initInterviewFeedbackModel, default as InterviewFeedback } from './interviewFeedbackModel';
-import { initHiringDecisionModel, default as HiringDecision } from './hiringDecisionModel';
+} from './application/applicationStatusHistoryModel';
+import { initInterviewModel, default as Interview } from './interview/interviewModel';
+import { initEducationModel, default as Education } from './jobseeker/educationModel';
+import { initWorkExperienceModel, default as WorkExperience } from './jobseeker/workExperienceModel';
+import { initResumeModel, default as Resume } from './jobseeker/resumeModel';
+import { initJobCategoryModel, default as JobCategory } from './job/jobCategoryModel';
+import { initIndustryModel, default as Industry } from './job/industryModel';
+import { initLocationModel, default as Location } from './job/locationModel';
+import { initCompanyVerificationModel, default as CompanyVerification } from './company/companyVerificationModel';
+import { initJobModerationModel, default as JobModeration } from './administration/jobModerationModel';
+import { initReportModel, default as Report } from './administration/reportModel';
+import { initAuditLogModel, default as AuditLog } from './administration/auditLogModel';
+import { initSavedJobModel, default as SavedJob } from './notification/savedJobModel';
+import { initJobAlertModel, default as JobAlert } from './notification/jobAlertModel';
+import { initNotificationModel, default as Notification } from './notification/notificationModel';
+import { initTalentRosterModel, default as TalentRoster } from './talent/talentRosterModel';
+import { initTalentRosterMemberModel, default as TalentRosterMember } from './talent/talentRosterMemberModel';
+import { initJobQuestionModel, default as JobQuestion } from './job/jobQuestionModel';
+import { initQuestionOptionModel, default as QuestionOption } from './job/questionOptionModel';
+import { initApplicationAnswerModel, default as ApplicationAnswer } from './application/applicationAnswerModel';
+import { initInterviewFeedbackModel, default as InterviewFeedback } from './interview/interviewFeedbackModel';
+import { initHiringDecisionModel, default as HiringDecision } from './hiring/hiringDecisionModel';
 
 import { defineAssociations } from './associations';
 

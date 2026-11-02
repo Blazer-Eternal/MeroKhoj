@@ -1,31 +1,27 @@
 import { Router } from 'express';
 
 import healthRoutes from './healthRoutes';
-import authRoutes from './authRoutes';
-import userRoutes from './userRoutes';
-import companyRoutes from './companyRoutes';
-import jobRoutes from './jobRoutes';
-import skillRoutes from './skillRoutes';
-import applicationRoutes from './applicationRoutes';
-import interviewRoutes from './interviewRoutes';
-import educationRoutes from './educationRoutes';
-import workExperienceRoutes from './workExperienceRoutes';
-import resumeRoutes from './resumeRoutes';
-import jobCategoryRoutes from './jobCategoryRoutes';
-import industryRoutes from './industryRoutes';
-import locationRoutes from './locationRoutes';
-import companyVerificationRoutes from './companyVerificationRoutes';
-import jobModerationRoutes from './jobModerationRoutes';
-import reportRoutes from './reportRoutes';
-import auditLogRoutes from './auditLogRoutes';
-import savedJobRoutes from './savedJobRoutes';
-import jobAlertRoutes from './jobAlertRoutes';
-import notificationRoutes from './notificationRoutes';
-import talentRosterRoutes from './talentRosterRoutes';
+import { authRoutes, userRoutes } from './user';
+import { educationRoutes, workExperienceRoutes, resumeRoutes } from './jobseeker';
+import { companyRoutes, companyVerificationRoutes } from './company';
+import {
+  jobRoutes,
+  jobCategoryRoutes,
+  industryRoutes,
+  locationRoutes,
+  skillRoutes,
+} from './job';
+import { applicationRoutes } from './application';
+import { interviewRoutes } from './interview';
+import { talentRosterRoutes } from './talent';
+import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
+import { jobModerationRoutes, reportRoutes, auditLogRoutes } from './administration';
 
 /**
  * Central route hub mounted under /api.
  * Every domain router is namespaced here so app.ts stays a single line.
+ *
+ * Mount paths are decided ONLY in this file (STRUCTURE.md §6.5).
  */
 const router = Router();
 
