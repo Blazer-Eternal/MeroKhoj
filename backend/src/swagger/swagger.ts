@@ -20,7 +20,7 @@ export const swaggerSpec = {
   openapi: '3.0.3',
   info: {
     title: 'MeroKhoj API',
-    version: '1.1.0',
+    version: '1.2.0',
     description:
       "MeroKhoj: Find what's yours. API for the MeroKhoj job portal. " +
       '"Khoj" is a function, not a channel: seekers discover jobs, employers discover talent.\n\n' +
@@ -60,10 +60,12 @@ export const swaggerSpec = {
     { name: 'Auth', description: 'Registration, login, tokens' },
     { name: 'Users', description: 'Account and jobseeker profile' },
     { name: 'Jobs', description: 'Job postings and search' },
+    { name: 'Questions', description: 'Job screening questions' },
     { name: 'Skills', description: 'Skill catalog' },
     { name: 'Companies', description: 'Company profiles and members' },
     { name: 'Applications', description: 'The recruitment pipeline' },
     { name: 'Interviews', description: 'Interview scheduling' },
+    { name: 'Hiring', description: 'Hiring decisions on applications' },
     { name: 'Profile', description: 'Educations, experience, resumes' },
     { name: 'Taxonomy', description: 'Categories, industries, locations' },
     { name: 'Verification', description: 'Company verification workflow' },

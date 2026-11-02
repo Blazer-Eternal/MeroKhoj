@@ -10,9 +10,11 @@ import {
   industryRoutes,
   locationRoutes,
   skillRoutes,
+  questionsRoutes,
 } from './job';
-import { applicationRoutes } from './application';
-import { interviewRoutes } from './interview';
+import { applicationRoutes, answersRoutes } from './application';
+import { interviewRoutes, feedbackRoutes } from './interview';
+import { hiringDecisionRoutes } from './hiring';
 import { talentRosterRoutes } from './talent';
 import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
 import { jobModerationRoutes, reportRoutes, auditLogRoutes } from './administration';
@@ -30,9 +32,16 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/companies', companyRoutes);
 router.use('/jobs', jobRoutes);
+// Questions router spans /jobs/:jobId/questions + /questions/:id, so it mounts
+// at '/'. Must stay BEFORE talentRosterRoutes (also at '/'), which 401s every
+// unmatched path behind its root auth guard.
+router.use('/', questionsRoutes);
 router.use('/skills', skillRoutes);
 router.use('/applications', applicationRoutes);
+router.use('/applications', answersRoutes);
+router.use('/applications', hiringDecisionRoutes);
 router.use('/interviews', interviewRoutes);
+router.use('/interviews', feedbackRoutes);
 router.use('/', educationRoutes);
 router.use('/', workExperienceRoutes);
 router.use('/', resumeRoutes);

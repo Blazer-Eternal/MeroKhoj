@@ -375,6 +375,100 @@ export const schemas = {
       ...{},
     },
   },
+  JobQuestion: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      job_id: { type: 'string', format: 'uuid' },
+      question_text: { type: 'string' },
+      question_type: {
+        type: 'string',
+        enum: ['SINGLE_CHOICE', 'MULTI_CHOICE', 'TEXT', 'NUMBER', 'DATE', 'BOOLEAN'],
+      },
+      is_required: { type: 'boolean' },
+      position: { type: 'integer' },
+      options: {
+        type: 'array',
+        items: { $ref: '#/components/schemas/QuestionOption' },
+        description:
+          'Present on list responses. Choice questions require at least one option; ' +
+          'TEXT/NUMBER/DATE/BOOLEAN must have none.',
+      },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+  },
+  QuestionOption: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      question_id: { type: 'string', format: 'uuid' },
+      option_text: { type: 'string' },
+      position: { type: 'integer' },
+    },
+  },
+  ApplicationAnswer: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      application_id: { type: 'string', format: 'uuid' },
+      question_id: { type: 'string', format: 'uuid' },
+      answer_text: { type: 'string', nullable: true },
+      answer_number: { type: 'number', nullable: true },
+      answer_boolean: { type: 'boolean', nullable: true },
+      answer_date: { type: 'string', format: 'date', nullable: true },
+      selected_option_id: { type: 'string', format: 'uuid', nullable: true },
+      selected_option_ids: {
+        type: 'array',
+        items: { type: 'string', format: 'uuid' },
+        nullable: true,
+      },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'Exactly one value column is populated, matching the question type: ' +
+      'TEXT→answer_text, NUMBER→answer_number, BOOLEAN→answer_boolean, ' +
+      'DATE→answer_date, SINGLE_CHOICE→selected_option_id, ' +
+      'MULTI_CHOICE→selected_option_ids.',
+  },
+  InterviewFeedback: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      interview_id: { type: 'string', format: 'uuid' },
+      reviewer_id: { type: 'string', format: 'uuid' },
+      communication_score: { type: 'integer', minimum: 1, maximum: 5, nullable: true },
+      technical_score: { type: 'integer', minimum: 1, maximum: 5, nullable: true },
+      cultural_fit_score: { type: 'integer', minimum: 1, maximum: 5, nullable: true },
+      overall_score: { type: 'integer', minimum: 1, maximum: 5, nullable: true },
+      strengths: { type: 'string', nullable: true },
+      weaknesses: { type: 'string', nullable: true },
+      comments: { type: 'string', nullable: true },
+      recommendation: { type: 'string', nullable: true },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description: 'One row per reviewer per interview (re-submitting upserts).',
+  },
+  HiringDecision: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      application_id: { type: 'string', format: 'uuid' },
+      decided_by: { type: 'string', format: 'uuid' },
+      outcome: { type: 'string', enum: ['HIRED', 'REJECTED', 'ON_HOLD', 'SHORTLISTED'] },
+      notes: { type: 'string', nullable: true },
+      decided_at: { type: 'string', format: 'date-time' },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'Exactly one current decision per application (unique constraint). POST also ' +
+      'moves the application status (HIRED→HIRED, REJECTED→REJECTED, ' +
+      'ON_HOLD→UNDER_REVIEW, SHORTLISTED→SHORTLISTED) in one transaction with ' +
+      'status history + audit trail.',
+  },
 };
 
 /** Reusable responses. */

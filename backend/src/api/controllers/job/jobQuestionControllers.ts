@@ -15,7 +15,7 @@ const ok = (res: Response, data: unknown, statusCode = 200) =>
 /** GET /api/jobs/:jobId/questions */
 export const listQuestions = asyncHandler(async (req: ICustomRequest, res: Response) => {
   const jobId = parseId(req.params.jobId);
-  const questions = await jobQuestionServices.listQuestions(req.user!, jobId);
+  const questions = await jobQuestionServices.listQuestions(req.user ?? null, jobId);
   return ok(res, { questions });
 });
 

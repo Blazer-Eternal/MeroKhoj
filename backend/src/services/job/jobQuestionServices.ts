@@ -89,7 +89,7 @@ const assertOptionsMatchType = (
 
 /** List a job's screening questions with their options. */
 export const listQuestions = async (
-  user: IAuthUser,
+  user: IAuthUser | null,
   jobId: string,
 ): Promise<(IJobQuestion & { options: IQuestionOption[] })[]> => {
   const job = await loadJobOrThrow(jobId);
@@ -97,6 +97,7 @@ export const listQuestions = async (
   // Public read for published jobs (jobseekers previewing the form);
   // otherwise only the managing company / admins may read the form.
   if (job.status !== JobStatus.PUBLISHED) {
+    if (!user) throw AppError.unauthorized('Authentication required');
     await assertCanManageQuestionJob(user, job);
   }
 

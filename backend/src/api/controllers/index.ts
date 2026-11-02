@@ -4,6 +4,7 @@ export * from './company';
 export * from './job';
 export * from './application';
 export * from './interview';
+export * from './hiring';
 export * from './talent';
 export * from './notification';
 export * from './payment';

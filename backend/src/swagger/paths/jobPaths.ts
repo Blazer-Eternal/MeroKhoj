@@ -81,6 +81,66 @@ export const jobPaths = {
       },
     },
   },
+  '/jobs/{jobId}/questions': {
+    parameters: [{ $ref: '#/components/parameters/JobId' }],
+    get: {
+      tags: ['Questions'],
+      summary: 'List screening questions with options',
+      description:
+        'Public for PUBLISHED jobs (jobseekers previewing the form); other statuses ' +
+        'require company management rights.',
+      security: [],
+      responses: { '200': { description: 'Questions (each with its options)' } },
+    },
+    post: {
+      tags: ['Questions'],
+      summary: 'Create a screening question (employer)',
+      responses: {
+        '201': { description: 'Question created' },
+        '409': { $ref: '#/components/responses/Conflict' },
+      },
+    },
+  },
+  '/questions/{id}': {
+    parameters: [{ $ref: '#/components/parameters/UuidId' }],
+    patch: {
+      tags: ['Questions'],
+      summary: 'Update a question (employer)',
+      description: 'Rejected once the job has applications, so submitted answers stay coherent.',
+      responses: {
+        '200': { description: 'Updated question' },
+        '409': { $ref: '#/components/responses/Conflict' },
+      },
+    },
+    delete: {
+      tags: ['Questions'],
+      summary: 'Delete a question (employer)',
+      description: 'Rejected once the job has applications.',
+      responses: {
+        '200': { description: 'Question deleted' },
+        '409': { $ref: '#/components/responses/Conflict' },
+      },
+    },
+  },
+  '/questions/{id}/options': {
+    parameters: [{ $ref: '#/components/parameters/UuidId' }],
+    get: {
+      tags: ['Questions'],
+      summary: 'List a question’s options (employer)',
+      responses: { '200': { description: 'Options' } },
+    },
+    put: {
+      tags: ['Questions'],
+      summary: 'Replace a question’s option set (employer)',
+      description:
+        'Choice questions must keep at least one option; TEXT/NUMBER/DATE/BOOLEAN ' +
+        'questions must end with none.',
+      responses: {
+        '200': { description: 'Options replaced' },
+        '409': { $ref: '#/components/responses/Conflict' },
+      },
+    },
+  },
   '/skills': {
     get: {
       tags: ['Skills'],
