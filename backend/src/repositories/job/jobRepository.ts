@@ -118,8 +118,14 @@ class JobRepository {
     };
   }
 
-  /** Count applications per status for a given job (funnel building block). */
-  async countByStatusForJob(jobId: string): Promise<Record<JobStatus, number>> {
+  /** How many of the company's jobs have ever been published (entitlement usage). */
+  async countPublishedByCompany(companyId: string): Promise<number> {
+    return Job.count({
+      where: { company_id: companyId, published_at: { [Op.ne]: null } },
+    });
+  }
+
+  /** Count applications per status for a given job (funnel building block). */  async countByStatusForJob(jobId: string): Promise<Record<JobStatus, number>> {
     const results = (await Job.sequelize?.query(
       `SELECT status, COUNT(*)::int AS count
        FROM applications

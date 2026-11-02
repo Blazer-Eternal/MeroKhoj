@@ -37,6 +37,10 @@ import { initQuestionOptionModel, default as QuestionOption } from './job/questi
 import { initApplicationAnswerModel, default as ApplicationAnswer } from './application/applicationAnswerModel';
 import { initInterviewFeedbackModel, default as InterviewFeedback } from './interview/interviewFeedbackModel';
 import { initHiringDecisionModel, default as HiringDecision } from './hiring/hiringDecisionModel';
+import { initServicePlanModel, default as ServicePlan } from './payment/servicePlanModel';
+import { initOrderModel, default as Order } from './payment/orderModel';
+import { initPaymentModel, default as Payment } from './payment/paymentModel';
+import { initInvoiceModel, default as Invoice } from './payment/invoiceModel';
 
 import { defineAssociations } from './associations';
 
@@ -73,6 +77,10 @@ export {
   ApplicationAnswer,
   InterviewFeedback,
   HiringDecision,
+  ServicePlan,
+  Order,
+  Payment,
+  Invoice,
 };
 
 /** A mapping of every model keyed by its Sequelize modelName. */
@@ -109,6 +117,10 @@ export interface DBModels {
   ApplicationAnswer: typeof ApplicationAnswer;
   InterviewFeedback: typeof InterviewFeedback;
   HiringDecision: typeof HiringDecision;
+  ServicePlan: typeof ServicePlan;
+  Order: typeof Order;
+  Payment: typeof Payment;
+  Invoice: typeof Invoice;
 }
 
 /**
@@ -148,6 +160,11 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
   initApplicationAnswerModel(sequelize);
   initInterviewFeedbackModel(sequelize);
   initHiringDecisionModel(sequelize);
+  // Billing models: ServicePlan must exist before Order references it.
+  initServicePlanModel(sequelize);
+  initOrderModel(sequelize);
+  initPaymentModel(sequelize);
+  initInvoiceModel(sequelize);
 
   defineAssociations(sequelize);
 
@@ -184,6 +201,10 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
     ApplicationAnswer,
     InterviewFeedback,
     HiringDecision,
+    ServicePlan,
+    Order,
+    Payment,
+    Invoice,
   };
 };
 

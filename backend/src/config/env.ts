@@ -117,6 +117,16 @@ export const env = {
     maxFileSizeMb: optionalInt('MAX_FILE_SIZE_MB', 5),
   },
 
+  payment: {
+    // HMAC-SHA256 secret for verifying provider webhook signatures.
+    // Empty = webhook endpoint fails closed (503) until configured.
+    webhookSecret: optional('PAYMENT_WEBHOOK_SECRET', ''),
+    // When true, a company needs an active paid plan entitlement
+    // (remaining job-posting allowance) before its first job publish.
+    // Default false: every verified company may publish freely.
+    billingRequired: optionalBool('COMPANY_BILLING_REQUIRED', false),
+  },
+
   pagination: {
     defaultPageSize: optionalInt('DEFAULT_PAGE_SIZE', 20),
     maxPageSize: optionalInt('MAX_PAGE_SIZE', 100),

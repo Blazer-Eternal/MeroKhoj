@@ -32,6 +32,10 @@ import QuestionOption from './job/questionOptionModel';
 import ApplicationAnswer from './application/applicationAnswerModel';
 import InterviewFeedback from './interview/interviewFeedbackModel';
 import HiringDecision from './hiring/hiringDecisionModel';
+import ServicePlan from './payment/servicePlanModel';
+import Order from './payment/orderModel';
+import Payment from './payment/paymentModel';
+import Invoice from './payment/invoiceModel';
 
 /**
  * Central place where every model relationship is declared.
@@ -268,4 +272,22 @@ export const defineAssociations = (sequelize: Sequelize): void => {
   });
   HiringDecision.belongsTo(User, { foreignKey: 'decided_by', as: 'decider' });
   User.hasMany(HiringDecision, { foreignKey: 'decided_by', as: 'decided_hires' });
+
+  // ---- Billing: ServicePlan ↔ Order ↔ Payment / Invoice ----------------
+  // Orders snapshot plan price/limits at creation; FKs are RESTRICT in the
+  // migrations so financial history survives plan/company/user deletes.
+  Company.hasMany(Order, { foreignKey: 'company_id', as: 'orders' });
+  Order.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+
+  ServicePlan.hasMany(Order, { foreignKey: 'service_plan_id', as: 'orders' });
+  Order.belongsTo(ServicePlan, { foreignKey: 'service_plan_id', as: 'service_plan' });
+
+  User.hasMany(Order, { foreignKey: 'created_by', as: 'created_orders' });
+  Order.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+
+  Order.hasMany(Payment, { foreignKey: 'order_id', as: 'payments' });
+  Payment.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
+
+  Order.hasMany(Invoice, { foreignKey: 'order_id', as: 'invoices' });
+  Invoice.belongsTo(Order, { foreignKey: 'order_id', as: 'order' });
 };

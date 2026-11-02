@@ -4,5 +4,6 @@ export * from './slugify';
 export * from './parseId';
 export * from './plain';
 export * from './pagination';
+export * from './money';
 // Re-export shared query shapes so services can import them from utils.
 export type { IPaginationQuery, IPaginationMeta, IPaginatedResult } from '../interfaces';

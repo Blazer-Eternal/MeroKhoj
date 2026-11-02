@@ -68,6 +68,16 @@ class CompanyMemberRepository {
       where: { company_id: companyId, role, status: CompanyMemberStatus.ACTIVE },
     });
   }
+
+  /** Company IDs where the user is an ACTIVE member (scoped listings). */
+  async listCompanyIdsByUser(userId: string): Promise<string[]> {
+    const rows = await CompanyMember.findAll({
+      attributes: ['company_id'],
+      where: { user_id: userId, status: CompanyMemberStatus.ACTIVE },
+      group: ['company_id'],
+    });
+    return rows.map((row) => row.company_id);
+  }
 }
 
 export default new CompanyMemberRepository();
