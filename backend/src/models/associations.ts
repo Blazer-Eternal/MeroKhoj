@@ -27,6 +27,11 @@ import JobAlert from './jobAlertModel';
 import Notification from './notificationModel';
 import TalentRoster from './talentRosterModel';
 import TalentRosterMember from './talentRosterMemberModel';
+import JobQuestion from './jobQuestionModel';
+import QuestionOption from './questionOptionModel';
+import ApplicationAnswer from './applicationAnswerModel';
+import InterviewFeedback from './interviewFeedbackModel';
+import HiringDecision from './hiringDecisionModel';
 
 /**
  * Central place where every model relationship is declared.
@@ -216,4 +221,51 @@ export const defineAssociations = (sequelize: Sequelize): void => {
     foreignKey: 'jobseeker_id',
     as: 'roster_memberships',
   });
+
+  // ---- Job ↔ JobQuestion ↔ QuestionOption (screening form) ------------
+  Job.hasMany(JobQuestion, { foreignKey: 'job_id', as: 'questions' });
+  JobQuestion.belongsTo(Job, { foreignKey: 'job_id', as: 'job' });
+
+  JobQuestion.hasMany(QuestionOption, {
+    foreignKey: 'question_id',
+    as: 'options',
+    onDelete: 'CASCADE',
+  });
+  QuestionOption.belongsTo(JobQuestion, { foreignKey: 'question_id', as: 'question' });
+
+  // ---- Application ↔ ApplicationAnswer --------------------------------
+  Application.hasMany(ApplicationAnswer, {
+    foreignKey: 'application_id',
+    as: 'answers',
+  });
+  ApplicationAnswer.belongsTo(Application, {
+    foreignKey: 'application_id',
+    as: 'application',
+  });
+  ApplicationAnswer.belongsTo(JobQuestion, { foreignKey: 'question_id', as: 'question' });
+  ApplicationAnswer.belongsTo(QuestionOption, {
+    foreignKey: 'selected_option_id',
+    as: 'selected_option',
+  });
+
+  // ---- Interview ↔ InterviewFeedback ----------------------------------
+  Interview.hasMany(InterviewFeedback, {
+    foreignKey: 'interview_id',
+    as: 'feedback',
+  });
+  InterviewFeedback.belongsTo(Interview, { foreignKey: 'interview_id', as: 'interview' });
+  InterviewFeedback.belongsTo(User, { foreignKey: 'reviewer_id', as: 'reviewer' });
+  User.hasMany(InterviewFeedback, { foreignKey: 'reviewer_id', as: 'given_feedback' });
+
+  // ---- Application ↔ HiringDecision (1:1) ------------------------------
+  Application.hasOne(HiringDecision, {
+    foreignKey: 'application_id',
+    as: 'hiring_decision',
+  });
+  HiringDecision.belongsTo(Application, {
+    foreignKey: 'application_id',
+    as: 'application',
+  });
+  HiringDecision.belongsTo(User, { foreignKey: 'decided_by', as: 'decider' });
+  User.hasMany(HiringDecision, { foreignKey: 'decided_by', as: 'decided_hires' });
 };

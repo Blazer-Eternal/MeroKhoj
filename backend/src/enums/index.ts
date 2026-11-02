@@ -21,3 +21,5 @@ export * from './moderationActionEnum';
 export * from './reportStatusEnum';
 export * from './notificationTypeEnum';
 export * from './jobAlertFrequencyEnum';
+export * from './questionTypeEnum';
+export * from './hiringDecisionOutcomeEnum';

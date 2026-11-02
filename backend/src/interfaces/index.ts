@@ -22,3 +22,8 @@ export * from './jobAlertInterface';
 export * from './notificationInterface';
 export * from './talentRosterInterface';
 export * from './talentRosterMemberInterface';
+export * from './jobQuestionInterface';
+export * from './questionOptionInterface';
+export * from './applicationAnswerInterface';
+export * from './interviewFeedbackInterface';
+export * from './hiringDecisionInterface';

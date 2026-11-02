@@ -32,6 +32,11 @@ import { initJobAlertModel, default as JobAlert } from './jobAlertModel';
 import { initNotificationModel, default as Notification } from './notificationModel';
 import { initTalentRosterModel, default as TalentRoster } from './talentRosterModel';
 import { initTalentRosterMemberModel, default as TalentRosterMember } from './talentRosterMemberModel';
+import { initJobQuestionModel, default as JobQuestion } from './jobQuestionModel';
+import { initQuestionOptionModel, default as QuestionOption } from './questionOptionModel';
+import { initApplicationAnswerModel, default as ApplicationAnswer } from './applicationAnswerModel';
+import { initInterviewFeedbackModel, default as InterviewFeedback } from './interviewFeedbackModel';
+import { initHiringDecisionModel, default as HiringDecision } from './hiringDecisionModel';
 
 import { defineAssociations } from './associations';
 
@@ -63,6 +68,11 @@ export {
   Notification,
   TalentRoster,
   TalentRosterMember,
+  JobQuestion,
+  QuestionOption,
+  ApplicationAnswer,
+  InterviewFeedback,
+  HiringDecision,
 };
 
 /** A mapping of every model keyed by its Sequelize modelName. */
@@ -94,6 +104,11 @@ export interface DBModels {
   Notification: typeof Notification;
   TalentRoster: typeof TalentRoster;
   TalentRosterMember: typeof TalentRosterMember;
+  JobQuestion: typeof JobQuestion;
+  QuestionOption: typeof QuestionOption;
+  ApplicationAnswer: typeof ApplicationAnswer;
+  InterviewFeedback: typeof InterviewFeedback;
+  HiringDecision: typeof HiringDecision;
 }
 
 /**
@@ -128,6 +143,11 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
   initNotificationModel(sequelize);
   initTalentRosterModel(sequelize);
   initTalentRosterMemberModel(sequelize);
+  initJobQuestionModel(sequelize);
+  initQuestionOptionModel(sequelize);
+  initApplicationAnswerModel(sequelize);
+  initInterviewFeedbackModel(sequelize);
+  initHiringDecisionModel(sequelize);
 
   defineAssociations(sequelize);
 
@@ -159,6 +179,11 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
     Notification,
     TalentRoster,
     TalentRosterMember,
+    JobQuestion,
+    QuestionOption,
+    ApplicationAnswer,
+    InterviewFeedback,
+    HiringDecision,
   };
 };
 
