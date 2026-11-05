@@ -1,9 +1,18 @@
-import { AppError, slugify, ensureUniqueSlug } from '../../utils';
-import { ICompany, ICompanyCreation, ICompanyUpdate } from '../../interfaces';
-import { CompanyRole, CompanyMemberStatus } from '../../enums';
+import { AppError, slugify, ensureUniqueSlug, getPaginationParams, IPaginationQuery, IPaginationMeta } from '../../utils';
+import {
+  ICompany,
+  ICompanyCreation,
+  ICompanyUpdate,
+  IAuthUser,
+} from '../../interfaces';
+import {
+  CompanyRole,
+  CompanyMemberStatus,
+  CompanyStatus,
+  CompanyVerificationStatus,
+} from '../../enums';
 import { companyRepository, companyMemberRepository } from '../../repositories';
-import { assertCanManageCompany } from '../shared/accessControl';
-import { IAuthUser } from '../../interfaces';
+import { assertCanManageCompany, isPlatformAdmin } from '../shared/accessControl';
 
 /**
  * Company business logic.
@@ -40,10 +49,54 @@ export const getCompanyById = async (id: string): Promise<ICompany> => {
   return company;
 };
 
+/**
+ * Public-safe company lookup: anonymous and non-admin callers only ever see
+ * ACTIVE companies; admins/members can see the rest (suspended, etc.).
+ * Non-ACTIVE companies are hidden as 404 so their existence isn't leaked.
+ */
+export const getCompanyByIdForUser = async (
+  user: IAuthUser | undefined,
+  id: string,
+): Promise<ICompany> => {
+  const company = await getCompanyById(id);
+  const visible =
+    company.status === CompanyStatus.ACTIVE ||
+    (user !== undefined && isPlatformAdmin(user));
+  if (!visible) throw AppError.notFound('Company not found');
+  return company;
+};
+
 export const getCompanyBySlug = async (slug: string): Promise<ICompany> => {
   const company = await companyRepository.findBySlug(slug);
   if (!company) throw AppError.notFound('Company not found');
   return company;
+};
+
+/**
+ * Company directory (public).
+ *
+ * Anonymous and non-admin callers only ever see ACTIVE + VERIFIED companies
+ * (the public directory); admins may pass status/verification filters to
+ * review the full catalog.
+ */
+export const listCompanies = async (
+  user: IAuthUser | undefined,
+  query: IPaginationQuery & {
+    q?: string;
+    status?: CompanyStatus;
+    verification_status?: CompanyVerificationStatus;
+  },
+): Promise<{ data: ICompany[]; meta: IPaginationMeta }> => {
+  const admin = user !== undefined && isPlatformAdmin(user);
+  const filters = admin
+    ? { name: query.q, status: query.status, verification_status: query.verification_status }
+    : {
+        name: query.q,
+        status: CompanyStatus.ACTIVE,
+        verification_status: CompanyVerificationStatus.VERIFIED,
+      };
+  const pagination = getPaginationParams(query);
+  return companyRepository.list(filters, pagination);
 };
 
 /** Update company details — requires management rights within the company. */
@@ -58,6 +111,13 @@ export const updateCompany = async (
   return company;
 };
 
-export const companyServices = { createCompany, getCompanyById, getCompanyBySlug, updateCompany };
+export const companyServices = {
+  createCompany,
+  getCompanyById,
+  getCompanyByIdForUser,
+  getCompanyBySlug,
+  listCompanies,
+  updateCompany,
+};
 
 export default companyServices;

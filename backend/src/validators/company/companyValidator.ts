@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CompanySize, CompanyRole } from '../../enums';
+import { CompanySize, CompanyRole, CompanyStatus, CompanyVerificationStatus } from '../../enums';
 
 export const createCompanySchema = z.object({
   name: z.string().trim().min(2).max(255),
@@ -21,6 +21,15 @@ export const createCompanySchema = z.object({
 });
 
 export const updateCompanySchema = createCompanySchema.partial();
+
+/** GET /api/companies — public directory query. */
+export const listCompaniesQuerySchema = z.object({
+  q: z.string().trim().max(255).optional(),
+  status: z.nativeEnum(CompanyStatus).optional(),
+  verification_status: z.nativeEnum(CompanyVerificationStatus).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  perPage: z.coerce.number().int().min(1).max(100).optional(),
+});
 
 export const addCompanyMemberSchema = z.object({
   user_id: z.string().uuid('Invalid user id'),

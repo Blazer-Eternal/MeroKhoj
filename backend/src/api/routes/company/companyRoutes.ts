@@ -1,6 +1,11 @@
 import { Router } from 'express';
-import { companyControllers, jobControllers, companyVerificationControllers } from '../../controllers';
-import { requireAuth, requireEmployer, validate } from '../../../middleware';
+import {
+  companyControllers,
+  jobControllers,
+  applicationControllers,
+  companyVerificationControllers,
+} from '../../controllers';
+import { requireAuth, requireEmployer, optionalAuth, validate } from '../../../middleware';
 import {
   createCompanySchema,
   updateCompanySchema,
@@ -13,41 +18,60 @@ const router = Router();
 
 /**
  * /api/companies
- * Company creation requires an employer role; membership routes are guarded by
- * company-level permissions inside the service layer.
+ * Public reads (directory + company profile) use optionalAuth so anonymous
+ * visitors see the ACTIVE+VERIFIED catalog while admins see everything.
+ * Every write/membership route explicitly requires authentication; company
+ * level authorization happens inside the service layer.
  */
-router.use(requireAuth);
+router.use(optionalAuth);
 
-router.post('/', requireEmployer, validate({ body: createCompanySchema }), companyControllers.createCompany);
+// Public reads
+router.get('/', companyControllers.listCompanies);
 router.get('/:id', companyControllers.getCompany);
-router.patch('/:id', validate({ body: updateCompanySchema }), companyControllers.updateCompany);
+
+// Company lifecycle (employer)
+router.post(
+  '/',
+  requireAuth,
+  requireEmployer,
+  validate({ body: createCompanySchema }),
+  companyControllers.createCompany,
+);
+router.patch('/:id', requireAuth, validate({ body: updateCompanySchema }), companyControllers.updateCompany);
 
 // Members
-router.get('/:companyId/members', companyControllers.listMembers);
+router.get('/:companyId/members', requireAuth, companyControllers.listMembers);
 router.post(
   '/:companyId/members',
+  requireAuth,
   validate({ body: addCompanyMemberSchema }),
   companyControllers.addMember,
 );
 router.patch(
   '/:companyId/members/:memberId',
+  requireAuth,
   validate({ body: updateCompanyMemberSchema }),
   companyControllers.updateMember,
 );
-router.delete('/:companyId/members/:memberId', companyControllers.removeMember);
+router.delete('/:companyId/members/:memberId', requireAuth, companyControllers.removeMember);
 
-// Nested jobs belonging to the company
-router.get('/:companyId/jobs', jobControllers.listCompanyJobs);
+// Nested jobs belonging to the company (recruiter-scoped in the service)
+router.get('/:companyId/jobs', requireAuth, jobControllers.listCompanyJobs);
+
+// Applicant pipeline (member-scoped in the service)
+router.get('/:companyId/applications', requireAuth, applicationControllers.listCompanyApplications);
 
 // Nested company verification workflow (entity 29)
 router.post(
   '/:companyId/verifications',
+  requireAuth,
   validate({ body: submitVerificationSchema }),
   companyVerificationControllers.submitVerification,
 );
-router.get('/:companyId/verifications', companyVerificationControllers.listVerifications);
+router.get('/:companyId/verifications', requireAuth, companyVerificationControllers.listVerifications);
 router.get(
   '/:companyId/verifications/latest',
+  requireAuth,
   companyVerificationControllers.getLatestVerification,
 );
 

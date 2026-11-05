@@ -5,6 +5,7 @@ import { companyServices, companyMemberServices } from '../../../services';
 import {
   createCompanySchema,
   updateCompanySchema,
+  listCompaniesQuerySchema,
   addCompanyMemberSchema,
   updateCompanyMemberSchema,
 } from '../../../validators';
@@ -20,10 +21,17 @@ export const createCompany = asyncHandler(async (req: ICustomRequest, res: Respo
   return ok(res, { company }, 201);
 });
 
-/** GET /api/companies/:id */
+/** GET /api/companies — public directory (anonymous callers see ACTIVE+VERIFIED only). */
+export const listCompanies = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const query = listCompaniesQuerySchema.parse(req.query);
+  const result = await companyServices.listCompanies(req.user, query);
+  return res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
+/** GET /api/companies/:id — public for ACTIVE companies (admins see all). */
 export const getCompany = asyncHandler(async (req: ICustomRequest, res: Response) => {
   const id = parseId(req.params.id);
-  const company = await companyServices.getCompanyById(id);
+  const company = await companyServices.getCompanyByIdForUser(req.user, id);
   return ok(res, { company });
 });
 
@@ -79,6 +87,7 @@ export const removeMember = asyncHandler(async (req: ICustomRequest, res: Respon
 
 export default {
   createCompany,
+  listCompanies,
   getCompany,
   updateCompany,
   listMembers,

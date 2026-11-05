@@ -1,7 +1,9 @@
+import { Op } from 'sequelize';
+
 import Company from '../../models/company/companyModel';
 import { ICompany, ICompanyCreation } from '../../interfaces';
 import { CompanyStatus, CompanyVerificationStatus } from '../../enums';
-import { plain } from '../../utils';
+import { plain, IPaginationParams, buildPaginationMeta } from '../../utils';
 
 /** Data-access layer for the `companies` table. */
 class CompanyRepository {
@@ -18,6 +20,37 @@ class CompanyRepository {
   async slugExists(slug: string): Promise<boolean> {
     const count = await Company.count({ where: { slug } });
     return count > 0;
+  }
+
+  /**
+   * Paginated company directory listing.
+   * `filters` are pre-normalized in the service (anonymous callers are forced
+   * to ACTIVE+VERIFIED); `pagination` comes from getPaginationParams.
+   */
+  async list(
+    filters: {
+      name?: string;
+      status?: CompanyStatus;
+      verification_status?: CompanyVerificationStatus;
+    },
+    pagination: IPaginationParams,
+  ): Promise<{ data: ICompany[]; meta: ReturnType<typeof buildPaginationMeta> }> {
+    const where: Record<string, unknown> = {};
+    if (filters.name) where.name = { [Op.iLike]: `%${filters.name}%` };
+    if (filters.status) where.status = filters.status;
+    if (filters.verification_status) where.verification_status = filters.verification_status;
+
+    const { rows, count } = await Company.findAndCountAll({
+      where,
+      order: [['name', 'ASC']],
+      limit: pagination.limit,
+      offset: pagination.offset,
+    });
+
+    return {
+      data: rows.map((row) => plain(row) as ICompany),
+      meta: buildPaginationMeta(count, pagination.page, pagination.perPage),
+    };
   }
 
   async create(payload: ICompanyCreation): Promise<ICompany> {

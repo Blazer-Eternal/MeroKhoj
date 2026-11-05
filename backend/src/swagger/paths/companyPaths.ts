@@ -3,6 +3,27 @@
  */
 export const companyPaths = {
   '/companies': {
+    get: {
+      tags: ['Companies'],
+      summary: 'Company directory (public)',
+      description:
+        'Paginated company directory. Anonymous callers only see ACTIVE + ' +
+        'VERIFIED companies; admins may pass status/verification filters.',
+      security: [],
+      parameters: [
+        { name: 'q', in: 'query', schema: { type: 'string' }, description: 'Name search' },
+        { name: 'status', in: 'query', schema: { type: 'string' }, description: 'Admin only' },
+        {
+          name: 'verification_status',
+          in: 'query',
+          schema: { type: 'string' },
+          description: 'Admin only',
+        },
+        { $ref: '#/components/parameters/Page' },
+        { $ref: '#/components/parameters/PerPage' },
+      ],
+      responses: { '200': { description: 'Paginated companies' } },
+    },
     post: {
       tags: ['Companies'],
       summary: 'Create a company (employer)',
@@ -13,8 +34,12 @@ export const companyPaths = {
     parameters: [{ $ref: '#/components/parameters/UuidId' }],
     get: {
       tags: ['Companies'],
-      summary: 'Get a company',
-      responses: { '200': { description: 'Company' } },
+      summary: 'Get a company (public for ACTIVE companies)',
+      security: [],
+      responses: {
+        '200': { description: 'Company' },
+        '404': { $ref: '#/components/responses/NotFound' },
+      },
     },
     patch: {
       tags: ['Companies'],
@@ -57,6 +82,21 @@ export const companyPaths = {
       tags: ['Companies'],
       summary: 'List jobs belonging to a company',
       responses: { '200': { description: 'Paginated jobs' } },
+    },
+  },
+  '/companies/{companyId}/applications': {
+    parameters: [{ $ref: '#/components/parameters/CompanyId' }],
+    get: {
+      tags: ['Applications'],
+      summary: 'Company applicant pipeline (member)',
+      description: 'Requires an active membership on the company (checked in the service).',
+      parameters: [
+        { name: 'job_id', in: 'query', schema: { type: 'string', format: 'uuid' } },
+        { name: 'status', in: 'query', schema: { type: 'string' } },
+        { $ref: '#/components/parameters/Page' },
+        { $ref: '#/components/parameters/PerPage' },
+      ],
+      responses: { '200': { description: 'Paginated applications' } },
     },
   },
   '/companies/{companyId}/verifications': {
