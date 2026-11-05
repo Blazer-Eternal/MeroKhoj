@@ -7,7 +7,7 @@ import {
   JobStatus,
 } from '../../enums';
 import { jobModerationRepository, jobRepository } from '../../repositories';
-import { isPlatformAdmin } from '../shared/accessControl';
+import { isPlatformAdmin, assertCanManageJobs } from '../shared/accessControl';
 import { recordAuditForUser } from './auditLogServices';
 
 /**
@@ -89,10 +89,22 @@ export const listModerationHistory = async (
   return jobModerationRepository.listByJob(jobId);
 };
 
-/** Latest moderation decision for a job (null if never moderated). */
+/**
+ * Latest moderation decision for a job (null if never moderated).
+ * Scoped like the controller comment says: the job's company (job managers)
+ * or a platform admin.
+ */
 export const getLatestModeration = async (
+  user: IAuthUser,
   jobId: string,
-): Promise<IJobModeration | null> => jobModerationRepository.findLatestByJob(jobId);
+): Promise<IJobModeration | null> => {
+  const job = await jobRepository.findById(jobId);
+  if (!job) throw AppError.notFound('Job not found');
+  if (!isPlatformAdmin(user)) {
+    await assertCanManageJobs(user, job.company_id);
+  }
+  return jobModerationRepository.findLatestByJob(jobId);
+};
 
 export const jobModerationServices = {
   moderateJob,

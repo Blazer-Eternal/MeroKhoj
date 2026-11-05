@@ -26,7 +26,7 @@ export const listModerationHistory = asyncHandler(async (req: ICustomRequest, re
 /** GET /api/jobs/:jobId/moderation/latest (job owner or admin can check state) */
 export const getLatestModeration = asyncHandler(async (req: ICustomRequest, res: Response) => {
   const jobId = parseId(req.params.jobId);
-  const moderation = await jobModerationServices.getLatestModeration(jobId);
+  const moderation = await jobModerationServices.getLatestModeration(req.user!, jobId);
   return ok(res, { moderation });
 });
 

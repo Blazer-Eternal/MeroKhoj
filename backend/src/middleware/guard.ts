@@ -34,6 +34,34 @@ export const requireAuth = asyncHandler(
   },
 );
 
+/**
+ * Populate `req.user` when a valid bearer token is present, but never
+ * reject — for public reads that behave differently for signed-in users
+ * (e.g. admins seeing INACTIVE service plans). Invalid/absent tokens are
+ * treated as anonymous.
+ */
+export const optionalAuth = asyncHandler(
+  async (req: ICustomRequest, _res: Response, next: NextFunction) => {
+    const token = extractBearerToken(req.headers.authorization) ?? undefined;
+    if (token) {
+      try {
+        const payload = verifyAccessToken(token);
+        if (payload?.sub) {
+          req.user = {
+            id: payload.sub,
+            email: payload.email,
+            roles: payload.roles ?? [],
+          };
+          req.token = token;
+        }
+      } catch {
+        // Invalid/expired token on a public endpoint → anonymous.
+      }
+    }
+    next();
+  },
+);
+
 /** Require that the authenticated user holds every one of the given roles. */
 export const requireRole =
   (...roles: RoleName[]) =>

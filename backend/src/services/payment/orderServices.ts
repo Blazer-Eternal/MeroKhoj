@@ -1,10 +1,18 @@
 import { AppError, getPaginationParams, IPaginationQuery, IPaginationMeta } from '../../utils';
+import { getSequelize } from '../../config';
 import { IOrder, IAuthUser } from '../../interfaces';
-import { OrderStatus, ORDER_STATUS_TRANSITIONS, CatalogStatus } from '../../enums';
+import {
+  OrderStatus,
+  ORDER_STATUS_TRANSITIONS,
+  CatalogStatus,
+  InvoiceStatus,
+  NotificationType,
+} from '../../enums';
 import {
   orderRepository,
   servicePlanRepository,
   companyMemberRepository,
+  invoiceRepository,
 } from '../../repositories';
 import {
   assertCanManageCompany,
@@ -12,6 +20,7 @@ import {
   isPlatformAdmin,
 } from '../shared/accessControl';
 import { recordAuditForUser } from '../administration/auditLogServices';
+import { notify } from '../notification/notificationServices';
 
 /**
  * Order business logic (entity 34).
@@ -31,6 +40,12 @@ const generateOrderNumber = (): string =>
     .toString(36)
     .slice(2, 6)
     .toUpperCase()}`;
+
+/** INV-YYYYMM-<random> (fits VARCHAR(50)). */
+const generateInvoiceNumber = (): string => {
+  const ym = new Date().toISOString().slice(0, 7).replace('-', '');
+  return `INV-${ym}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+};
 
 /** Create an order with server-side totals snapshotted from the plan. */
 export const createOrder = async (
@@ -71,7 +86,7 @@ export const createOrder = async (
     orderNumber = generateOrderNumber();
   }
 
-  const order = await orderRepository.create({
+  const payload = {
     company_id: input.company_id,
     service_plan_id: plan.id,
     created_by: user.id,
@@ -83,8 +98,60 @@ export const createOrder = async (
     tax_amount: taxAmount,
     total_amount: totalAmount,
     currency: plan.currency,
-    status: OrderStatus.PENDING,
-  });
+  };
+
+  // Free order (total 0): payments require amount > 0, so there is no
+  // payment step — confirm immediately and issue a PAID invoice in one
+  // transaction. Entitlements become active right away.
+  if (totalAmount === 0) {
+    const sequelize = getSequelize();
+    const t = await sequelize.transaction();
+    try {
+      const order = await orderRepository.create(
+        { ...payload, status: OrderStatus.CONFIRMED },
+        { transaction: t },
+      );
+      await invoiceRepository.create(
+        {
+          order_id: order.id,
+          invoice_number: generateInvoiceNumber(),
+          issue_date: new Date().toISOString().slice(0, 10),
+          due_date: null,
+          subtotal,
+          tax_amount: taxAmount,
+          total_amount: 0,
+          status: InvoiceStatus.PAID,
+        },
+        { transaction: t },
+      );
+      await t.commit();
+
+      await notify(
+        order.created_by,
+        NotificationType.PAYMENT_UPDATE,
+        'Order confirmed',
+        `Order ${order.order_number} is confirmed — no payment required.`,
+        { order_id: order.id, order_number: order.order_number },
+      );
+      await recordAuditForUser(user, {
+        action: 'ORDER_CREATED',
+        entity_type: 'ORDER',
+        entity_id: order.id,
+        new_values: {
+          order_number: order.order_number,
+          service_plan: plan.name,
+          total_amount: 0,
+          auto_confirmed: true,
+        },
+      });
+      return order;
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  }
+
+  const order = await orderRepository.create({ ...payload, status: OrderStatus.PENDING });
 
   await recordAuditForUser(user, {
     action: 'ORDER_CREATED',

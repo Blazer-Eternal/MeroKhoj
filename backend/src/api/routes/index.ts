@@ -18,6 +18,7 @@ import { hiringDecisionRoutes } from './hiring';
 import { talentRosterRoutes } from './talent';
 import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
 import { jobModerationRoutes, reportRoutes, auditLogRoutes } from './administration';
+import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './payment';
 
 /**
  * Central route hub mounted under /api.
@@ -36,6 +37,14 @@ router.use('/jobs', jobRoutes);
 // at '/'. Must stay BEFORE talentRosterRoutes (also at '/'), which 401s every
 // unmatched path behind its root auth guard.
 router.use('/', questionsRoutes);
+// Billing (Phase 5): paymentRoutes also spans several prefixes —
+// /orders/:id/payments, /payments/* and /companies/:id/entitlement — so it
+// mounts at '/' here, also BEFORE talentRosterRoutes' root guard. Its auth
+// guard is path-scoped, so routes mounted below stay unaffected.
+router.use('/', paymentRoutes);
+router.use('/service-plans', servicePlanRoutes);
+router.use('/orders', orderRoutes);
+router.use('/invoices', invoiceRoutes);
 router.use('/skills', skillRoutes);
 router.use('/applications', applicationRoutes);
 router.use('/applications', answersRoutes);

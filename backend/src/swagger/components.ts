@@ -469,6 +469,108 @@ export const schemas = {
       'ON_HOLD→UNDER_REVIEW, SHORTLISTED→SHORTLISTED) in one transaction with ' +
       'status history + audit trail.',
   },
+  ServicePlan: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      name: { type: 'string', maxLength: 150 },
+      description: { type: 'string', nullable: true },
+      price: { type: 'number', minimum: 0 },
+      currency: { type: 'string', default: 'NPR' },
+      duration_days: { type: 'integer', minimum: 1, nullable: true },
+      job_posting_limit: {
+        type: 'integer',
+        minimum: 0,
+        nullable: true,
+        description: 'NULL = unlimited job postings.',
+      },
+      featured_jobs_limit: { type: 'integer', minimum: 0 },
+      status: { type: 'string', enum: ['ACTIVE', 'INACTIVE'] },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'Purchasable package (entity 33). Deactivation never changes purchased ' +
+      'orders — they keep their own price/limit snapshots.',
+  },
+  Order: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      company_id: { type: 'string', format: 'uuid' },
+      service_plan_id: { type: 'string', format: 'uuid' },
+      created_by: { type: 'string', format: 'uuid' },
+      order_number: { type: 'string', example: 'MK-ORD-M1A2B3C4-X9Y2' },
+      quantity: { type: 'integer', minimum: 1 },
+      unit_price: { type: 'number', minimum: 0 },
+      subtotal: { type: 'number', minimum: 0 },
+      discount_amount: { type: 'number', minimum: 0 },
+      tax_amount: { type: 'number', minimum: 0 },
+      total_amount: { type: 'number', minimum: 0 },
+      currency: { type: 'string', default: 'NPR' },
+      status: {
+        type: 'string',
+        enum: ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'],
+      },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'Financial snapshot (entity 34): totals computed server-side at creation ' +
+      '(total = subtotal − discount + tax) and never recalculated from the ' +
+      'plan\u2019s current price.',
+  },
+  Payment: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      order_id: { type: 'string', format: 'uuid' },
+      transaction_reference: { type: 'string', nullable: true },
+      provider: { type: 'string', maxLength: 50 },
+      amount: { type: 'number', exclusiveMinimum: true, minimum: 0 },
+      currency: { type: 'string', default: 'NPR' },
+      status: {
+        type: 'string',
+        enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED'],
+      },
+      paid_at: { type: 'string', format: 'date-time', nullable: true },
+      failure_reason: { type: 'string', nullable: true },
+      provider_response: {
+        type: 'object',
+        nullable: true,
+        description: 'Sanitized gateway payload; refund rows carry refund_of.',
+      },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'One row per transaction (entity 35). transaction_reference is UNIQUE ' +
+      'when present (idempotent callbacks). Refunds are separate linked rows — ' +
+      'the original payment is never deleted or overwritten.',
+  },
+  Invoice: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      order_id: { type: 'string', format: 'uuid' },
+      invoice_number: { type: 'string', example: 'INV-202611-A1B2' },
+      issue_date: { type: 'string', format: 'date' },
+      due_date: { type: 'string', format: 'date', nullable: true },
+      subtotal: { type: 'number', minimum: 0 },
+      tax_amount: { type: 'number', minimum: 0 },
+      total_amount: { type: 'number', minimum: 0 },
+      status: {
+        type: 'string',
+        enum: ['DRAFT', 'ISSUED', 'PAID', 'VOID', 'OVERDUE'],
+      },
+      created_at: { type: 'string', format: 'date-time' },
+      updated_at: { type: 'string', format: 'date-time' },
+    },
+    description:
+      'Generated from order financials (entity 36) — snapshot, never ' +
+      'recalculated. Status syncs on payment (→ PAID); history is retained ' +
+      '(voided, not deleted).',
+  },
 };
 
 /** Reusable responses. */

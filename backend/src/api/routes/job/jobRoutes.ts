@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { jobControllers, applicationControllers } from '../../controllers';
+import { jobControllers, applicationControllers, jobModerationControllers } from '../../controllers';
 import { requireAuth, requireEmployer, requireJobseeker, validate, applicationLimiter } from '../../../middleware';
 import {
   createJobSchema,
@@ -20,6 +20,8 @@ const router = Router();
 router.get('/', jobControllers.searchJobs);
 router.get('/:id', jobControllers.getJob);
 router.get('/:id/skills', jobControllers.getJobSkills);
+// Latest moderation decision (job's company or admin — scoped in the service)
+router.get('/:jobId/moderation/latest', requireAuth, jobModerationControllers.getLatestModeration);
 
 // Employer write endpoints
 router.post('/', requireAuth, requireEmployer, validate({ body: createJobSchema }), jobControllers.createJob);

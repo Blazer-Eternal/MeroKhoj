@@ -54,6 +54,40 @@ const SEEDED_LOCATIONS = [
   { id: TAXONOMY_ID(306), country: 'Nepal', province: 'Koshi', district: 'Morang', city: 'Biratnagar' },
 ];
 
+/** Starter catalog of purchasable packages (entity 33). Free fixed-ID range 401+. */
+const SEEDED_SERVICE_PLANS = [
+  {
+    id: TAXONOMY_ID(401),
+    name: 'Basic',
+    description: 'Free tier — try posting a single job.',
+    price: 0,
+    currency: 'NPR',
+    duration_days: null,
+    job_posting_limit: 1,
+    featured_jobs_limit: 0,
+  },
+  {
+    id: TAXONOMY_ID(402),
+    name: 'Pro',
+    description: '30 days of active hiring with featured slots.',
+    price: 4999,
+    currency: 'NPR',
+    duration_days: 30,
+    job_posting_limit: 10,
+    featured_jobs_limit: 2,
+  },
+  {
+    id: TAXONOMY_ID(403),
+    name: 'Enterprise',
+    description: 'Unlimited postings for a full year.',
+    price: 19999,
+    currency: 'NPR',
+    duration_days: 365,
+    job_posting_limit: null,
+    featured_jobs_limit: 10,
+  },
+];
+
 const ROLE_NAMES = [
   'JOBSEEKER',
   'RECRUITER',
@@ -247,6 +281,24 @@ const seedTaxonomy = async (queryInterface: QueryInterface): Promise<void> => {
   } else {
     console.log('  • locations already seeded, skipping');
   }
+  // ---- Service plans ----------------------------------------------------
+  const [planCount] = (await sequelize.query(
+    'SELECT COUNT(*)::int AS count FROM service_plans',
+  )) as unknown as [Array<{ count: number }>];
+  if (planCount[0].count === 0) {
+    await queryInterface.bulkInsert(
+      'service_plans',
+      SEEDED_SERVICE_PLANS.map((p) => ({
+        ...p,
+        status: 'ACTIVE',
+        created_at: now,
+        updated_at: now,
+      })),
+    );
+    console.log(`  • seeded ${SEEDED_SERVICE_PLANS.length} service plans`);
+  } else {
+    console.log('  • service plans already seeded, skipping');
+  }
 };
 
 export const up = async (queryInterface: QueryInterface): Promise<void> => {
@@ -266,6 +318,7 @@ export const down = async (queryInterface: QueryInterface): Promise<void> => {
   await queryInterface.bulkDelete('locations', {});
   await queryInterface.bulkDelete('industries', {});
   await queryInterface.bulkDelete('job_categories', {});
+  await queryInterface.bulkDelete('service_plans', {});
 };
 
 export default { up, down };

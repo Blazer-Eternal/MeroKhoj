@@ -71,6 +71,13 @@ export const authPaths = {
       responses: { '200': { description: 'User + roles' } },
     },
   },
+  '/auth/logout': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Log out (revoke the current refresh token)',
+      responses: { '200': { description: 'Logged out' } },
+    },
+  },
   '/users/me': {
     get: {
       tags: ['Users'],

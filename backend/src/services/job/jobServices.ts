@@ -10,6 +10,9 @@ import {
   locationRepository,
 } from '../../repositories';
 import { assertCanManageJobs, loadJobOrThrow } from '../shared/accessControl';
+// Same-layer service edge (documented in STRUCTURE.md §6.2): publishing a
+// job consults the payment feature's plan-entitlement check.
+import { assertPublishAllowed } from '../payment/entitlementServices';
 import { IAuthUser } from '../../interfaces';
 
 /**
@@ -110,6 +113,11 @@ export const changeJobStatus = async (
     const company = await companyRepository.findById(job.company_id);
     if (!company || company.verification_status !== CompanyVerificationStatus.VERIFIED) {
       throw AppError.forbidden('Only verified companies can publish jobs');
+    }
+    // First publish only: check the company's paid-plan posting allowance
+    // (no-op unless COMPANY_BILLING_REQUIRED=true).
+    if (!job.published_at) {
+      await assertPublishAllowed(job.company_id);
     }
   }
 

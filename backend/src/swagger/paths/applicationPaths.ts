@@ -2,7 +2,7 @@
  * Application pipeline & interview paths.
  */
 export const applicationPaths = {
-  '/applications': {
+  '/applications/mine': {
     get: {
       tags: ['Applications'],
       summary: 'My applications (jobseeker)',

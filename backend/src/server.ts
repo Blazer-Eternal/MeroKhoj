@@ -60,7 +60,7 @@ const boot = async (): Promise<void> => {
       console.log(
         `✔ ${env.app.name} API listening on http://localhost:${env.app.port} (${env.nodeEnv})`,
       );
-      console.log(`  Docs: http://localhost:${env.app.port}/api/docs`);
+      console.log(`  Docs: http://localhost:${env.app.port}/api-docs`);
     });
   } catch (error) {
     console.error('✖ Failed to start server:', error);
