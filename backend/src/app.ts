@@ -8,7 +8,14 @@ import compression from 'compression';
 import { corsOptions, env } from './config';
 import apiRouter from './api/routes';
 import { globalLimiter, errorHandler, notFoundHandler } from './middleware';
-import { swaggerUi, swaggerSpec } from './swagger/swagger';
+import healthRoutes from './api/routes/healthRoutes';
+
+import {
+  swaggerUi,
+  swaggerSpec,
+  swaggerUiOptions,
+} from './swagger/swagger';
+
 
 /**
  * Express application assembly.
@@ -50,8 +57,23 @@ export const createApp = (): Application => {
   // Global rate limiter
   app.use('/api', globalLimiter);
 
-  // API docs
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // Health Check
+  // Available at GET /health
+  app.use('/health', healthRoutes)
+
+  // Swagger Documentation
+  app.use(
+    '/api/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+  );
+
+  // Backward-compatible Swagger URL
+  app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+  );
 
   // Health & API Routes
   app.use('/api', apiRouter);

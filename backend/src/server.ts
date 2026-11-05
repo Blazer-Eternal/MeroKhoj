@@ -4,6 +4,7 @@ import { initializeModels } from './models';
 import { reportCorsAllowList } from './config/cors';
 import { jobAlertServices } from './services';
 
+
 /**
  * Server bootstrap.
  *

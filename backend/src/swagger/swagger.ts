@@ -87,7 +87,9 @@ export const swaggerSpec = {
 
 export const swaggerUiOptions = {
   explorer: true,
-  swaggerOptions: { persistAuthorization: true },
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
 };
 
 export { swaggerUi };
