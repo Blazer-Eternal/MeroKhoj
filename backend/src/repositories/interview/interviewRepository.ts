@@ -1,7 +1,9 @@
 import { Op } from 'sequelize';
+import { IncludeOptions } from 'sequelize';
 import Interview from '../../models/interview/interviewModel';
 import Application from '../../models/application/applicationModel';
 import Job from '../../models/job/jobModel';
+import User from '../../models/user/userModel';
 import { IInterview, IInterviewCreation } from '../../interfaces';
 import { InterviewStatus, INTERVIEW_UPCOMING_STATUSES } from '../../enums';
 import { plain } from '../../utils';
@@ -30,6 +32,55 @@ class InterviewRepository {
     const rows = await Interview.findAll({
       where: { application_id: applicationId },
       order: [['scheduled_at', 'ASC']],
+    });
+    return plain<IInterview[]>(rows as unknown as Record<string, unknown>[]);
+  }
+
+  /**
+   * Scope-filtered listing for GET /interviews (newest first).
+   *
+   * Exactly one scope filter is applied per call — the service runs the
+   * jobseeker and employer scopes separately and merges them:
+   *  - `jobseekerId` → interviews on that user's own applications;
+   *  - `companyIds`  → interviews on applications to those companies' jobs;
+   *  - neither       → every interview (platform admin).
+   * Rows carry their application, the job, and the applicant for display.
+   */
+  async listScoped(params: {
+    jobseekerId?: string;
+    companyIds?: string[];
+    status?: InterviewStatus;
+  }): Promise<IInterview[]> {
+    if (params.companyIds && params.companyIds.length === 0) return [];
+
+    const jobInclude: IncludeOptions = {
+      model: Job,
+      as: 'job',
+      attributes: ['id', 'title', 'company_id', 'status'],
+      ...(params.companyIds
+        ? { where: { company_id: { [Op.in]: params.companyIds } } }
+        : {}),
+    };
+
+    const applicationInclude: IncludeOptions = {
+      model: Application,
+      as: 'application',
+      attributes: ['id', 'job_id', 'jobseeker_id', 'status'],
+      ...(params.jobseekerId ? { where: { jobseeker_id: params.jobseekerId } } : {}),
+      include: [
+        jobInclude,
+        {
+          model: User,
+          as: 'jobseeker',
+          attributes: ['id', 'first_name', 'last_name', 'email'],
+        },
+      ],
+    };
+
+    const rows = await Interview.findAll({
+      ...(params.status ? { where: { status: params.status } } : {}),
+      order: [['scheduled_at', 'DESC']],
+      include: [applicationInclude],
     });
     return plain<IInterview[]>(rows as unknown as Record<string, unknown>[]);
   }

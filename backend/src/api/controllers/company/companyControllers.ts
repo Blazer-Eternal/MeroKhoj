@@ -28,6 +28,12 @@ export const listCompanies = asyncHandler(async (req: ICustomRequest, res: Respo
   return res.status(200).json({ success: true, data: result.data, meta: result.meta });
 });
 
+/** GET /api/companies/mine — companies the caller belongs to (any status). */
+export const listMyCompanies = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const companies = await companyServices.listMyCompanies(req.user!);
+  return ok(res, { companies });
+});
+
 /** GET /api/companies/:id — public for ACTIVE companies (admins see all). */
 export const getCompany = asyncHandler(async (req: ICustomRequest, res: Response) => {
   const id = parseId(req.params.id);
@@ -88,6 +94,7 @@ export const removeMember = asyncHandler(async (req: ICustomRequest, res: Respon
 export default {
   createCompany,
   listCompanies,
+  listMyCompanies,
   getCompany,
   updateCompany,
   listMembers,

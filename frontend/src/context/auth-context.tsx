@@ -19,7 +19,7 @@ import {
 } from 'react';
 import { apiGet, apiPost, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
-import { clearSession, storeSession, hasSession, rolesFromCookie } from '@/lib/auth';
+import { clearSession, storeSession, hasSession } from '@/lib/auth';
 import { primaryArea, type DashboardArea } from '@/lib/permissions';
 import type { AuthPayload, MePayload, PublicUser } from '@/types';
 import type { RoleName } from '@/enums';

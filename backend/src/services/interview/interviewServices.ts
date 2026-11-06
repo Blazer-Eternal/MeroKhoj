@@ -1,7 +1,7 @@
 import { AppError } from '../../utils';
 import { IInterview, IInterviewCreation, IInterviewUpdate } from '../../interfaces';
 import { InterviewStatus, INTERVIEW_STATUS_TRANSITIONS } from '../../enums';
-import { interviewRepository, applicationRepository } from '../../repositories';
+import { interviewRepository, applicationRepository, companyMemberRepository } from '../../repositories';
 import { assertCanManageJobs, assertCanAccessApplication, isPlatformAdmin } from '../shared/accessControl';
 import { IAuthUser } from '../../interfaces';
 
@@ -95,6 +95,35 @@ export const listInterviewsForApplication = async (
   return interviewRepository.listByApplication(applicationId);
 };
 
+/**
+ * GET /interviews — the caller's interview feed.
+ *
+ * Scoping mirrors assertCanAccessApplication: platform admins see everything;
+ * everyone else sees interviews on their own applications plus interviews on
+ * applications to companies they are an ACTIVE member of. The two scopes sit
+ * at different query depths, so they are fetched separately and merged by id.
+ */
+export const listInterviews = async (
+  user: IAuthUser,
+  filters: { status?: InterviewStatus },
+): Promise<IInterview[]> => {
+  if (isPlatformAdmin(user)) {
+    return interviewRepository.listScoped({ status: filters.status });
+  }
+
+  const companyIds = await companyMemberRepository.listCompanyIdsByUser(user.id);
+  const [own, managed] = await Promise.all([
+    interviewRepository.listScoped({ jobseekerId: user.id, status: filters.status }),
+    interviewRepository.listScoped({ companyIds, status: filters.status }),
+  ]);
+
+  const merged = new Map<string, IInterview>();
+  for (const interview of [...own, ...managed]) merged.set(interview.id, interview);
+  return [...merged.values()].sort(
+    (a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime(),
+  );
+};
+
 /** Upcoming interviews across a company's jobs (recruiter dashboard). */
 export const listUpcomingForCompany = async (
   user: IAuthUser,
@@ -125,6 +154,7 @@ export const interviewServices = {
   getInterview,
   updateInterview,
   changeInterviewStatus,
+  listInterviews,
   listInterviewsForApplication,
   listUpcomingForCompany,
 };

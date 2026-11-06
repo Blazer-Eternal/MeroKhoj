@@ -130,6 +130,24 @@ export const applicationPaths = {
     },
   },
   '/interviews': {
+    get: {
+      tags: ['Interviews'],
+      summary: 'Interview feed for the caller (scoped)',
+      description:
+        'Platform admins see every interview; other users see interviews on ' +
+        'their own applications plus interviews on applications to companies ' +
+        'they are an ACTIVE member of. Newest `scheduled_at` first. Returns ' +
+        '`{ interviews }` with nested application, job and applicant.',
+      parameters: [
+        {
+          name: 'status',
+          in: 'query',
+          schema: { type: 'string' },
+          description: 'Filter by interview status',
+        },
+      ],
+      responses: { '200': { description: 'Scoped interviews (may be empty)' } },
+    },
     post: {
       tags: ['Interviews'],
       summary: 'Schedule an interview (employer)',

@@ -28,7 +28,7 @@ import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './
  */
 const router = Router();
 
-router.use('/health', healthRoutes);;
+router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/companies', companyRoutes);

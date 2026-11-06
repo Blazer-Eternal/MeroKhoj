@@ -60,9 +60,14 @@ export default function ExperiencePage() {
 
   const set =
     (key: keyof typeof EMPTY) =>
-    (e: { target: { value: string; type: string; checked: boolean } }) => {
-      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-      setForm((f) => ({ ...f, [key]: value }));
+    (e: { target: { value: string } }) => {
+      setForm((f) => ({ ...f, [key]: e.target.value }));
+    };
+
+  const setChecked =
+    (key: keyof typeof EMPTY) =>
+    (e: { target: { checked: boolean } }) => {
+      setForm((f) => ({ ...f, [key]: e.target.checked }));
     };
 
   const validate = (): string => {
@@ -291,7 +296,7 @@ export default function ExperiencePage() {
             <input
               type="checkbox"
               checked={form.is_current}
-              onChange={set('is_current')}
+              onChange={setChecked('is_current')}
               className="h-4 w-4 rounded border-slate-300 text-brand-600"
             />
             I currently work here

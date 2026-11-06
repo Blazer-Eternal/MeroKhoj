@@ -12,6 +12,7 @@ const router = Router();
 /** /api/interviews — all routes require authentication. */
 router.use(requireAuth);
 
+router.get('/', interviewControllers.listInterviews);
 router.post('/', requireEmployer, validate({ body: scheduleInterviewSchema }), interviewControllers.scheduleInterview);
 router.get('/:id', interviewControllers.getInterview);
 router.patch('/:id', validate({ body: updateInterviewSchema }), interviewControllers.updateInterview);

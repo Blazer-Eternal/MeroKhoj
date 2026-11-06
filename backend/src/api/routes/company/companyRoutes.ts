@@ -27,6 +27,11 @@ router.use(optionalAuth);
 
 // Public reads
 router.get('/', companyControllers.listCompanies);
+
+// Member-scoped discovery — MUST be registered before '/:id' or Express
+// would match the literal segment "mine" as a company id.
+router.get('/mine', requireAuth, requireEmployer, companyControllers.listMyCompanies);
+
 router.get('/:id', companyControllers.getCompany);
 
 // Company lifecycle (employer)

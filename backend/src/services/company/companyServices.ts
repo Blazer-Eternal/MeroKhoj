@@ -99,6 +99,21 @@ export const listCompanies = async (
   return companyRepository.list(filters, pagination);
 };
 
+/**
+ * "My companies" — every company the caller is an ACTIVE member of,
+ * regardless of company status.
+ *
+ * This is how an employer discovers their own company: the public directory
+ * only shows ACTIVE + VERIFIED entries, but a member must always be able to
+ * see their own (e.g. to finish verification or fix a suspended profile).
+ * Platform admins are not implicitly members of anything; they use the
+ * admin-filtered directory instead.
+ */
+export const listMyCompanies = async (user: IAuthUser): Promise<ICompany[]> => {
+  const companyIds = await companyMemberRepository.listCompanyIdsByUser(user.id);
+  return companyRepository.findByIds(companyIds);
+};
+
 /** Update company details — requires management rights within the company. */
 export const updateCompany = async (
   user: IAuthUser,
@@ -117,6 +132,7 @@ export const companyServices = {
   getCompanyByIdForUser,
   getCompanyBySlug,
   listCompanies,
+  listMyCompanies,
   updateCompany,
 };
 

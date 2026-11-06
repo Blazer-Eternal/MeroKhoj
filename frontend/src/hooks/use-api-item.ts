@@ -42,7 +42,6 @@ export function useApiItem<T>(path: string | null, options: RequestOptions = {})
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, tick]);
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);

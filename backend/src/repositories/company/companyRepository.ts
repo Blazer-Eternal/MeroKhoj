@@ -12,6 +12,16 @@ class CompanyRepository {
     return company ? (plain(company) as ICompany) : null;
   }
 
+  /** Companies by id set (membership-scoped listings), ordered by name. */
+  async findByIds(ids: string[]): Promise<ICompany[]> {
+    if (ids.length === 0) return [];
+    const rows = await Company.findAll({
+      where: { id: { [Op.in]: ids } },
+      order: [['name', 'ASC']],
+    });
+    return rows.map((row) => plain(row) as ICompany);
+  }
+
   async findBySlug(slug: string): Promise<ICompany | null> {
     const company = await Company.findOne({ where: { slug } });
     return company ? (plain(company) as ICompany) : null;

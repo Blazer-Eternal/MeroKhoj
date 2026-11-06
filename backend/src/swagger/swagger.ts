@@ -21,7 +21,7 @@ export const swaggerSpec = {
   openapi: '3.0.3',
   info: {
     title: 'MeroKhoj API',
-    version: '1.3.0',
+    version: '1.4.0',
     description:
       "MeroKhoj: Find what's yours. API for the MeroKhoj job portal. " +
       '"Khoj" is a function, not a channel: seekers discover jobs, employers discover talent.\n\n' +

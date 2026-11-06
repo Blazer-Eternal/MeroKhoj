@@ -6,6 +6,7 @@ import {
   scheduleInterviewSchema,
   updateInterviewSchema,
   changeInterviewStatusSchema,
+  listInterviewsQuerySchema,
 } from '../../../validators';
 import { parseId } from '../../../utils';
 
@@ -17,6 +18,13 @@ export const scheduleInterview = asyncHandler(async (req: ICustomRequest, res: R
   const input = scheduleInterviewSchema.parse(req.body);
   const interview = await interviewServices.scheduleInterview(req.user!, input);
   return ok(res, { interview }, 201);
+});
+
+/** GET /api/interviews — scoped feed (own applications + managed companies). */
+export const listInterviews = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const query = listInterviewsQuerySchema.parse(req.query);
+  const interviews = await interviewServices.listInterviews(req.user!, query);
+  return ok(res, { interviews });
 });
 
 /** GET /api/interviews/:id */
@@ -62,6 +70,7 @@ export const listUpcoming = asyncHandler(async (req: ICustomRequest, res: Respon
 
 export default {
   scheduleInterview,
+  listInterviews,
   getInterview,
   updateInterview,
   changeInterviewStatus,

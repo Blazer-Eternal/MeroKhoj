@@ -30,6 +30,17 @@ export const companyPaths = {
       responses: { '201': { description: 'Company created' } },
     },
   },
+  '/companies/mine': {
+    get: {
+      tags: ['Companies'],
+      summary: 'Companies the caller belongs to (member-scoped)',
+      description:
+        'Every company where the caller holds an ACTIVE membership, ' +
+        'regardless of company status — how an employer discovers their own ' +
+        'company before it is ACTIVE/VERIFIED. Returns `{ companies }`.',
+      responses: { '200': { description: 'Membership-scoped companies (may be empty)' } },
+    },
+  },
   '/companies/{id}': {
     parameters: [{ $ref: '#/components/parameters/UuidId' }],
     get: {

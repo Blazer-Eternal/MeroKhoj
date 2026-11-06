@@ -29,6 +29,11 @@ export const changeInterviewStatusSchema = z.object({
   status: z.nativeEnum(InterviewStatus),
 });
 
+export const listInterviewsQuerySchema = z.object({
+  status: z.nativeEnum(InterviewStatus).optional(),
+});
+
 export type ScheduleInterviewInput = z.infer<typeof scheduleInterviewSchema>;
 export type UpdateInterviewInput = z.infer<typeof updateInterviewSchema>;
 export type ChangeInterviewStatusInput = z.infer<typeof changeInterviewStatusSchema>;
+export type ListInterviewsQuery = z.infer<typeof listInterviewsQuerySchema>;

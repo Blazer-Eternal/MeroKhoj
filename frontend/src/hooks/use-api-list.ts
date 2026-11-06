@@ -52,7 +52,6 @@ export function useApiList<T>(
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, tick]);
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
