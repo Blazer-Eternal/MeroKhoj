@@ -28,3 +28,4 @@ export const getDecision = asyncHandler(async (req: ICustomRequest, res: Respons
 });
 
 export default { makeDecision, getDecision };
+

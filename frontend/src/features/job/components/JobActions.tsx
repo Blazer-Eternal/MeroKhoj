@@ -103,3 +103,4 @@ export function ApplyToJobButton({ jobId, disabled = false }: { jobId: string; d
     </div>
   );
 }
+

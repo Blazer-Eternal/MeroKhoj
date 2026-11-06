@@ -24,3 +24,4 @@ export const listAuditLogsForEntity = asyncHandler(async (req: ICustomRequest, r
 });
 
 export default { listAuditLogs, listAuditLogsForEntity };
+

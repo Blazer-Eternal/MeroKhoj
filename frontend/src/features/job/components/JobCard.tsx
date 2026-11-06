@@ -56,3 +56,4 @@ export function JobCard({ job, showStatus = false }: { job: Job; showStatus?: bo
     </article>
   );
 }
+

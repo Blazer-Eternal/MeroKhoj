@@ -47,3 +47,4 @@ export function useApiItem<T>(path: string | null, options: RequestOptions = {})
   const refetch = useCallback(() => setTick((t) => t + 1), []);
   return { data, loading, error, refetch };
 }
+

@@ -186,10 +186,10 @@ export function DashboardShell({
                 {(displayName(user) || '?').charAt(0).toUpperCase()}
               </span>
               <div className="hidden sm:block">
-                <p className="max-w-[10rem] truncate text-sm font-medium text-slate-800">
+                <p className="max-w-40 truncate text-sm font-medium text-slate-800">
                   {displayName(user) || '…'}
                 </p>
-                <p className="max-w-[10rem] truncate text-xs text-slate-400">{user?.email}</p>
+                <p className="max-w-40 truncate text-xs text-slate-400">{user?.email}</p>
               </div>
             </div>
             <Button variant="secondary" size="sm" onClick={() => void handleLogout()}>

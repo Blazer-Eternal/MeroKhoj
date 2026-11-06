@@ -68,3 +68,4 @@ export const humanize = (value: string): string =>
 /** Display name from a PublicUser (backend stores first_name/last_name). */
 export const displayName = (user: { first_name: string; last_name: string } | null | undefined): string =>
   user ? `${user.first_name} ${user.last_name}`.trim() : '';
+

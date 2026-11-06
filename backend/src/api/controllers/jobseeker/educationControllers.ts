@@ -39,3 +39,6 @@ export const deleteEducation = asyncHandler(async (req: ICustomRequest, res: Res
 });
 
 export default { listEducations, createEducation, updateEducation, deleteEducation };
+
+
+
