@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand — MeroKhoj teal/blue, aligned with the reference designs. */
+  --color-brand-50: #eef6ff;
+  --color-brand-100: #d9ebff;
+  --color-brand-200: #bcdcff;
+  --color-brand-300: #8ec6ff;
+  --color-brand-400: #59a5ff;
+  --color-brand-500: #3384ff;
+  --color-brand-600: #1b64f5;
+  --color-brand-700: #144fe1;
+  --color-brand-800: #1741b6;
+  --color-brand-900: #193a8f;
+
+  --color-accent-400: #2dd4bf;
+  --color-accent-500: #14b8a6;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-slate-800 antialiased;
+}
+
+/* Shared card surface used across dashboards & public pages. */
+.card {
+  @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+.btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+}
+.btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700;
+}
+
+/* Form controls */
+.input {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+}
+.label {
+  @apply mb-1.5 block text-sm font-medium text-slate-700;
+}
+.field-error {
+  @apply mt-1 text-xs font-medium text-red-600;
+}
