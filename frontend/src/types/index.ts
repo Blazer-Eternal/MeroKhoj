@@ -63,7 +63,9 @@ export interface Paginated<T> {
 export interface PublicUser {
   id: string;
   email: string;
-  full_name: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
   status: UserStatus;
   email_verified: boolean;
   last_login_at: string | null;
@@ -71,9 +73,12 @@ export interface PublicUser {
   updated_at: string;
 }
 
+/** Mirrors backend token payload (`authServices` → `ITokens`). */
 export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 export interface AuthPayload {
@@ -210,28 +215,34 @@ export interface CompanyVerification {
 }
 
 // ---- jobseeker profile ---------------------------------------------------
+/** Mirrors backend IJobseekerProfile (1:1 with users, upserted via /users/me/profile). */
 export interface JobseekerProfile {
   id: string;
   user_id: string;
   headline: string | null;
-  summary: string | null;
-  skills: string[] | string | null;
-  visibility: ProfileVisibility;
+  professional_summary: string | null;
+  date_of_birth: string | null;
+  gender: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  profile_photo_url: string | null;
+  expected_salary: number | null;
   availability: Availability | null;
-  expected_salary_min: number | null;
-  expected_salary_max: number | null;
+  profile_visibility: ProfileVisibility;
   created_at: string;
   updated_at: string;
 }
 
 export interface Education {
   id: string;
-  profile_id: string;
+  jobseeker_id: string;
   institution: string;
   degree: string;
   field_of_study: string | null;
   start_date: string | null;
   end_date: string | null;
+  is_current: boolean;
   grade: string | null;
   description: string | null;
   created_at: string;
@@ -240,10 +251,12 @@ export interface Education {
 
 export interface WorkExperience {
   id: string;
-  profile_id: string;
+  jobseeker_id: string;
   company_name: string;
-  position: string;
-  start_date: string | null;
+  job_title: string;
+  employment_type: EmploymentType;
+  location: string | null;
+  start_date: string;
   end_date: string | null;
   is_current: boolean;
   description: string | null;
@@ -253,9 +266,12 @@ export interface WorkExperience {
 
 export interface Resume {
   id: string;
-  profile_id: string;
+  jobseeker_id: string;
   title: string;
   file_url: string;
+  file_name: string;
+  file_type: string;
+  file_size_bytes: number;
   is_default: boolean;
   created_at: string;
   updated_at: string;
@@ -271,6 +287,7 @@ export interface Application {
   source: ApplicationSource;
   status: ApplicationStatus;
   applied_at: string | null;
+  withdrawn_at: string | null;
   created_at: string;
   updated_at: string;
   job?: Job;
@@ -348,6 +365,7 @@ export interface Notification {
   title: string;
   body: string | null;
   data: Record<string, unknown> | null;
+  is_read: boolean;
   read_at: string | null;
   created_at: string;
   updated_at: string;
@@ -362,12 +380,14 @@ export interface SavedJob {
   job?: Job;
 }
 
+/** Mirrors backend IJobAlert (owned by user, optional taxonomy filters). */
 export interface JobAlert {
   id: string;
-  jobseeker_id: string;
+  user_id: string;
   name: string;
   keywords: string | null;
-  location: string | null;
+  location_id: string | null;
+  category_id: string | null;
   employment_type: EmploymentType | null;
   frequency: JobAlertFrequency;
   is_active: boolean;

@@ -23,7 +23,11 @@ export const registerSchema = z.object({
   first_name: z.string().trim().min(1).max(100),
   last_name: z.string().trim().min(1).max(100),
   phone: phoneSchema,
-  role: z.nativeEnum(RoleName).optional(),
+  // Self-service registration may only pick a marketplace role; platform
+  // roles (MODERATOR/ADMIN/SUPER_ADMIN) must be granted by an existing admin.
+  role: z
+    .enum([RoleName.JOBSEEKER, RoleName.RECRUITER, RoleName.COMPANY_ADMIN])
+    .optional(),
 });
 
 export const loginSchema = z.object({

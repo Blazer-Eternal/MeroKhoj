@@ -13,11 +13,13 @@ export const authPaths = {
           'application/json': {
             schema: {
               type: 'object',
-              required: ['email', 'password', 'full_name'],
+              required: ['email', 'password', 'first_name', 'last_name'],
               properties: {
                 email: { type: 'string', format: 'email' },
                 password: { type: 'string', format: 'password' },
-                full_name: { type: 'string' },
+                first_name: { type: 'string' },
+                last_name: { type: 'string' },
+                phone: { type: 'string' },
                 role: { type: 'string', enum: ['JOBSEEKER', 'RECRUITER', 'COMPANY_ADMIN'] },
               },
             },

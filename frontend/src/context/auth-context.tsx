@@ -34,7 +34,8 @@ interface AuthContextValue {
   area: DashboardArea | null;
   login: (email: string, password: string) => Promise<AuthPayload>;
   register: (input: {
-    full_name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     role: RoleName;
@@ -90,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(
     async (input: {
-      full_name: string;
+      first_name: string;
+      last_name: string;
       email: string;
       password: string;
       role: RoleName;

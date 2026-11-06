@@ -4,6 +4,7 @@
  * again on every submit; these are UX-only.
  */
 import { z } from 'zod';
+import { RoleName } from '@/enums';
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email'),
@@ -12,7 +13,8 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
-    full_name: z.string().trim().min(2, 'Name must be at least 2 characters').max(150),
+    first_name: z.string().trim().min(1, 'First name is required').max(100),
+    last_name: z.string().trim().min(1, 'Last name is required').max(100),
     email: z.string().trim().toLowerCase().email('Enter a valid email'),
     password: z
       .string()
@@ -20,7 +22,10 @@ export const registerSchema = z
       .regex(/[A-Za-z]/, 'Must contain a letter')
       .regex(/\d/, 'Must contain a number'),
     confirm: z.string(),
-    role: z.enum(['JOBSEEKER', 'RECRUITER', 'COMPANY_ADMIN']).default('JOBSEEKER'),
+    role: z
+      .enum(['JOBSEEKER', 'RECRUITER', 'COMPANY_ADMIN'])
+      .transform((v) => v as RoleName)
+      .default('JOBSEEKER'),
   })
   .refine((v) => v.password === v.confirm, {
     message: 'Passwords do not match',

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { AREA_HOME, areasForRoles } from '@/lib/permissions';
+import { displayName } from '@/utils/format';
 import { Button } from '@/components/ui';
 
 const navLinks = [
@@ -79,8 +80,11 @@ export function Navbar() {
                   ))}
                 </select>
               )}
-              <span className="max-w-[10rem] truncate text-sm text-slate-600" title={user.full_name}>
-                {user.full_name}
+              <span
+                className="max-w-[10rem] truncate text-sm text-slate-600"
+                title={displayName(user)}
+              >
+                {displayName(user)}
               </span>
               <Button variant="ghost" size="sm" onClick={() => void logout()}>
                 Log out

@@ -98,11 +98,11 @@ const performRefresh = async (): Promise<boolean> => {
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
     if (!res.ok) return false;
-    const json = (await res.json()) as Envelope<{ tokens: { accessToken: string; refreshToken: string } }>;
+    const json = (await res.json()) as Envelope<{ tokens: { access_token: string; refresh_token: string } }>;
     const tokens = json?.data?.tokens;
-    if (!tokens?.accessToken) return false;
-    setCookie(ACCESS_TOKEN_COOKIE, tokens.accessToken);
-    setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken);
+    if (!tokens?.access_token) return false;
+    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token);
+    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token);
     return true;
   } catch {
     return false;
@@ -255,3 +255,24 @@ export const clearTokens = (): void => {
   deleteCookie(ACCESS_TOKEN_COOKIE);
   deleteCookie(REFRESH_TOKEN_COOKIE);
 };
+
+/**
+ * List fetch that normalizes the two backend list shapes (same rule as
+ * `serverList` in server-api.ts):
+ *   - bare array:     `{ data: [...] }`
+ *   - wrapped object: `{ data: { saved_jobs: [...] } }`
+ * Returns the items plus the envelope `meta`.
+ */
+export async function apiCollection<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<{ data: T[]; meta: Record<string, unknown> }> {
+  const raw = await apiRequest<unknown>(path, options);
+  if (Array.isArray(raw)) return { data: raw as T[], meta: {} };
+  if (raw && typeof raw === 'object') {
+    for (const value of Object.values(raw as Record<string, unknown>)) {
+      if (Array.isArray(value)) return { data: value as T[], meta: {} };
+    }
+  }
+  return { data: [], meta: {} };
+}

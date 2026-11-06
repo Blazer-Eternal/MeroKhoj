@@ -33,23 +33,31 @@ body {
   @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm;
 }
 
-/* Buttons */
-.btn {
+/* Buttons — base styles shared by every variant (Tailwind 4 @apply cannot
+   reference custom classes, so all selectors are grouped here). */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-danger {
   @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
 }
 .btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  @apply bg-brand-600 text-white hover:bg-brand-700;
 }
 .btn-secondary {
-  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+  @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
 }
 .btn-danger {
-  @apply btn bg-red-600 text-white hover:bg-red-700;
+  @apply bg-red-600 text-white hover:bg-red-700;
 }
 
 /* Form controls */
-.input {
+.input,
+.input-error {
   @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+}
+.input-error {
+  @apply border-red-400 focus:border-red-500 focus:ring-red-100;
 }
 .label {
   @apply mb-1.5 block text-sm font-medium text-slate-700;

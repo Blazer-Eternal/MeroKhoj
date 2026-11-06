@@ -22,9 +22,9 @@ export const storeSession = (
   payload: AuthPayload | (MePayload & { tokens?: AuthPayload['tokens'] }),
 ): void => {
   const tokens = (payload as AuthPayload).tokens;
-  if (tokens) {
-    setCookie(ACCESS_TOKEN_COOKIE, tokens.accessToken);
-    setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken);
+  if (tokens?.access_token) {
+    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token);
+    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token);
   }
   setCookie(ROLES_COOKIE, payload.roles.join(','), 30);
 };
