@@ -47,3 +47,4 @@ class JobAlertRepository {
 }
 
 export default new JobAlertRepository();
+

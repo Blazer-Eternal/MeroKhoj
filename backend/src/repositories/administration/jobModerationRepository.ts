@@ -34,3 +34,4 @@ class JobModerationRepository {
 }
 
 export default new JobModerationRepository();
+

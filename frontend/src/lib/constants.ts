@@ -62,3 +62,4 @@ export const INTERVIEW_TYPE_LABELS: Record<string, string> = {
 
 export const DATE_FORMAT = 'MMM d, yyyy';
 export const DEFAULT_PAGE_SIZE = 12;
+

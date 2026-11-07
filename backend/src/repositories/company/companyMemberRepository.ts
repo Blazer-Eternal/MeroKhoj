@@ -81,3 +81,4 @@ class CompanyMemberRepository {
 }
 
 export default new CompanyMemberRepository();
+

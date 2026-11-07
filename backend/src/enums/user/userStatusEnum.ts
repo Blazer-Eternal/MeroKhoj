@@ -10,3 +10,5 @@ export const USER_STATUSES: UserStatus[] = Object.values(UserStatus);
 
 /** Statuses that are allowed to authenticate. */
 export const LOGIN_ALLOWED_STATUSES: UserStatus[] = [UserStatus.ACTIVE];
+
+

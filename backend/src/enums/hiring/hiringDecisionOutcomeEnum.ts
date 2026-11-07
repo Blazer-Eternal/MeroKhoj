@@ -25,3 +25,5 @@ export const DECISION_APPLICATION_STATUS: Record<HiringDecisionOutcome, Applicat
   [HiringDecisionOutcome.ON_HOLD]: ApplicationStatus.UNDER_REVIEW,
   [HiringDecisionOutcome.SHORTLISTED]: ApplicationStatus.SHORTLISTED,
 };
+
+

@@ -62,3 +62,4 @@ class ServicePlanRepository {
 }
 
 export default new ServicePlanRepository();
+

@@ -61,3 +61,4 @@ class CompanyVerificationRepository {
 }
 
 export default new CompanyVerificationRepository();
+
