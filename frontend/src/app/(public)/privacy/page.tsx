@@ -4,7 +4,7 @@ const SECTIONS = [
   {
     title: 'What we collect',
     body: [
-      'Account data: name, email, phone, and password (stored as a salted hash — never in plain text).',
+      'Account data: name, email, phone, and password (stored as a salted hash, never in plain text).',
       'Profile data you choose to add: headline, summary, education, work experience, resumes, and preferences.',
       'Employer data: company details, job postings, and hiring activity.',
       'Technical data: request logs and audit entries used for security and abuse prevention.',
@@ -22,7 +22,7 @@ const SECTIONS = [
   {
     title: 'Who can see it',
     body: [
-      'Employers see your application and the profile fields attached to it — never your password or auth data.',
+      'Employers see your application and the profile fields attached to it, never your password or auth data.',
       'Administrators can review data for moderation, verification, and support, and those actions are audit-logged.',
       'Everything else stays private to your account.',
     ],
@@ -32,7 +32,7 @@ const SECTIONS = [
     body: [
       'Edit or remove profile, education, experience, and resume entries at any time from your dashboard.',
       'Pause or delete job alerts.',
-      'Request account deletion by contacting us — rows required for legal/billing records are retained as required.',
+      'Request account deletion by contacting us. Rows required for legal or billing records are retained as required.',
     ],
   },
 ];

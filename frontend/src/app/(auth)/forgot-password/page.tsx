@@ -30,13 +30,12 @@ export default function ForgotPasswordPage() {
     <div className="card">
       <h1 className="text-2xl font-bold text-slate-900">Forgot your password?</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Enter your email and we&apos;ll send you a reset link once the service is available.
+        Enter your email and we&apos;ll send you a reset link.
       </p>
 
       {done ? (
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Password reset emails are not wired up yet — the backend endpoint is
-          pending. For local access use the demo accounts in the README, or{' '}
+          Password reset isn&apos;t available yet. Sign in with your current password, or{' '}
           <Link href="/contact" className="font-semibold underline">
             contact support
           </Link>

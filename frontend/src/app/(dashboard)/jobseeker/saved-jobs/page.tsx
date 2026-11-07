@@ -6,6 +6,7 @@ import { apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { useApiList } from '@/hooks/use-api-list';
 import { Button, Spinner, EmptyState, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import { EMPLOYMENT_TYPE_LABELS } from '@/lib/constants';
 import type { SavedJob } from '@/types';
 import { excerpt, formatSalaryRange, timeAgo } from '@/utils/format';
@@ -34,7 +35,7 @@ export default function SavedJobsPage() {
       <header>
         <h1 className="text-xl font-bold text-slate-900">Saved jobs</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {saved.data.length} saved job{saved.data.length === 1 ? '' : 's'} — come back and
+          {saved.data.length} saved job{saved.data.length === 1 ? '' : 's'}. Come back and
           apply before the deadline.
         </p>
       </header>
@@ -55,7 +56,7 @@ export default function SavedJobsPage() {
         </div>
       ) : saved.data.length === 0 ? (
         <EmptyState
-          icon="🔖"
+          icon={<NavIcon name="bookmark" className="h-10 w-10" />}
           title="No saved jobs yet"
           description="Tap “Save job” on any posting to keep it here for later."
           action={

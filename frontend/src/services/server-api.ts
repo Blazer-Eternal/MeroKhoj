@@ -47,7 +47,7 @@ export async function serverGet<T>(
   try {
     res = await fetch(url.toString(), init);
   } catch {
-    throw new ServerApiError('Backend unreachable — is it running on :8000?', 0);
+    throw new ServerApiError('The service is unreachable right now. Please try again shortly.', 0);
   }
 
   let json: Envelope<T>;

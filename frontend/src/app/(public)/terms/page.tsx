@@ -7,7 +7,7 @@ const SECTIONS = [
   },
   {
     title: '2. Accounts',
-    body: 'You are responsible for keeping your credentials secure. One person may not impersonate another, and platform roles (moderator/admin) are granted only by MeroKhoj — never self-selected at registration.',
+    body: 'You are responsible for keeping your credentials secure. One person may not impersonate another, and platform roles (moderator/admin) are granted only by MeroKhoj, never self-selected at registration.',
   },
   {
     title: '3. For jobseekers',

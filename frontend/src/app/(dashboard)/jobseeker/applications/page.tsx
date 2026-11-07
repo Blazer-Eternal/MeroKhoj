@@ -7,6 +7,7 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, StatusBadge, Spinner, EmptyState, Select, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import { ApplicationStatus } from '@/enums';
 import type { Application } from '@/types';
 import { formatDate, timeAgo } from '@/utils/format';
@@ -99,7 +100,7 @@ export default function ApplicationsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon="📨"
+          icon={<NavIcon name="envelope" className="h-10 w-10" />}
           title={filter ? 'No applications with that status' : 'No applications yet'}
           description={
             filter

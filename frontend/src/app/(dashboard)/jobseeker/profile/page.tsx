@@ -125,7 +125,7 @@ export default function JobseekerProfilePage() {
           <p className="mt-1 text-sm text-slate-500">
             {profile
               ? `Profile ID ${profile.id.slice(0, 8)}… · last updated ${formatDate(profile.updated_at)}`
-              : 'No profile row yet — saving creates it (upsert).'}
+              : 'No profile saved yet. Your first save creates it.'}
           </p>
         </div>
         {user && (

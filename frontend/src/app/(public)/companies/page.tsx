@@ -65,7 +65,7 @@ export default async function CompaniesPage({
 
       {failed ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-          Can&apos;t reach the API — start the backend on port 8000.
+          The company directory is unavailable right now. Please try again in a moment.
         </div>
       ) : companies.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-14 text-center">

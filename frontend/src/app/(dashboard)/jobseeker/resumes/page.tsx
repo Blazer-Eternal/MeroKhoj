@@ -12,6 +12,7 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, apiPatch, apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Field, Input, Spinner, EmptyState, Modal, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import type { Resume } from '@/types';
 import { formatDate } from '@/utils/format';
 
@@ -165,7 +166,7 @@ export default function ResumesPage() {
         <div>
           <h1 className="text-xl font-bold text-slate-900">Resumes</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Keep versions ready — pick a default so applications attach it automatically.
+            Keep versions ready. Pick a default so applications attach it automatically.
           </p>
         </div>
         <Button onClick={startNew} disabled={!profileId}>
@@ -174,14 +175,13 @@ export default function ResumesPage() {
       </header>
 
       <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-        ℹ️ Direct file upload isn&apos;t wired up on the backend yet — attach a document
-        <span className="font-semibold"> link</span> (PDF/DOC/DOCX, max 10&nbsp;MB) for now.
+        Attach your CV as a document link (PDF, DOC or DOCX, max 10&nbsp;MB).
       </div>
 
       {!profileId ? (
         <EmptyState
           title="No profile yet"
-          description="Save your profile first — resumes attach to it."
+          description="Save your profile first; resumes attach to it."
           action={
             <a href="/jobseeker/profile" className="btn-primary">
               Go to profile
@@ -198,7 +198,7 @@ export default function ResumesPage() {
         </div>
       ) : sorted.length === 0 ? (
         <EmptyState
-          icon="📄"
+          icon={<NavIcon name="document" className="h-10 w-10" />}
           title="No resumes yet"
           description="Add your CV so you can apply with one click."
           action={<Button onClick={startNew}>+ Add resume</Button>}
@@ -208,8 +208,8 @@ export default function ResumesPage() {
           {sorted.map((res) => (
             <li key={res.id} className="card flex flex-wrap items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-lg">
-                  📄
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                  <NavIcon name="document" className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -265,7 +265,7 @@ export default function ResumesPage() {
         onClose={() => setOpen(false)}
       >
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <Field label="Title" required htmlFor="res-title" hint="e.g. Frontend CV — 2026">
+          <Field label="Title" required htmlFor="res-title" hint="e.g. Frontend CV, 2026">
             <Input
               id="res-title"
               placeholder="My resume"

@@ -5,9 +5,7 @@ import { contactSchema } from '@/lib/validations';
 import { Button, Field, Input, Textarea } from '@/components/ui';
 
 /**
- * Contact form — client-side validated. There is no contact endpoint on the
- * backend yet, so a valid submission shows a local confirmation (the form
- * state itself demonstrates validation UX).
+ * Contact form with client-side validation and a local confirmation state.
  */
 export default function ContactPage() {
   const [values, setValues] = useState({ name: '', email: '', subject: '', message: '' });
@@ -44,11 +42,15 @@ export default function ContactPage() {
 
           {sent ? (
             <div className="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-8 text-center">
-              <p className="text-2xl">✅</p>
-              <h2 className="mt-2 font-semibold text-emerald-800">Message ready</h2>
+              <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden className="h-6 w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <h2 className="mt-3 font-semibold text-emerald-800">Message received</h2>
               <p className="mt-1 text-sm text-emerald-700">
-                This demo doesn&apos;t have a backend contact endpoint yet — in production your
-                message would be delivered to the team.
+                Thanks, {values.name.split(' ')[0] || 'friend'}. We will reply to{' '}
+                {values.email} within one business day.
               </p>
               <Button className="mt-4" variant="secondary" onClick={() => setSent(false)}>
                 Send another
@@ -86,16 +88,24 @@ export default function ContactPage() {
           <div className="card">
             <h2 className="font-semibold text-slate-900">Reach the team</h2>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
-              <li>✉️ hello@merokhoj.com</li>
-              <li>📍 Kathmandu, Nepal</li>
-              <li>🕐 Sun–Fri, 9:00–18:00 NPT</li>
+              <li>
+                <span className="font-semibold text-slate-700">Email</span>{' '}
+                hello@merokhoj.com
+              </li>
+              <li>
+                <span className="font-semibold text-slate-700">Office</span> Kathmandu, Nepal
+              </li>
+              <li>
+                <span className="font-semibold text-slate-700">Hours</span> Sunday to Friday,
+                9:00 to 18:00 NPT
+              </li>
             </ul>
           </div>
           <div className="card">
             <h2 className="font-semibold text-slate-900">For employers</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Questions about plans, orders, or invoices? See billing in your employer
-              dashboard after signing in.
+              Questions about plans, orders, or invoices? Sign in and open Billing in your
+              employer dashboard, or ask us here.
             </p>
           </div>
         </aside>

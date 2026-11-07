@@ -6,21 +6,22 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Spinner, EmptyState, Badge, Select } from '@/components/ui';
+import { NavIcon, type NavIconName } from '@/components/ui/icons';
 import type { Notification } from '@/types';
 import { timeAgo } from '@/utils/format';
 
-const TYPE_ICONS: Record<string, string> = {
-  APPLICATION_STATUS: '📨',
-  INTERVIEW_SCHEDULED: '📅',
-  INTERVIEW_REMINDER: '⏰',
-  NEW_MESSAGE: '💬',
-  JOB_ALERT: '🔔',
-  SAVED_JOB_CLOSED: '🔖',
-  COMPANY_VERIFICATION: '✅',
-  JOB_MODERATION: '🛡️',
-  REPORT_UPDATE: '🚩',
-  PAYMENT_UPDATE: '💳',
-  SYSTEM: '⚙️',
+const TYPE_ICONS: Record<string, NavIconName> = {
+  APPLICATION_STATUS: 'envelope',
+  INTERVIEW_SCHEDULED: 'calendar',
+  INTERVIEW_REMINDER: 'bell',
+  NEW_MESSAGE: 'envelope',
+  JOB_ALERT: 'bell',
+  SAVED_JOB_CLOSED: 'bookmark',
+  COMPANY_VERIFICATION: 'shield-check',
+  JOB_MODERATION: 'shield',
+  REPORT_UPDATE: 'flag',
+  PAYMENT_UPDATE: 'card',
+  SYSTEM: 'settings',
 };
 
 export default function NotificationsPage() {
@@ -122,7 +123,7 @@ export default function NotificationsPage() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          icon="📣"
+          icon={<NavIcon name="speaker" className="h-10 w-10" />}
           title={filter === 'unread' ? 'You’re all caught up' : 'No notifications yet'}
           description={
             filter === 'unread'
@@ -140,7 +141,9 @@ export default function NotificationsPage() {
               }`}
             >
               <div className="flex min-w-0 gap-3">
-                <span className="text-xl">{TYPE_ICONS[n.type] ?? '📢'}</span>
+                <span className="text-brand-600">
+                  <NavIcon name={TYPE_ICONS[n.type] ?? 'speaker'} className="h-5 w-5" />
+                </span>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-slate-900">{n.title}</p>
@@ -168,7 +171,7 @@ export default function NotificationsPage() {
                   onClick={() => void remove(n.id)}
                   aria-label="Delete notification"
                 >
-                  ✕
+                  <NavIcon name="close" className="h-4 w-4" />
                 </Button>
               </div>
             </li>

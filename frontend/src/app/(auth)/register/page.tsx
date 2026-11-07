@@ -68,7 +68,7 @@ export default function RegisterPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Join MeroKhoj — jobseekers find work, employers find talent.
+          Join MeroKhoj: jobseekers find work, employers find talent.
         </p>
       </div>
 
@@ -125,9 +125,9 @@ export default function RegisterPage() {
             value={role}
             onChange={(e) => setRole(e.target.value as RoleName)}
           >
-            <option value="JOBSEEKER">Jobseeker — I&apos;m looking for a job</option>
-            <option value="RECRUITER">Recruiter — I hire for a company</option>
-            <option value="COMPANY_ADMIN">Company admin — I run a company page</option>
+            <option value="JOBSEEKER">Jobseeker (I&apos;m looking for a job)</option>
+            <option value="RECRUITER">Recruiter (I hire for a company)</option>
+            <option value="COMPANY_ADMIN">Company admin (I run a company page)</option>
           </Select>
         </Field>
 

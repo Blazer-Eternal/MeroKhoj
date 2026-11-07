@@ -70,7 +70,9 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/jobseeker/:path*',
-    '/employer/:path*',
+    // `/employer` itself is the PUBLIC employer-zone marketing page;
+    // only the dashboard routes beneath it are gated.
+    '/employer/:path+',
     '/admin/:path*',
     '/login',
     '/register',

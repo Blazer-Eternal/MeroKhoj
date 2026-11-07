@@ -48,7 +48,9 @@ export function Modal({
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
-            ✕
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-4 w-4">
+              <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </Button>
         </div>
         <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>

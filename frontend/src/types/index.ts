@@ -309,12 +309,13 @@ export interface Interview {
   id: string;
   application_id: string;
   scheduled_by: string | null;
+  interview_type: InterviewType;
   scheduled_at: string;
   duration_minutes: number | null;
-  type: InterviewType;
   location: string | null;
-  notes: string | null;
+  meeting_url: string | null;
   status: InterviewStatus;
+  notes: string | null;
   created_at: string;
   updated_at: string;
   application?: Application;

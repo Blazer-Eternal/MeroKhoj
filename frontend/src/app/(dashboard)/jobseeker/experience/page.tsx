@@ -7,6 +7,7 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, apiPatch, apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Field, Input, Select, Textarea, Spinner, EmptyState, Modal, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import { EmploymentType } from '@/enums';
 import type { WorkExperience } from '@/types';
 import { formatDate, humanize } from '@/utils/format';
@@ -149,7 +150,7 @@ export default function ExperiencePage() {
         <div>
           <h1 className="text-xl font-bold text-slate-900">Work experience</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Roles you&apos;ve held — employers see this on your applications.
+            Roles you&apos;ve held. Employers see this on your applications.
           </p>
         </div>
         <Button onClick={startNew} disabled={!profileId}>
@@ -160,7 +161,7 @@ export default function ExperiencePage() {
       {!profileId ? (
         <EmptyState
           title="No profile yet"
-          description="Save your profile first — experience entries attach to it."
+          description="Save your profile first; experience entries attach to it."
           action={
             <a href="/jobseeker/profile" className="btn-primary">
               Go to profile
@@ -177,9 +178,9 @@ export default function ExperiencePage() {
         </div>
       ) : sorted.length === 0 ? (
         <EmptyState
-          icon="💼"
+          icon={<NavIcon name="briefcase" className="h-10 w-10" />}
           title="No experience added yet"
-          description="Even internships and part-time roles count — add them."
+          description="Internships and part-time roles count too. Add them."
           action={<Button onClick={startNew}>+ Add experience</Button>}
         />
       ) : (

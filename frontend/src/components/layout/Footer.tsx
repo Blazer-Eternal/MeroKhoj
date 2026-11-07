@@ -15,7 +15,7 @@ const columns = [
     links: [
       { href: '/companies', label: 'Company directory' },
       { href: '/register', label: 'Post a job' },
-      { href: '/about', label: 'Pricing' },
+      { href: '/employer', label: 'Employer zone' },
       { href: '/contact', label: 'Contact sales' },
     ],
   },
@@ -46,8 +46,8 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-3 text-sm text-slate-500">
-              Find what&apos;s yours. Khoj is a function, not a channel — seekers discover jobs,
-              employers discover talent.
+              Seekers discover jobs, employers discover talent, and both start from the same
+              search.
             </p>
           </div>
           {columns.map((col) => (

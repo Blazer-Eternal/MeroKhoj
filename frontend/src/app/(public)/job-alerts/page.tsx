@@ -10,6 +10,33 @@ import { Button, Field, Input, Select } from '@/components/ui';
 import { JobAlertFrequency, EmploymentType } from '@/enums';
 import type { Location as GeoLocation, JobCategory } from '@/types';
 
+const BellIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
+    <path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6" />
+    <path d="M10.3 19a2 2 0 0 0 3.4 0" />
+  </svg>
+);
+
+const BoltIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="h-5 w-5">
+    <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
+  </svg>
+);
+
+const SlidersIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
+    <path strokeLinecap="round" d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="10" cy="17" r="2" />
+  </svg>
+);
+
+const ALERT_POINTS = [
+  { icon: <BellIcon />, title: 'Never miss a match', text: 'Keyword and location matching runs against every new posting.' },
+  { icon: <BoltIcon />, title: 'Choose your cadence', text: 'Instant, daily, or weekly digests. You decide.' },
+  { icon: <SlidersIcon />, title: 'Full control', text: 'Edit, pause, or delete alerts from your jobseeker dashboard.' },
+];
+
 /**
  * Public job-alert signup. Creating an alert requires a jobseeker session —
  * guests are routed to login with a return path (backend enforces the role).
@@ -90,13 +117,9 @@ export default function JobAlertsPage() {
           </p>
 
           <ul className="mt-6 space-y-4">
-            {[
-              { icon: '🔔', title: 'Never miss a match', text: 'Keyword + location matching runs against every new posting.' },
-              { icon: '⚡', title: 'Choose your cadence', text: 'Instant, daily, or weekly digests — you decide.' },
-              { icon: '🎛️', title: 'Full control', text: 'Edit, pause, or delete alerts from your jobseeker dashboard.' },
-            ].map((item) => (
+            {ALERT_POINTS.map((item) => (
               <li key={item.title} className="flex gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-lg">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                   {item.icon}
                 </span>
                 <div>
@@ -147,7 +170,7 @@ export default function JobAlertsPage() {
                 />
               </Field>
 
-              <Field label="Location" hint="Optional — match jobs in a specific city" htmlFor="alert-location">
+              <Field label="Location" hint="Optional: match jobs in a specific city" htmlFor="alert-location">
                 <Select
                   id="alert-location"
                   value={locationId}
@@ -163,7 +186,7 @@ export default function JobAlertsPage() {
                 </Select>
               </Field>
 
-              <Field label="Category" hint="Optional — focus on one field" htmlFor="alert-category">
+              <Field label="Category" hint="Optional: focus on one field" htmlFor="alert-category">
                 <Select
                   id="alert-category"
                   value={categoryId}
@@ -197,7 +220,7 @@ export default function JobAlertsPage() {
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value as JobAlertFrequency)}
                 >
-                  <option value={JobAlertFrequency.INSTANT}>Instant — as jobs are posted</option>
+                  <option value={JobAlertFrequency.INSTANT}>Instant, as jobs are posted</option>
                   <option value={JobAlertFrequency.DAILY}>Daily digest</option>
                   <option value={JobAlertFrequency.WEEKLY}>Weekly digest</option>
                 </Select>

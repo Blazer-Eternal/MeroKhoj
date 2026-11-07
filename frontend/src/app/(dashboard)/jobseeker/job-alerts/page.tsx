@@ -9,6 +9,7 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, apiPatch, apiDelete, apiCollection, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Field, Input, Select, Spinner, EmptyState, Modal, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import { JobAlertFrequency, EmploymentType } from '@/enums';
 import type { JobAlert, Location as GeoLocation, JobCategory } from '@/types';
 import { humanize, timeAgo } from '@/utils/format';
@@ -140,7 +141,7 @@ export default function JobAlertsPage() {
           <h1 className="text-xl font-bold text-slate-900">Job alerts</h1>
           <p className="mt-1 text-sm text-slate-500">
             {alerts.data.filter((a) => a.is_active).length} active ·{' '}
-            {alerts.data.length} total — matched jobs arrive as notifications.
+            {alerts.data.length} total. Matched jobs arrive as notifications.
           </p>
         </div>
         <Button onClick={startNew}>+ New alert</Button>
@@ -156,7 +157,7 @@ export default function JobAlertsPage() {
         </div>
       ) : alerts.data.length === 0 ? (
         <EmptyState
-          icon="🔔"
+          icon={<NavIcon name="bell" className="h-10 w-10" />}
           title="No alerts yet"
           description="Create an alert and we'll notify you when matching jobs are posted."
           action={<Button onClick={startNew}>+ New alert</Button>}

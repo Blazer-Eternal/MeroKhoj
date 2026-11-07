@@ -11,6 +11,7 @@ import { useApiList } from '@/hooks/use-api-list';
 import { apiPost, apiPatch, apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Field, Input, Textarea, Spinner, EmptyState, Modal, Badge } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import type { Education } from '@/types';
 import { formatDate } from '@/utils/format';
 
@@ -162,7 +163,7 @@ export default function EducationPage() {
       {!profileId ? (
         <EmptyState
           title="No profile yet"
-          description="Save your profile first — education entries attach to it."
+          description="Save your profile first; education entries attach to it."
           action={
             <a href="/jobseeker/profile" className="btn-primary">
               Go to profile
@@ -179,9 +180,9 @@ export default function EducationPage() {
         </div>
       ) : sorted.length === 0 ? (
         <EmptyState
-          icon="🎓"
+          icon={<NavIcon name="education" className="h-10 w-10" />}
           title="No education added yet"
-          description="Add your most recent qualification — employers filter on it."
+          description="Add your most recent qualification. Employers filter on it."
           action={
             <Button onClick={startNew}>+ Add education</Button>
           }

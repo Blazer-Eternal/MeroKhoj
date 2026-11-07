@@ -1,102 +1,156 @@
 'use client';
 
 /**
- * Interviews — the backend has no interview LIST endpoint yet (deferred gap
- * B3: only create/update/status/feedback by id). Until it lands this page
- * shows the honest state plus how applications map to upcoming interviews.
+ * Interviews — real list from GET /interviews (scoped server-side to this
+ * jobseeker's applications). Upcoming first, then the past record.
  */
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { useApiList } from '@/hooks/use-api-list';
 import { endpoints } from '@/services/api-endpoints';
 import { StatusBadge, Spinner, EmptyState, Badge } from '@/components/ui';
-import { ApplicationStatus } from '@/enums';
-import type { Application } from '@/types';
-import { formatDate } from '@/utils/format';
+import { NavIcon } from '@/components/ui/icons';
+import { InterviewStatus, InterviewType } from '@/enums';
+import type { Interview } from '@/types';
+
+const TYPE_LABELS: Record<string, string> = {
+  [InterviewType.PHONE]: 'Phone',
+  [InterviewType.VIDEO]: 'Video call',
+  [InterviewType.IN_PERSON]: 'In person',
+  [InterviewType.TECHNICAL]: 'Technical',
+  [InterviewType.HR]: 'HR',
+  [InterviewType.FINAL]: 'Final round',
+};
+
+const UPCOMING: InterviewStatus[] = [
+  InterviewStatus.SCHEDULED,
+  InterviewStatus.CONFIRMED,
+  InterviewStatus.RESCHEDULED,
+];
+
+const formatWhen = (iso: string) =>
+  new Date(iso).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
+function InterviewRow({ interview }: { interview: Interview }) {
+  const job = interview.application?.job;
+
+  return (
+    <li className="flex flex-wrap items-start justify-between gap-3 py-4">
+      <div className="min-w-0">
+        {job ? (
+          <Link
+            href={`/jobs/${job.id}`}
+            className="font-semibold text-slate-900 hover:text-brand-600"
+          >
+            {job.title}
+          </Link>
+        ) : (
+          <p className="font-semibold text-slate-900">Interview</p>
+        )}
+        <p className="mt-1 text-sm text-slate-600">{formatWhen(interview.scheduled_at)}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Badge tone="slate">{TYPE_LABELS[interview.interview_type] ?? interview.interview_type}</Badge>
+          {interview.duration_minutes ? (
+            <span className="text-xs text-slate-400">{interview.duration_minutes} min</span>
+          ) : null}
+          {interview.meeting_url ? (
+            <a
+              href={interview.meeting_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-brand-600 hover:underline"
+            >
+              Join link
+            </a>
+          ) : null}
+          {interview.location && (
+            <span className="truncate text-xs text-slate-500">{interview.location}</span>
+          )}
+        </div>
+        {interview.notes && (
+          <p className="mt-2 max-w-2xl text-sm text-slate-500">{interview.notes}</p>
+        )}
+      </div>
+      <StatusBadge kind="interview" value={interview.status} />
+    </li>
+  );
+}
 
 export default function InterviewsPage() {
-  const applications = useApiList<Application>(endpoints.applications.mine, {
+  const interviews = useApiList<Interview>(endpoints.interviews.list, {
     query: { perPage: 100 },
   });
 
-  // Applications whose pipeline stage implies an interview is scheduled.
-  const inInterviewStage = applications.data.filter(
-    (a) =>
-      a.status === ApplicationStatus.INTERVIEW ||
-      a.status === ApplicationStatus.SHORTLISTED ||
-      a.status === ApplicationStatus.SELECTED,
-  );
+  const { upcoming, past } = useMemo(() => {
+    const now = Date.now();
+    const up: Interview[] = [];
+    const done: Interview[] = [];
+    for (const item of interviews.data) {
+      const isUpcoming =
+        UPCOMING.includes(item.status) && new Date(item.scheduled_at).getTime() >= now;
+      (isUpcoming ? up : done).push(item);
+    }
+    up.sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+    done.sort((a, b) => b.scheduled_at.localeCompare(a.scheduled_at));
+    return { upcoming: up, past: done };
+  }, [interviews.data]);
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-bold text-slate-900">Interviews</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Interview scheduling lands here once the backend exposes the interview list.
+          Every scheduled conversation with an employer, in one place.
         </p>
       </header>
 
-      {/* Honest gap notice (backend gap B3) */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-        <p className="font-semibold">⏳ Interview listing is coming soon</p>
-        <p className="mt-1">
-          The API currently supports creating and updating interviews by id, but there is no{' '}
-          <code className="rounded bg-amber-100 px-1">GET /interviews</code> list endpoint yet
-          (tracked as backend gap B3). Until it ships, your pipeline stage below is the best
-          proxy for interview activity.
-        </p>
-      </div>
-
-      {/* Proxy: applications at interview-ish stages */}
-      <section className="card">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Interview-stage applications</h2>
-          <Link
-            href="/jobseeker/applications"
-            className="text-sm font-semibold text-brand-600 hover:text-brand-700"
-          >
-            All applications →
-          </Link>
+      {interviews.loading ? (
+        <div className="card flex items-center gap-2 text-sm text-slate-500">
+          <Spinner /> Loading interviews…
         </div>
+      ) : interviews.error ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {interviews.error}
+        </div>
+      ) : interviews.data.length === 0 ? (
+        <EmptyState
+          icon={<NavIcon name="calendar" className="h-10 w-10" />}
+          title="No interviews scheduled"
+          description="When an employer moves you forward, the invitation appears here."
+          action={
+            <Link href="/jobs" className="btn-primary">
+              Keep applying
+            </Link>
+          }
+        />
+      ) : (
+        <>
+          {upcoming.length > 0 && (
+            <section className="card">
+              <h2 className="mb-2 text-lg font-bold text-slate-900">Upcoming</h2>
+              <ul className="divide-y divide-slate-100">
+                {upcoming.map((interview) => (
+                  <InterviewRow key={interview.id} interview={interview} />
+                ))}
+              </ul>
+            </section>
+          )}
 
-        {applications.loading ? (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Spinner /> Loading…
-          </div>
-        ) : inInterviewStage.length === 0 ? (
-          <EmptyState
-            icon="📅"
-            title="No interviews scheduled"
-            description="When an employer moves you to interview stage, it appears here."
-            action={
-              <Link href="/jobs" className="btn-primary">
-                Keep applying
-              </Link>
-            }
-          />
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {inInterviewStage.map((app) => (
-              <li key={app.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <Link
-                    href={`/jobs/${app.job_id}`}
-                    className="font-medium text-slate-900 hover:text-brand-600"
-                  >
-                    {app.job?.title ?? 'Job posting'}
-                  </Link>
-                  <p className="text-xs text-slate-400">
-                    Applied {app.applied_at ? formatDate(app.applied_at) : '—'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge tone="teal">Stage</Badge>
-                  <StatusBadge kind="application" value={app.status} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          {past.length > 0 && (
+            <section className="card">
+              <h2 className="mb-2 text-lg font-bold text-slate-900">Past</h2>
+              <ul className="divide-y divide-slate-100">
+                {past.map((interview) => (
+                  <InterviewRow key={interview.id} interview={interview} />
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
+      )}
     </div>
   );
 }

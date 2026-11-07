@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand — MeroKhoj teal/blue, aligned with the reference designs. */
+  /* Brand — MeroKhoj azure blue. */
   --color-brand-50: #eef6ff;
   --color-brand-100: #d9ebff;
   --color-brand-200: #bcdcff;
@@ -13,11 +13,19 @@
   --color-brand-800: #1741b6;
   --color-brand-900: #193a8f;
 
+  /* Deep navy for stat bands and display numerals. */
+  --color-navy-700: #274b9a;
+  --color-navy-800: #1e3a72;
+  --color-navy-900: #172e5c;
+
   --color-accent-400: #2dd4bf;
   --color-accent-500: #14b8a6;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  /* Poppins for headings/display, Source Sans 3 for body copy. */
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-poppins), var(--font-source-sans), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 html {
@@ -25,7 +33,17 @@ html {
 }
 
 body {
-  @apply bg-white text-slate-800 antialiased;
+  @apply bg-white font-sans text-slate-800 antialiased;
+}
+
+/* Headings always render in Poppins, everywhere in the app. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
 }
 
 /* Shared card surface used across dashboards & public pages. */
@@ -39,7 +57,7 @@ body {
 .btn-primary,
 .btn-secondary,
 .btn-danger {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-display text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
 }
 .btn-primary {
   @apply bg-brand-600 text-white hover:bg-brand-700;

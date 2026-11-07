@@ -12,12 +12,13 @@
  *   - recommended  → GET /jobs (published board)
  */
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useApiList } from '@/hooks/use-api-list';
 import { apiGet, apiPost, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Spinner, StatusBadge, EmptyState } from '@/components/ui';
+import { NavIcon } from '@/components/ui/icons';
 import { displayName, formatDate, timeAgo } from '@/utils/format';
 import { ApplicationStatus } from '@/enums';
 import type { Application, Job, JobAlert } from '@/types';
@@ -44,13 +45,13 @@ function StatCard({
 }: {
   label: string;
   value: number | string;
-  icon: string;
+  icon: ReactNode;
   href?: string;
   hint?: string;
 }) {
   const body = (
     <div className="card flex items-center gap-4 transition-shadow hover:shadow-md">
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-xl">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
         {icon}
       </span>
       <div className="min-w-0">
@@ -121,7 +122,7 @@ function ApplyButton({ jobId }: { jobId: string }) {
       className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-60"
     >
       {busy ? '…' : 'Apply'}
-      {msg && msg !== '✓ Applied' ? ` — ${msg}` : ''}
+      {msg && msg !== '✓ Applied' ? `: ${msg}` : ''}
     </button>
   );
 }
@@ -177,7 +178,7 @@ export default function JobseekerDashboardPage() {
           <div>
             <p className="text-sm font-semibold text-brand-100">{today}</p>
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
-              Welcome back, {firstName} 👋
+              Welcome back, {firstName}
             </h1>
             <p className="mt-2 max-w-xl text-sm text-brand-100">
               You have{' '}
@@ -216,27 +217,27 @@ export default function JobseekerDashboardPage() {
         <StatCard
           label="Applications"
           value={applications.data.length}
-          icon="📨"
+          icon={<NavIcon name="envelope" className="h-5 w-5" />}
           href="/jobseeker/applications"
           hint={`${activeCount} active`}
         />
         <StatCard
           label="Saved jobs"
           value={saved.data.length}
-          icon="🔖"
+          icon={<NavIcon name="bookmark" className="h-5 w-5" />}
           href="/jobseeker/saved-jobs"
         />
         <StatCard
           label="Job alerts"
           value={alerts.data.filter((a) => a.is_active).length}
-          icon="🔔"
+          icon={<NavIcon name="bell" className="h-5 w-5" />}
           href="/jobseeker/job-alerts"
           hint={`${alerts.data.length} total`}
         />
         <StatCard
           label="Unread notifications"
           value={unread ?? '—'}
-          icon="📣"
+          icon={<NavIcon name="speaker" className="h-5 w-5" />}
           href="/jobseeker/notifications"
         />
       </section>
@@ -265,7 +266,7 @@ export default function JobseekerDashboardPage() {
           ) : jobs.data.length === 0 ? (
             <EmptyState
               title="No jobs posted yet"
-              description="Check back soon — new roles are added daily."
+              description="Check back soon. New roles are added daily."
             />
           ) : (
             <div className="space-y-3">
@@ -370,11 +371,13 @@ export default function JobseekerDashboardPage() {
           {/* Profile completeness nudge */}
           <section className="card bg-brand-50">
             <div className="flex items-start gap-3">
-              <span className="text-xl">💡</span>
+              <span className="text-brand-600">
+                <NavIcon name="bulb" className="h-5 w-5" />
+              </span>
               <div>
                 <p className="text-sm font-semibold text-brand-900">Stand out to employers</p>
                 <p className="mt-1 text-sm text-brand-800">
-                  Add your education, experience and a default resume — profiles with complete
+                  Add your education, experience and a default resume. Profiles with complete
                   details get more interviews.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

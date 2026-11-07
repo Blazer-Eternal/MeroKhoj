@@ -147,7 +147,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       cache: 'no-store',
     });
   } catch {
-    throw new ApiRequestError('Cannot reach the server. Is the backend running on :8000?', 'NETWORK');
+    throw new ApiRequestError('Cannot reach the server. Please try again shortly.', 'NETWORK');
   }
 
   // Expired access token → refresh once, then retry the original request.
@@ -208,7 +208,7 @@ export async function apiList<T>(
       cache: 'no-store',
     });
   } catch {
-    throw new ApiRequestError('Cannot reach the server. Is the backend running on :8000?', 'NETWORK');
+    throw new ApiRequestError('Cannot reach the server. Please try again shortly.', 'NETWORK');
   }
 
   if (res.status === 401 && !anonymous && !_retried && getRefreshToken()) {

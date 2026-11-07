@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
       return;
     }
     setErrors({});
-    setNotice('Password reset is not wired up yet — the backend endpoint is pending.');
+    setNotice("Password reset isn't available yet. Sign in with your current password instead.");
   };
 
   return (

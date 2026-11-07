@@ -37,6 +37,7 @@ export const endpoints = {
   // ---- company -----------------------------------------------------------
   companies: {
     list: '/companies',
+    mine: '/companies/mine',
     byId: (id: string) => `/companies/${id}`,
     members: (companyId: string) => `/companies/${companyId}/members`,
     member: (companyId: string, memberId: string) =>
@@ -90,9 +91,8 @@ export const endpoints = {
   },
 
   // ---- interviews --------------------------------------------------------
-  // NOTE: there is no interview LIST endpoint yet (deferred backend gap B3);
-  // dashboards use /applications/mine + per-application reads until it lands.
   interviews: {
+    list: '/interviews',
     create: '/interviews',
     byId: (id: string) => `/interviews/${id}`,
     status: (id: string) => `/interviews/${id}/status`,

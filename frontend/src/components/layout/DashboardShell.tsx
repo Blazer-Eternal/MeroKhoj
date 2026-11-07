@@ -11,56 +11,57 @@ import { useAuth } from '@/context/auth-context';
 import { AREA_HOME, type DashboardArea } from '@/lib/permissions';
 import { displayName } from '@/utils/format';
 import { Button } from '@/components/ui';
+import { NavIcon, type NavIconName } from '@/components/ui/icons';
 
 export interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: NavIconName;
 }
 
 export const NAV_BY_AREA: Record<DashboardArea, NavItem[]> = {
   jobseeker: [
-    { href: '/jobseeker/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/jobseeker/profile', label: 'Profile', icon: '👤' },
-    { href: '/jobseeker/education', label: 'Education', icon: '🎓' },
-    { href: '/jobseeker/experience', label: 'Experience', icon: '💼' },
-    { href: '/jobseeker/resumes', label: 'Resumes', icon: '📄' },
-    { href: '/jobseeker/applications', label: 'Applications', icon: '📨' },
-    { href: '/jobseeker/saved-jobs', label: 'Saved Jobs', icon: '🔖' },
-    { href: '/jobseeker/job-alerts', label: 'Job Alerts', icon: '🔔' },
-    { href: '/jobseeker/interviews', label: 'Interviews', icon: '📅' },
-    { href: '/jobseeker/notifications', label: 'Notifications', icon: '📣' },
-    { href: '/jobseeker/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/jobseeker/dashboard', label: 'Dashboard', icon: 'grid' },
+    { href: '/jobseeker/profile', label: 'Profile', icon: 'user' },
+    { href: '/jobseeker/education', label: 'Education', icon: 'education' },
+    { href: '/jobseeker/experience', label: 'Experience', icon: 'briefcase' },
+    { href: '/jobseeker/resumes', label: 'Resumes', icon: 'document' },
+    { href: '/jobseeker/applications', label: 'Applications', icon: 'envelope' },
+    { href: '/jobseeker/saved-jobs', label: 'Saved Jobs', icon: 'bookmark' },
+    { href: '/jobseeker/job-alerts', label: 'Job Alerts', icon: 'bell' },
+    { href: '/jobseeker/interviews', label: 'Interviews', icon: 'calendar' },
+    { href: '/jobseeker/notifications', label: 'Notifications', icon: 'speaker' },
+    { href: '/jobseeker/settings', label: 'Settings', icon: 'settings' },
   ],
   employer: [
-    { href: '/employer/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/employer/company', label: 'Company', icon: '🏢' },
-    { href: '/employer/company-members', label: 'Members', icon: '👥' },
-    { href: '/employer/jobs', label: 'Jobs', icon: '💼' },
-    { href: '/employer/applications', label: 'Applicants', icon: '📨' },
-    { href: '/employer/interviews', label: 'Interviews', icon: '📅' },
-    { href: '/employer/hiring', label: 'Hiring', icon: '🤝' },
-    { href: '/employer/talent-roster', label: 'Talent Roster', icon: '⭐' },
-    { href: '/employer/notifications', label: 'Notifications', icon: '📣' },
-    { href: '/employer/billing', label: 'Billing', icon: '💳' },
-    { href: '/employer/orders', label: 'Orders', icon: '🧾' },
-    { href: '/employer/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/employer/dashboard', label: 'Dashboard', icon: 'grid' },
+    { href: '/employer/company', label: 'Company', icon: 'building' },
+    { href: '/employer/company-members', label: 'Members', icon: 'users' },
+    { href: '/employer/jobs', label: 'Jobs', icon: 'briefcase' },
+    { href: '/employer/applications', label: 'Applicants', icon: 'envelope' },
+    { href: '/employer/interviews', label: 'Interviews', icon: 'calendar' },
+    { href: '/employer/hiring', label: 'Hiring', icon: 'check-circle' },
+    { href: '/employer/talent-roster', label: 'Talent Roster', icon: 'star' },
+    { href: '/employer/notifications', label: 'Notifications', icon: 'speaker' },
+    { href: '/employer/billing', label: 'Billing', icon: 'card' },
+    { href: '/employer/orders', label: 'Orders', icon: 'receipt' },
+    { href: '/employer/settings', label: 'Settings', icon: 'settings' },
   ],
   admin: [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/admin/users', label: 'Users', icon: '👤' },
-    { href: '/admin/companies', label: 'Companies', icon: '🏢' },
-    { href: '/admin/company-verifications', label: 'Verifications', icon: '✅' },
-    { href: '/admin/jobs', label: 'Jobs', icon: '💼' },
-    { href: '/admin/job-moderation', label: 'Moderation', icon: '🛡️' },
-    { href: '/admin/applications', label: 'Applications', icon: '📨' },
-    { href: '/admin/reports', label: 'Reports', icon: '🚩' },
-    { href: '/admin/service-plans', label: 'Service Plans', icon: '📦' },
-    { href: '/admin/orders', label: 'Orders', icon: '🧾' },
-    { href: '/admin/payments', label: 'Payments', icon: '💳' },
-    { href: '/admin/invoices', label: 'Invoices', icon: '📑' },
-    { href: '/admin/audit-logs', label: 'Audit Logs', icon: '📜' },
-    { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/admin/dashboard', label: 'Dashboard', icon: 'grid' },
+    { href: '/admin/users', label: 'Users', icon: 'user' },
+    { href: '/admin/companies', label: 'Companies', icon: 'building' },
+    { href: '/admin/company-verifications', label: 'Verifications', icon: 'shield-check' },
+    { href: '/admin/jobs', label: 'Jobs', icon: 'briefcase' },
+    { href: '/admin/job-moderation', label: 'Moderation', icon: 'shield' },
+    { href: '/admin/applications', label: 'Applications', icon: 'envelope' },
+    { href: '/admin/reports', label: 'Reports', icon: 'flag' },
+    { href: '/admin/service-plans', label: 'Service Plans', icon: 'package' },
+    { href: '/admin/orders', label: 'Orders', icon: 'receipt' },
+    { href: '/admin/payments', label: 'Payments', icon: 'card' },
+    { href: '/admin/invoices', label: 'Invoices', icon: 'document' },
+    { href: '/admin/audit-logs', label: 'Audit Logs', icon: 'list' },
+    { href: '/admin/settings', label: 'Settings', icon: 'settings' },
   ],
 };
 
@@ -103,9 +104,7 @@ export function DashboardShell({
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <span aria-hidden className="w-5 text-center text-base">
-              {item.icon}
-            </span>
+            <NavIcon name={item.icon} className="h-5 w-5 shrink-0" />
             {item.label}
           </Link>
         );
@@ -142,8 +141,13 @@ export function DashboardShell({
           <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-white shadow-2xl">
             <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
               <span className="font-extrabold">MeroKhoj</span>
-              <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-2">
-                ✕
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                className="p-2 text-slate-500 hover:text-slate-800"
+              >
+                <NavIcon name="close" className="h-5 w-5" />
               </button>
             </div>
             {sidebar}
