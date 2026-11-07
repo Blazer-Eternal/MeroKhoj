@@ -68,3 +68,4 @@ export interface IJobSearchQuery {
   industry_id?: string;
   location_id?: string;
 }
+

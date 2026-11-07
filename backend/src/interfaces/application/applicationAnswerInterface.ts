@@ -43,3 +43,4 @@ export interface IAnswerSubmission {
   question_id: string;
   value: string | number | boolean | Date | string[] | null;
 }
+

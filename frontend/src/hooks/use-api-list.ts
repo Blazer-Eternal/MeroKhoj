@@ -57,3 +57,4 @@ export function useApiList<T>(
   const refetch = useCallback(() => setTick((t) => t + 1), []);
   return { data, meta, loading, error, refetch };
 }
+

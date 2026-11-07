@@ -31,3 +31,4 @@ export const getLatestModeration = asyncHandler(async (req: ICustomRequest, res:
 });
 
 export default { moderateJob, listModerationHistory, getLatestModeration };
+

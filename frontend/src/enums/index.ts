@@ -240,3 +240,4 @@ export enum ReportEntityType {
   COMPANY = 'COMPANY',
   JOB = 'JOB',
 }
+
