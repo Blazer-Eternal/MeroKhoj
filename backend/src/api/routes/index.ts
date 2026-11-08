@@ -19,6 +19,7 @@ import { talentRosterRoutes } from './talent';
 import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
 import { jobModerationRoutes, reportRoutes, auditLogRoutes } from './administration';
 import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './payment';
+import { dashboardRoutes } from './dashboard';
 
 /**
  * Central route hub mounted under /api.
@@ -64,6 +65,7 @@ router.use('/audit-logs', auditLogRoutes);
 router.use('/saved-jobs', savedJobRoutes);
 router.use('/job-alerts', jobAlertRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/', talentRosterRoutes);
 
 export default router;

@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -40,9 +40,16 @@ export const createApp = (): Application => {
   );
   app.use(cors(corsOptions));
 
-  // Request logging (skip in test to keep output clean)
+  // Request logging (skip in test to keep output clean).
+  // An external OpenAI-compatible probe polls this port for /v1/models and
+  // /health; those lines are not app traffic and only clutter the console.
   if (env.nodeEnv !== 'test') {
-    app.use(morgan(env.isProduction ? 'combined' : 'dev'));
+    const skipExternalProbe = (req: Request): boolean =>
+      req.path === '/v1/models' || req.path === '/health';
+
+    app.use(
+      morgan(env.isProduction ? 'combined' : 'dev', { skip: skipExternalProbe })
+    );
   }
 
   // Compression + parsers

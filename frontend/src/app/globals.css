@@ -83,3 +83,37 @@ h6 {
 .field-error {
   @apply mt-1 text-xs font-medium text-red-600;
 }
+
+/* Top Employers marquee — two rows drifting in opposite directions.
+   The track holds each logo set twice, so a -50% shift lands exactly on
+   the second copy and the loop never shows a gap. */
+@keyframes mk-marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes mk-marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.mk-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: mk-marquee-left 70s linear infinite;
+}
+.mk-marquee-track[data-direction='ltr'] {
+  animation-name: mk-marquee-right;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-marquee-track {
+    animation: none;
+  }
+}

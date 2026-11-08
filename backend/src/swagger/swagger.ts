@@ -12,6 +12,7 @@ import moderationPaths from './paths/moderationPaths';
 import jobseekerPaths from './paths/jobseekerPaths';
 import talentPaths from './paths/talentPaths';
 import paymentPaths from './paths/paymentPaths';
+import dashboardPaths from './paths/dashboardPaths';
 
 /**
  * OpenAPI 3 spec for MeroKhoj, assembled from per-domain path modules.
@@ -21,7 +22,7 @@ export const swaggerSpec = {
   openapi: '3.0.3',
   info: {
     title: 'MeroKhoj API',
-    version: '1.4.0',
+    version: '1.5.0',
     description:
       "MeroKhoj: Find what's yours. API for the MeroKhoj job portal. " +
       '"Khoj" is a function, not a channel: seekers discover jobs, employers discover talent.\n\n' +
@@ -48,6 +49,7 @@ export const swaggerSpec = {
     ...jobseekerPaths,
     ...talentPaths,
     ...paymentPaths,
+    ...dashboardPaths,
     '/health': {
       get: {
         tags: ['System'],
@@ -82,6 +84,7 @@ export const swaggerSpec = {
     { name: 'Orders', description: 'Plan purchases with server-side totals' },
     { name: 'Payments', description: 'Transactions, webhooks, refunds, entitlements' },
     { name: 'Invoices', description: 'Order invoices (generated + manual)' },
+    { name: 'Dashboard', description: 'Role-scoped dashboard aggregates' },
   ],
 } as const;
 
