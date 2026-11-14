@@ -43,9 +43,13 @@ export const createApp = (): Application => {
   // Request logging (skip in test to keep output clean).
   // An external OpenAI-compatible probe polls this port for /v1/models and
   // /health; those lines are not app traffic and only clutter the console.
+  // Use originalUrl: Express strips req.url for mounted handlers (/health),
+  // so req.path would be wrong by the time morgan logs on response finish.
   if (env.nodeEnv !== 'test') {
-    const skipExternalProbe = (req: Request): boolean =>
-      req.path === '/v1/models' || req.path === '/health';
+    const skipExternalProbe = (req: Request): boolean => {
+      const path = req.originalUrl.split('?')[0];
+      return path === '/v1/models' || path === '/health';
+    };
 
     app.use(
       morgan(env.isProduction ? 'combined' : 'dev', { skip: skipExternalProbe })

@@ -23,13 +23,25 @@ export const getCookie = (name: string): string | null => {
   return match ? decodeURIComponent(match[1]) : null;
 };
 
-export const setCookie = (name: string, value: string, maxAgeDays = 30): void => {
+export const setCookie = (
+  name: string,
+  value: string,
+  maxAgeDays = 30,
+): void => {
   if (typeof document === 'undefined') return;
   const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${
-    maxAgeDays * 86400
-  }; SameSite=Lax${secure}`;
+  // maxAgeDays <= 0 means "remember me" was off: a session cookie that the
+  // browser drops when it closes.
+  const lifetime = maxAgeDays > 0 ? `; max-age=${maxAgeDays * 86400}` : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/${lifetime}; SameSite=Lax${secure}`;
 };
+
+/** Set by the login form when "Remember Me" is ticked. */
+export const REMEMBER_COOKIE = 'mk_remember';
+
+/** Token cookie lifetime: 30 days when remembered, session otherwise. */
+export const tokenMaxAgeDays = (): number =>
+  getCookie(REMEMBER_COOKIE) === '1' ? 30 : 0;
 
 export const deleteCookie = (name: string): void => {
   if (typeof document === 'undefined') return;
@@ -101,8 +113,8 @@ const performRefresh = async (): Promise<boolean> => {
     const json = (await res.json()) as Envelope<{ tokens: { access_token: string; refresh_token: string } }>;
     const tokens = json?.data?.tokens;
     if (!tokens?.access_token) return false;
-    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token);
-    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token);
+    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token, tokenMaxAgeDays());
+    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token, tokenMaxAgeDays());
     return true;
   } catch {
     return false;

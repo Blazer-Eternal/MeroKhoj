@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="card">
+    <div className="card mx-auto w-full max-w-md">
       <h1 className="text-2xl font-bold text-slate-900">Set a new password</h1>
       <p className="mt-1 text-sm text-slate-500">Choose a strong password you don&apos;t use elsewhere.</p>
 

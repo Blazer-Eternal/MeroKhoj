@@ -12,6 +12,7 @@ import {
   setCookie,
   deleteCookie,
   getAccessToken,
+  tokenMaxAgeDays,
 } from '@/services/api-client';
 import type { AuthPayload, MePayload } from '@/types';
 import type { RoleName } from '@/enums';
@@ -23,10 +24,10 @@ export const storeSession = (
 ): void => {
   const tokens = (payload as AuthPayload).tokens;
   if (tokens?.access_token) {
-    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token);
-    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token);
+    setCookie(ACCESS_TOKEN_COOKIE, tokens.access_token, tokenMaxAgeDays());
+    setCookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token, tokenMaxAgeDays());
   }
-  setCookie(ROLES_COOKIE, payload.roles.join(','), 30);
+  setCookie(ROLES_COOKIE, payload.roles.join(','), tokenMaxAgeDays());
 };
 
 export const clearSession = (): void => {

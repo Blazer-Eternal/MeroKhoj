@@ -84,9 +84,10 @@ h6 {
   @apply mt-1 text-xs font-medium text-red-600;
 }
 
-/* Top Employers marquee — two rows drifting in opposite directions.
+/* Top Employers marquee — one row drifting left over 60s.
    The track holds each logo set twice, so a -50% shift lands exactly on
-   the second copy and the loop never shows a gap. */
+   the second copy and the loop never shows a gap. Hovering freezes the row
+   precisely where the cursor sits (play-state pause, no jump). */
 @keyframes mk-marquee-right {
   from {
     transform: translateX(-50%);
@@ -107,10 +108,13 @@ h6 {
   display: flex;
   width: max-content;
   gap: 0.75rem;
-  animation: mk-marquee-left 70s linear infinite;
+  animation: mk-marquee-left 60s linear infinite;
 }
 .mk-marquee-track[data-direction='ltr'] {
   animation-name: mk-marquee-right;
+}
+.mk-marquee-track:hover {
+  animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
   .mk-marquee-track {

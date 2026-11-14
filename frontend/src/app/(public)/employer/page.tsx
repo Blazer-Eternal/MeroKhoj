@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { serverList } from '@/services/server-api';
 import { StatsBand } from '@/components/home/StatsBand';
-import { TopEmployersStrip } from '@/components/home/TopEmployersStrip';
+import { RecruitSection } from '@/components/employer/RecruitSection';
 import { EverythingYouNeed } from '@/components/home/EverythingYouNeed';
 import { EmployerLoginCard } from '@/components/home/EmployerLoginCard';
 import { Watermark } from '@/components/home/Watermark';
-import type { Company, Job, JobCategory, Location } from '@/types';
+import type { Job, JobCategory, Location } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,13 +74,13 @@ const Illustration = () => (
 async function getEmployerData() {
   const [jobsRes, companiesRes, categoriesRes, locationsRes] = await Promise.allSettled([
     serverList<Job>('/jobs', { perPage: 12 }),
-    serverList<Company>('/companies', { perPage: 14 }),
+    // Only the total is needed for the "Verified Employers" stat.
+    serverList<unknown>('/companies', { perPage: 1 }),
     serverList<JobCategory>('/job-categories', { perPage: 100 }),
     serverList<Location>('/locations', { perPage: 100 }),
   ]);
 
   const jobs = jobsRes.status === 'fulfilled' ? jobsRes.value.data : [];
-  const companies = companiesRes.status === 'fulfilled' ? companiesRes.value.data : [];
   const categories = categoriesRes.status === 'fulfilled' ? categoriesRes.value.data : [];
   const locations = locationsRes.status === 'fulfilled' ? locationsRes.value.data : [];
 
@@ -88,17 +88,14 @@ async function getEmployerData() {
     jobsRes.status === 'fulfilled' ? jobsRes.value.meta.total ?? jobs.length : jobs.length,
   );
   const companiesTotal = Number(
-    companiesRes.status === 'fulfilled'
-      ? companiesRes.value.meta.total ?? companies.length
-      : companies.length,
+    companiesRes.status === 'fulfilled' ? companiesRes.value.meta.total ?? 0 : 0,
   );
 
-  return { companies, categories, locations, jobsTotal, companiesTotal };
+  return { categories, locations, jobsTotal, companiesTotal };
 }
 
 export default async function EmployerZonePage() {
-  const { companies, categories, locations, jobsTotal, companiesTotal } =
-    await getEmployerData();
+  const { categories, locations, jobsTotal, companiesTotal } = await getEmployerData();
 
   return (
     <>
@@ -149,7 +146,7 @@ export default async function EmployerZonePage() {
         ]}
       />
 
-      <TopEmployersStrip companies={companies} />
+      <RecruitSection />
 
       {/* Hiring value band */}
       <EverythingYouNeed

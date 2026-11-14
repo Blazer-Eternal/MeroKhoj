@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { AREA_HOME, areasForRoles } from '@/lib/permissions';
 import { displayName } from '@/utils/format';
@@ -35,8 +35,33 @@ export function Navbar() {
   const [megaOpen, setMegaOpen] = useState(false);
   const areas = useMemo(() => areasForRoles(roles).map((a) => AREA_HOME[a]), [roles]);
 
+  // The mega panel is fixed-positioned below the header, so a sliver of page
+  // sits between the trigger and the panel. Closing instantly on mouse-leave
+  // would unmount the panel mid-crossing; give the cursor a grace window to
+  // reach it, and cancel the close the moment it comes back.
+  const megaCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelMegaClose = () => {
+    if (megaCloseTimer.current) {
+      clearTimeout(megaCloseTimer.current);
+      megaCloseTimer.current = null;
+    }
+  };
+
+  const scheduleMegaClose = () => {
+    cancelMegaClose();
+    megaCloseTimer.current = setTimeout(() => {
+      megaCloseTimer.current = null;
+      setMegaOpen(false);
+    }, 300);
+  };
+
+  // Clear any pending close on unmount.
+  useEffect(() => cancelMegaClose, []);
+
   // Close the mega menu whenever the route changes.
   useEffect(() => {
+    cancelMegaClose();
     setMegaOpen(false);
     setOpen(false);
   }, [pathname]);
@@ -69,13 +94,19 @@ export function Navbar() {
           {/* Browse Jobs opens the mega menu on hover or click. */}
           <div
             className="relative"
-            onMouseEnter={() => setMegaOpen(true)}
-            onMouseLeave={() => setMegaOpen(false)}
+            onMouseEnter={() => {
+              cancelMegaClose();
+              setMegaOpen(true);
+            }}
+            onMouseLeave={scheduleMegaClose}
           >
             <button
               type="button"
               aria-expanded={megaOpen}
-              onClick={() => setMegaOpen((v) => !v)}
+              onClick={() => {
+                cancelMegaClose();
+                setMegaOpen((v) => !v);
+              }}
               className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
                 megaOpen ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
@@ -83,7 +114,14 @@ export function Navbar() {
               Browse Jobs
               <ChevronDown className={megaOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
             </button>
-            {megaOpen && <MegaPanel onClose={() => setMegaOpen(false)} />}
+            {megaOpen && (
+              <MegaPanel
+                onClose={() => {
+                  cancelMegaClose();
+                  setMegaOpen(false);
+                }}
+              />
+            )}
           </div>
 
           {navLinks.map((link) => (

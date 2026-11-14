@@ -19,7 +19,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </Link>
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">{children}</div>
+        {/* Login/register render their own two-panel shell; the narrower
+            utility pages (forgot/reset/verify) size their card themselves. */}
+        <div className="w-full">{children}</div>
       </main>
       <footer className="py-6 text-center text-xs text-slate-400">
         © {new Date().getFullYear()} MeroKhoj
