@@ -67,5 +67,7 @@ export interface IJobSearchQuery {
   category_id?: string;
   industry_id?: string;
   location_id?: string;
+  /** Result ordering — one of the whitelisted keys (see jobRepository). */
+  sort?: 'newest' | 'oldest' | 'deadline' | 'salary';
 }
 

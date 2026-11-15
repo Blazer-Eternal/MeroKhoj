@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Terai Traders">
+  <rect width="64" height="64" rx="14" fill="#d97706"/>
+  <path d="M14 24 h36 l-3.2 27 H17.2 Z" fill="#ffffff"/>
+  <rect x="13" y="16" width="38" height="7" rx="3.5" fill="#ffffff"/>
+  <path d="M26 33 h12" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+</svg>

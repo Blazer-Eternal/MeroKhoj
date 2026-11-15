@@ -158,6 +158,12 @@ export default async function EmployerZonePage() {
         body="Publish a role with screening questions, review every applicant in one pipeline, schedule interviews, and record the decision where the whole team can see it."
         cta={{ href: '/register', label: 'Start hiring smarter' }}
         stat={{ value: '4', label: 'Steps from posting to offer' }}
+        points={[
+          'Screen every applicant in a single pipeline your team can see',
+          'Schedule interviews and record feedback where the decision happens',
+          'Screening questions filter unqualified applications before you read them',
+          'Your first job post is free — no card required to start',
+        ]}
       />
     </>
   );

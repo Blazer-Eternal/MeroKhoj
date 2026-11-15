@@ -138,8 +138,9 @@ export interface Job {
   description: string;
   employment_type: EmploymentType;
   experience_level: ExperienceLevel | null;
-  salary_min: number | null;
-  salary_max: number | null;
+  /** DECIMAL columns serialise to strings over JSON ("120000.00"). */
+  salary_min: string | number | null;
+  salary_max: string | number | null;
   salary_currency: string;
   vacancies: number;
   education_requirement: string | null;
@@ -154,6 +155,21 @@ export interface Job {
   location_id: string | null;
   created_at: string;
   updated_at: string;
+  /**
+   * Relations embedded by the public jobs search endpoint so list views can
+   * render logos, category chips and city labels without N+1 fetches.
+   * Detail responses may omit them, hence the optional markers.
+   */
+  company?: Pick<Company, 'id' | 'name' | 'slug' | 'logo_url'> | null;
+  category?: Pick<JobCategory, 'id' | 'name' | 'slug'> | null;
+  industry?: Pick<Industry, 'id' | 'name' | 'slug'> | null;
+  job_location?: {
+    id: string;
+    country: string | null;
+    province: string | null;
+    district: string | null;
+    city: string | null;
+  } | null;
 }
 
 export interface JobSkill {
@@ -401,12 +417,15 @@ export interface JobAlert {
 export interface ServicePlan {
   id: string;
   name: string;
-  slug: string;
   description: string | null;
+  /** Coerced to a JSON number by the backend (`toMoney`). */
   price: number;
   currency: string;
-  duration_days: number;
-  job_limit: number | null;
+  /** NULL = the entitlement never expires. */
+  duration_days: number | null;
+  /** NULL = unlimited job postings. */
+  job_posting_limit: number | null;
+  featured_jobs_limit: number;
   status: string;
   created_at: string;
   updated_at: string;

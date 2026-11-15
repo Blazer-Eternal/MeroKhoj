@@ -2,9 +2,11 @@ import Link from 'next/link';
 import { serverList } from '@/services/server-api';
 import { TopJobsTabs } from '@/components/home/TopJobsTabs';
 import { TopEmployersStrip } from '@/components/home/TopEmployersStrip';
-import { StatsBand } from '@/components/home/StatsBand';
 import { EverythingYouNeed } from '@/components/home/EverythingYouNeed';
 import { Watermark } from '@/components/home/Watermark';
+import { CountUp } from '@/components/home/CountUp';
+import { CategoryTiles } from '@/components/home/CategoryTiles';
+import { LatestOpenings } from '@/components/home/LatestOpenings';
 import type { Company, Job, JobCategory, Location } from '@/types';
 import { EMPLOYMENT_TYPE_LABELS } from '@/lib/constants';
 import { formatSalaryRange, timeAgo } from '@/utils/format';
@@ -26,11 +28,29 @@ const SearchIcon = () => (
   </svg>
 );
 
-const StatIcon = ({ children }: { children: React.ReactNode }) => (
-  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm">
-    {children}
-  </span>
-);
+function HeroStat({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand-600 shadow-sm ring-1 ring-brand-100">
+        {children}
+      </span>
+      <div>
+        <p className="font-display text-3xl font-extrabold leading-none text-slate-900">
+          <CountUp value={value} />
+        </p>
+        <p className="mt-1.5 text-sm font-medium text-slate-500">{label}</p>
+      </div>
+    </div>
+  );
+}
 
 async function getHomeData() {
   const [jobsRes, companiesRes, categoriesRes, locationsRes] = await Promise.allSettled([
@@ -74,8 +94,16 @@ export default async function HomePage() {
   }
 
   const [firstJob, secondJob] = jobs;
-  const firstCompany = firstJob ? companyById.get(firstJob.company_id) : undefined;
-  const secondCompany = secondJob ? companyById.get(secondJob.company_id) : undefined;
+  const firstCompany = firstJob ? (firstJob.company ?? companyById.get(firstJob.company_id)) : undefined;
+  const secondCompany = secondJob ? (secondJob.company ?? companyById.get(secondJob.company_id)) : undefined;
+
+  const latest = [...jobs]
+    .sort((a, b) => Date.parse(b.published_at ?? b.created_at) - Date.parse(a.published_at ?? a.created_at))
+    .slice(0, 8);
+
+  const featuredCategories = [...categories]
+    .sort((a, b) => (categoryCounts.get(b.id) ?? 0) - (categoryCounts.get(a.id) ?? 0))
+    .slice(0, 12);
 
   return (
     <>
@@ -95,55 +123,31 @@ export default async function HomePage() {
 
               {/* Platform counters */}
               <div className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
-                <div className="flex items-center gap-3">
-                  <StatIcon>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
-                      <rect x="3" y="7" width="18" height="13" rx="2" />
-                      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  </StatIcon>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Live Jobs</p>
-                    <p className="font-display text-3xl font-extrabold text-slate-900">
-                      {jobsTotal.toLocaleString('en-US')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <StatIcon>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
-                      <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 21V9h4a2 2 0 0 1 2 2v10" />
-                      <path d="M9 7h2M9 11h2M9 15h2" />
-                    </svg>
-                  </StatIcon>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Organizations</p>
-                    <p className="font-display text-3xl font-extrabold text-slate-900">
-                      {companiesTotal.toLocaleString('en-US')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <StatIcon>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
-                      <path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11z" />
-                      <circle cx="12" cy="10" r="2.5" />
-                    </svg>
-                  </StatIcon>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Locations</p>
-                    <p className="font-display text-3xl font-extrabold text-slate-900">
-                      {locations.length.toLocaleString('en-US')}
-                    </p>
-                  </div>
-                </div>
+                <HeroStat label="Live Jobs" value={jobsTotal}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
+                    <rect x="3" y="7" width="18" height="13" rx="2" />
+                    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </HeroStat>
+                <HeroStat label="Organizations" value={companiesTotal}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
+                    <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 21V9h4a2 2 0 0 1 2 2v10" />
+                    <path d="M9 7h2M9 11h2M9 15h2" />
+                  </svg>
+                </HeroStat>
+                <HeroStat label="Locations" value={locations.length}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
+                    <path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                </HeroStat>
               </div>
 
               {/* Search bar */}
               <form
                 action="/jobs"
                 method="GET"
-                className="mt-8 flex max-w-2xl flex-col gap-2 rounded-xl bg-white p-2 shadow-lg sm:flex-row"
+                className="mt-8 flex max-w-2xl flex-col gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-900/5 sm:flex-row"
               >
                 <input
                   type="search"
@@ -154,7 +158,7 @@ export default async function HomePage() {
                 />
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 font-display text-sm font-bold text-white transition-colors hover:bg-brand-700"
+                  className="flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 font-display text-sm font-bold text-white shadow-sm shadow-brand-600/25 transition-colors hover:bg-brand-700"
                 >
                   <SearchIcon />
                   Search Job
@@ -167,7 +171,7 @@ export default async function HomePage() {
                   <Link
                     key={chip.label}
                     href={chip.href}
-                    className="rounded-full bg-brand-100 px-4 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-200"
+                    className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-700 ring-1 ring-brand-100 transition-colors hover:bg-brand-100"
                   >
                     {chip.label}
                   </Link>
@@ -176,7 +180,7 @@ export default async function HomePage() {
             </div>
 
             {/* Product visual: live matches over big brand type */}
-            <div className="relative hidden h-[430px] lg:block" aria-hidden>
+            <div className="relative hidden h-[440px] lg:block" aria-hidden>
               <div className="absolute right-0 top-2 select-none text-right font-display text-7xl font-black leading-[0.9] text-brand-200">
                 FIND
                 <br />
@@ -185,17 +189,21 @@ export default async function HomePage() {
 
               {firstJob && (
                 <div className="absolute left-0 top-24 w-80 rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
+                      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-600" />
                       New match
                     </span>
-                    <span className="text-xs text-slate-400">{timeAgo(firstJob.published_at ?? firstJob.created_at)}</span>
+                    <span className="shrink-0 text-xs text-slate-400">
+                      {timeAgo(firstJob.published_at ?? firstJob.created_at)}
+                    </span>
                   </div>
                   <p className="mt-3 line-clamp-1 font-display text-base font-bold text-slate-900">
                     {firstJob.title}
                   </p>
                   <p className="mt-1 truncate text-sm text-slate-500">
-                    {firstCompany?.name ?? 'MeroKhoj employer'} · {firstJob.location ?? 'Remote'}
+                    {firstCompany?.name ?? 'MeroKhoj employer'} ·{' '}
+                    {firstJob.job_location?.city ?? firstJob.location ?? 'Remote'}
                   </p>
                   <div className="mt-4 flex items-center gap-2">
                     <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
@@ -218,7 +226,8 @@ export default async function HomePage() {
                 <div className="absolute right-0 top-56 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
                   <p className="line-clamp-1 text-sm font-bold text-slate-900">{secondJob.title}</p>
                   <p className="mt-1 truncate text-xs text-slate-500">
-                    {secondCompany?.name ?? 'MeroKhoj employer'} · {secondJob.location ?? 'Remote'}
+                    {secondCompany?.name ?? 'MeroKhoj employer'} ·{' '}
+                    {secondJob.job_location?.city ?? secondJob.location ?? 'Remote'}
                   </p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">
@@ -231,9 +240,47 @@ export default async function HomePage() {
                 </div>
               )}
 
-              <div className="absolute bottom-10 left-16 rounded-xl bg-accent-500 px-6 py-4 text-center text-white shadow-lg">
-                <p className="font-display text-2xl font-black">100%</p>
-                <p className="text-[11px] font-semibold">Free for jobseekers</p>
+              {/* Application pipeline — the promise the copy makes, shown */}
+              <div className="absolute bottom-6 left-4 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-xl">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Your application
+                </p>
+                <div className="mt-3 flex items-center">
+                  {['Applied', 'Interview', 'Offer'].map((step, index) => (
+                    <div key={step} className="flex flex-1 items-center last:flex-none">
+                      <span
+                        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[10px] font-black ${
+                          index === 0
+                            ? 'bg-brand-600 text-white'
+                            : index === 1
+                              ? 'bg-brand-100 text-brand-700'
+                              : 'bg-slate-100 text-slate-400'
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      {index < 2 && (
+                        <span
+                          className={`h-0.5 flex-1 ${index === 0 ? 'bg-brand-600' : 'bg-slate-200'}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 flex justify-between text-[11px] font-semibold text-slate-500">
+                  <span className="text-brand-700">Applied</span>
+                  <span>Interview</span>
+                  <span>Offer</span>
+                </div>
+              </div>
+
+              <div className="absolute bottom-24 right-2 flex items-center gap-2 rounded-full bg-white px-4 py-2.5 shadow-lg ring-1 ring-slate-900/5">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-accent-500 text-white">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden className="h-3 w-3">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 10.5l3.2 3.2L15 7" />
+                  </svg>
+                </span>
+                <span className="text-xs font-bold text-slate-700">Free for jobseekers</span>
               </div>
             </div>
           </div>
@@ -265,34 +312,32 @@ export default async function HomePage() {
               View all
             </Link>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {categories.slice(0, 12).map((category) => (
-              <Link
-                key={category.id}
-                href={`/jobs?category_id=${category.id}`}
-                className="group flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-brand-300 hover:bg-brand-50"
-              >
-                <span className="truncate text-sm font-semibold text-slate-700 group-hover:text-brand-700">
-                  {category.name}
-                </span>
-                <span className="shrink-0 text-xs font-bold text-slate-400">
-                  {categoryCounts.get(category.id) ?? 0}
-                </span>
-              </Link>
-            ))}
-          </div>
+          <CategoryTiles categories={featuredCategories} counts={categoryCounts} />
         </div>
       </section>
 
-      {/* Platform stats */}
-      <StatsBand
-        items={[
-          { value: jobsTotal.toLocaleString('en-US'), label: 'Live Jobs' },
-          { value: companiesTotal.toLocaleString('en-US'), label: 'Verified Employers' },
-          { value: categories.length.toLocaleString('en-US'), label: 'Job Categories' },
-          { value: locations.length.toLocaleString('en-US'), label: 'Locations Covered' },
-        ]}
-      />
+      {/* Latest openings */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="font-display text-2xl font-extrabold text-slate-900">
+                Latest openings
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                The most recently published roles, newest first.
+              </p>
+            </div>
+            <Link
+              href="/jobs"
+              className="text-sm font-bold text-brand-600 hover:text-brand-700"
+            >
+              View all
+            </Link>
+          </div>
+          <LatestOpenings jobs={latest} />
+        </div>
+      </section>
 
       {/* Jobseeker value band */}
       <EverythingYouNeed
@@ -303,7 +348,13 @@ export default async function HomePage() {
         }
         body="Build one profile, apply with a click, and follow every application from submitted to decision. Searching, saving and applying on MeroKhoj costs nothing."
         cta={{ href: '/register', label: 'Create your free profile' }}
-        stat={{ value: '0', label: 'Fees for jobseekers' }}
+        stat={{ value: '0', label: 'Fees for jobseekers — no premium tier, no paywalled listings' }}
+        points={[
+          'One profile that carries your experience, education and skills',
+          'Apply to any opening without retyping your details',
+          'Track every application from submitted to decision in one place',
+          'Save the roles worth coming back to and get alerted when they change',
+        ]}
       />
 
       {/* Employer CTA */}
@@ -321,7 +372,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/register"
-              className="rounded-lg bg-brand-600 px-6 py-3 font-display text-sm font-bold text-white transition-colors hover:bg-brand-700"
+              className="rounded-lg bg-brand-600 px-6 py-3 font-display text-sm font-bold text-white shadow-sm shadow-brand-600/25 transition-colors hover:bg-brand-700"
             >
               Post a job
             </Link>

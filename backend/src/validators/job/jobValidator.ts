@@ -69,6 +69,7 @@ export const jobSearchQuerySchema = z.object({
   category_id: z.string().uuid().optional(),
   industry_id: z.string().uuid().optional(),
   location_id: z.string().uuid().optional(),
+  sort: z.enum(['newest', 'oldest', 'deadline', 'salary']).optional(),
   page: z.coerce.number().int().min(1).optional(),
   perPage: z.coerce.number().int().min(1).max(100).optional(),
 });

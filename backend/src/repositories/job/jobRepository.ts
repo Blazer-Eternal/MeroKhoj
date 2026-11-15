@@ -1,4 +1,4 @@
-import { Op, fn, col } from 'sequelize';
+import { Op, fn, col, Sequelize } from 'sequelize';
 import Job from '../../models/job/jobModel';
 import Company from '../../models/company/companyModel';
 import JobCategory from '../../models/job/jobCategoryModel';
@@ -12,6 +12,19 @@ export interface IPaginatedJobs {
   data: IJob[];
   meta: ReturnType<typeof buildPaginationMeta>;
 }
+
+/**
+ * Sort keys the public search accepts. The map doubles as the allow-list:
+ * a request can only ever pick one of these fixed fragments, so no request
+ * value reaches SQL. `NULLS LAST` keeps rows without a deadline or a salary
+ * from floating above the ones a candidate can act on.
+ */
+const JOB_SORTS: Record<string, string> = {
+  newest: '"published_at" DESC NULLS LAST',
+  oldest: '"published_at" ASC',
+  deadline: '"application_deadline" ASC NULLS LAST',
+  salary: 'COALESCE("salary_max", "salary_min") DESC NULLS LAST',
+};
 
 /** Data-access layer for the `jobs` table. */
 class JobRepository {
@@ -77,7 +90,7 @@ class JobRepository {
       where,
       limit: pagination.limit,
       offset: pagination.offset,
-      order: [['published_at', 'DESC']],
+      order: [Sequelize.literal(JOB_SORTS[query.sort ?? 'newest'] ?? JOB_SORTS.newest)],
       include: [
         { model: Company, as: 'company', attributes: ['id', 'name', 'slug', 'logo_url'] },
         { model: JobCategory, as: 'category', attributes: ['id', 'name', 'slug'] },

@@ -1,20 +1,27 @@
 /** Presentation helpers — formatting only, no business logic. */
 
-/** Format a money amount with its currency (NPR default). */
-export const formatMoney = (amount: number, currency = 'NPR'): string => {
+/**
+ * Format a money amount with its currency (NPR default).
+ * DECIMAL columns serialise to strings ("120000.00"), so the value is
+ * coerced here rather than trusting the declared type — otherwise the
+ * grouping never happens and cards read "Rs. 40000.00".
+ */
+export const formatMoney = (amount: number | string, currency = 'NPR'): string => {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return '';
   const symbol = currency === 'NPR' ? 'Rs. ' : '';
-  return `${symbol}${amount.toLocaleString('en-US')}`;
+  return `${symbol}${value.toLocaleString('en-US')}`;
 }
 
 /** Salary range label for job cards (falls back to "Negotiable"). */
 export const formatSalaryRange = (
-  min: number | null | undefined,
-  max: number | null | undefined,
+  min: number | string | null | undefined,
+  max: number | string | null | undefined,
   currency = 'NPR',
 ): string => {
   if (min == null && max == null) return 'Negotiable';
   if (min != null && max != null) {
-    return min === max
+    return Number(min) === Number(max)
       ? formatMoney(min, currency)
       : `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
   }
