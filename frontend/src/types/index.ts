@@ -528,3 +528,71 @@ export interface AuditLog {
   created_at: string;
   updated_at: string;
 }
+
+/** Admin directory row: a public user plus its granted role names. */
+export interface AdminUserRow extends PublicUser {
+  roles: RoleName[];
+}
+
+// ---- dashboard payloads (GET /dashboard/{employer,admin}) ----------------
+export interface EmployerDashboard {
+  company: {
+    id: string;
+    name: string;
+    slug: string;
+    verification_status: CompanyVerificationStatus;
+    city: string | null;
+  } | null;
+  stats: {
+    activeJobs: number;
+    totalApplications: number;
+    newApplications: number;
+    upcomingInterviews: number;
+    hires: number;
+  };
+  funnel: Array<{ status: ApplicationStatus; count: number }>;
+  upcomingInterviews: Array<{
+    id: string;
+    scheduled_at: string;
+    interview_type: InterviewType;
+    status: InterviewStatus;
+    candidate_name: string;
+    job_title: string;
+  }>;
+  recentPostings: Array<{
+    id: string;
+    title: string;
+    status: JobStatus;
+    published_at: string | null;
+    created_at: string;
+    company_name: string | null;
+  }>;
+  recentApplicants: Array<{
+    id: string;
+    candidate_name: string;
+    job_title: string;
+    status: ApplicationStatus;
+    applied_at: string | null;
+  }>;
+}
+
+export interface AdminDashboard {
+  stats: {
+    users: number;
+    companies: number;
+    jobs: number;
+    publishedJobs: number;
+    applications: number;
+    pendingVerifications: number;
+  };
+  jobsByStatus: Array<{ status: JobStatus; count: number }>;
+  applicationsByStatus: Array<{ status: ApplicationStatus; count: number }>;
+  recentPostings: Array<{
+    id: string;
+    title: string;
+    status: JobStatus;
+    published_at: string | null;
+    created_at: string;
+    company_name: string | null;
+  }>;
+}

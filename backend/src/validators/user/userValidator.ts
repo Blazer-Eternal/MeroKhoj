@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Availability, ProfileVisibility } from '../../enums';
+import { Availability, ProfileVisibility, RoleName, UserStatus } from '../../enums';
 
 export const updateProfileSchema = z.object({
   first_name: z.string().trim().min(1).max(100).optional(),
@@ -28,3 +28,20 @@ export const updateJobseekerProfileSchema = z.object({
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type UpdateJobseekerProfileInput = z.infer<typeof updateJobseekerProfileSchema>;
+
+/** GET /api/admin/users — admin account directory filters. */
+export const listUsersQuerySchema = z.object({
+  q: z.string().trim().max(255).optional(),
+  role: z.nativeEnum(RoleName).optional(),
+  status: z.nativeEnum(UserStatus).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  perPage: z.coerce.number().int().min(1).max(100).optional(),
+});
+
+/** PATCH /api/admin/users/:id/status — suspend / reactivate an account. */
+export const setUserStatusSchema = z.object({
+  status: z.nativeEnum(UserStatus),
+});
+
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+export type SetUserStatusInput = z.infer<typeof setUserStatusSchema>;

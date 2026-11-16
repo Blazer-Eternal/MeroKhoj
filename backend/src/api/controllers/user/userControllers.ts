@@ -2,7 +2,13 @@ import { Response } from 'express';
 import { ICustomRequest } from '../../../interfaces';
 import { asyncHandler } from '../../../middleware';
 import { userServices, jobseekerProfileServices } from '../../../services';
-import { updateProfileSchema, updateJobseekerProfileSchema } from '../../../validators';
+import {
+  updateProfileSchema,
+  updateJobseekerProfileSchema,
+  listUsersQuerySchema,
+  setUserStatusSchema,
+} from '../../../validators';
+import { parseId } from '../../../utils';
 
 const ok = (res: Response, data: unknown, statusCode = 200) =>
   res.status(statusCode).json({ success: true, data });
@@ -45,10 +51,27 @@ export const changePassword = asyncHandler(async (req: ICustomRequest, res: Resp
   return ok(res, { message: 'Password updated' });
 });
 
+/** GET /api/admin/users — paginated account directory (admin only). */
+export const listAdminUsers = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const query = listUsersQuerySchema.parse(req.query);
+  const result = await userServices.listUsers(req.user!, query);
+  return res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
+/** PATCH /api/admin/users/:id/status — suspend or reactivate an account. */
+export const setAdminUserStatus = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const id = parseId(req.params.id);
+  const input = setUserStatusSchema.parse(req.body);
+  const user = await userServices.setUserStatus(req.user!, id, input.status);
+  return ok(res, { user });
+});
+
 export default {
   getMe,
   updateMe,
   getMyJobseekerProfile,
   upsertMyJobseekerProfile,
   changePassword,
+  listAdminUsers,
+  setAdminUserStatus,
 };

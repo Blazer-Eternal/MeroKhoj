@@ -3,7 +3,7 @@
 /** Notifications — list, mark one read, mark all read. */
 import { useState } from 'react';
 import { useApiList } from '@/hooks/use-api-list';
-import { apiPost, apiDelete, ApiRequestError } from '@/services/api-client';
+import { apiPatch, apiDelete, ApiRequestError } from '@/services/api-client';
 import { endpoints } from '@/services/api-endpoints';
 import { Button, Spinner, EmptyState, Badge, Select } from '@/components/ui';
 import { NavIcon, type NavIconName } from '@/components/ui/icons';
@@ -43,7 +43,7 @@ export default function NotificationsPage() {
     setBusyId(id);
     setError('');
     try {
-      await apiPost(endpoints.notifications.markRead(id));
+      await apiPatch(endpoints.notifications.markRead(id));
       notifications.refetch();
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : 'Could not mark as read.');
@@ -56,7 +56,7 @@ export default function NotificationsPage() {
     setAllBusy(true);
     setError('');
     try {
-      await apiPost(endpoints.notifications.markAllRead);
+      await apiPatch(endpoints.notifications.markAllRead);
       notifications.refetch();
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : 'Could not mark all as read.');

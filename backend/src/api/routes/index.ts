@@ -17,7 +17,7 @@ import { interviewRoutes, feedbackRoutes } from './interview';
 import { hiringDecisionRoutes } from './hiring';
 import { talentRosterRoutes } from './talent';
 import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
-import { jobModerationRoutes, reportRoutes, auditLogRoutes } from './administration';
+import { jobModerationRoutes, reportRoutes, auditLogRoutes, adminUserRoutes } from './administration';
 import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './payment';
 import { dashboardRoutes } from './dashboard';
 
@@ -60,6 +60,7 @@ router.use('/industries', industryRoutes);
 router.use('/locations', locationRoutes);
 router.use('/admin/verifications', companyVerificationRoutes);
 router.use('/admin/moderation', jobModerationRoutes);
+router.use('/admin/users', adminUserRoutes);
 router.use('/reports', reportRoutes);
 router.use('/audit-logs', auditLogRoutes);
 router.use('/saved-jobs', savedJobRoutes);

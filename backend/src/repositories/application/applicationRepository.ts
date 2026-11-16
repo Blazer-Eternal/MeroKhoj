@@ -118,6 +118,36 @@ class ApplicationRepository {
     };
   }
 
+  /** Admin: every application across companies (job + applicant attached). */
+  async listAll(
+    filters: { job_id?: string; status?: ApplicationStatus },
+    pagination: IPaginationParams,
+  ): Promise<IPaginatedApplications> {
+    const where: Record<string, unknown> = {};
+    if (filters.job_id) where.job_id = filters.job_id;
+    if (filters.status) where.status = filters.status;
+
+    const { count, rows } = await Application.findAndCountAll({
+      where,
+      limit: pagination.limit,
+      offset: pagination.offset,
+      order: [['applied_at', 'DESC']],
+      include: [
+        { model: Job, as: 'job', attributes: ['id', 'title', 'company_id', 'status'] },
+        {
+          model: User,
+          as: 'jobseeker',
+          attributes: ['id', 'first_name', 'last_name', 'email'],
+        },
+      ],
+    });
+
+    return {
+      data: plain<IApplication[]>(rows as unknown as Record<string, unknown>[]),
+      meta: buildPaginationMeta(count, pagination.page, pagination.perPage),
+    };
+  }
+
   /** Count applications per status for a job (funnel). */
   async countByStatusForJob(jobId: string): Promise<Record<ApplicationStatus, number>> {
     return this.countByStatus({ job_id: jobId });

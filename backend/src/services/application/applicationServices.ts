@@ -201,6 +201,15 @@ export const getStatusHistory = async (
 export const hasApplied = async (userId: string, jobId: string): Promise<boolean> =>
   applicationRepository.exists(jobId, userId);
 
+/** Admin: cross-company application list (platform-wide review view). */
+export const listAllForAdmin = async (
+  filters: { job_id?: string; status?: ApplicationStatus },
+  query: IPaginationQuery,
+) => {
+  const pagination = getPaginationParams(query);
+  return applicationRepository.listAll(filters, pagination);
+};
+
 export const applicationServices = {
   applyToJob,
   changeApplicationStatus,
@@ -208,6 +217,7 @@ export const applicationServices = {
   getApplication,
   listMyApplications,
   listCompanyApplications,
+  listAllForAdmin,
   getStatusHistory,
   hasApplied,
 };

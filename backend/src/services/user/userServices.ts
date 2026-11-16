@@ -59,17 +59,17 @@ export const changePassword = async (
 
 // ---- Admin operations -------------------------------------------------
 
-/** Admin: list all accounts (paginated). */
+/** Admin: list all accounts with roles (paginated, filterable). */
 export const listUsers = async (
   actor: IAuthUser,
-  query: IPaginationQuery & { status?: UserStatus },
+  query: IPaginationQuery & { q?: string; role?: RoleName; status?: UserStatus },
 ) => {
   if (!isPlatformAdmin(actor)) throw AppError.forbidden('Admin access required');
   const pagination = getPaginationParams(query);
-  // Placeholder for a full admin listing; returns a simple slice for now.
-  void pagination;
-  void query;
-  return { data: [] as IUserPublic[], meta: { total: 0, page: 1, perPage: pagination.perPage, totalPages: 0, hasNextPage: false, hasPrevPage: false } };
+  return userRepository.listForAdmin(
+    { q: query.q, role: query.role, status: query.status },
+    pagination,
+  );
 };
 
 /** Admin: change an account's status (suspend/reactivate). */
@@ -79,6 +79,9 @@ export const setUserStatus = async (
   status: UserStatus,
 ): Promise<IUserPublic> => {
   if (!isPlatformAdmin(actor)) throw AppError.forbidden('Admin access required');
+  if (actor.id === userId && status !== UserStatus.ACTIVE) {
+    throw AppError.conflict('You cannot suspend your own account');
+  }
   const user = await userRepository.findById(userId);
   if (!user) throw AppError.notFound('User not found');
   await userRepository.setStatus(userId, status);

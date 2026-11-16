@@ -81,6 +81,16 @@ export const listCompanyApplications = asyncHandler(
   },
 );
 
+/** GET /api/applications — admin-only, all companies (platform review). */
+export const listAllApplications = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const query = applicationListQuerySchema.parse(req.query);
+  const result = await applicationServices.listAllForAdmin(
+    { job_id: query.job_id, status: query.status as ApplicationStatus | undefined },
+    query,
+  );
+  return res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
 export default {
   applyToJob,
   listMyApplications,
@@ -89,4 +99,5 @@ export default {
   changeStatus,
   withdraw,
   listCompanyApplications,
+  listAllApplications,
 };

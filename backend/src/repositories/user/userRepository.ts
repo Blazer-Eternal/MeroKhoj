@@ -1,8 +1,9 @@
+import { Op } from 'sequelize';
 import User from '../../models/user/userModel';
 import Role from '../../models/administration/roleModel';
 import { IUser, IUserCreation, IUserPublic } from '../../interfaces';
 import { UserStatus, RoleName } from '../../enums';
-import { plain } from '../../utils';
+import { plain, IPaginationParams, buildPaginationMeta } from '../../utils';
 
 /**
  * Data-access layer for `users` and `user_roles`.
@@ -117,6 +118,58 @@ class UserRepository {
     };
     delete clone.password_hash;
     return clone as unknown as IUserPublic;
+  }
+
+  /**
+   * Admin: paginated account directory with role names attached.
+   * `q` matches email / first / last name; `role` narrows to holders of one
+   * role (required include filters the parent rows to matching users).
+   */
+  async listForAdmin(
+    filters: { q?: string; role?: RoleName; status?: UserStatus },
+    pagination: IPaginationParams,
+  ): Promise<{
+    data: Array<IUserPublic & { roles: RoleName[] }>;
+    meta: ReturnType<typeof buildPaginationMeta>;
+  }> {
+    const where: Record<string, unknown> = {};
+    if (filters.q) {
+      const term = `%${filters.q}%`;
+      where[Op.or as unknown as string] = [
+        { email: { [Op.iLike]: term } },
+        { first_name: { [Op.iLike]: term } },
+        { last_name: { [Op.iLike]: term } },
+      ];
+    }
+    if (filters.status) where.status = filters.status;
+
+    const { rows, count } = await User.findAndCountAll({
+      where,
+      distinct: true,
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          attributes: ['name'],
+          required: Boolean(filters.role),
+          ...(filters.role ? { where: { name: filters.role } } : {}),
+        },
+      ],
+      order: [['created_at', 'DESC']],
+      limit: pagination.limit,
+      offset: pagination.offset,
+    });
+
+    const data = rows.map((row) => {
+      const user = plain(row) as unknown as IUser & { roles?: Role[] };
+      const roles = Array.isArray(user.roles)
+        ? user.roles.map((r) => r.name as RoleName)
+        : [];
+      delete user.roles;
+      return { ...this.toPublic(user), roles };
+    });
+
+    return { data, meta: buildPaginationMeta(count, pagination.page, pagination.perPage) };
   }
 }
 

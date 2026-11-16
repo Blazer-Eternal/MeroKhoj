@@ -20,7 +20,6 @@ export const endpoints = {
     me: '/users/me',
     mePassword: '/users/me/password',
     myProfile: '/users/me/profile', // jobseeker profile (GET/PUT)
-    // No admin user-list endpoint exists yet (deferred backend gap B4).
   },
 
   // ---- jobseeker profile -------------------------------------------------
@@ -37,6 +36,7 @@ export const endpoints = {
   // ---- company -----------------------------------------------------------
   companies: {
     list: '/companies',
+    create: '/companies', // POST: create the caller's company
     mine: '/companies/mine',
     byId: (id: string) => `/companies/${id}`,
     members: (companyId: string) => `/companies/${companyId}/members`,
@@ -56,6 +56,7 @@ export const endpoints = {
   // ---- job & taxonomy ----------------------------------------------------
   jobs: {
     search: '/jobs',
+    create: '/jobs', // POST: employer job draft
     byId: (id: string) => `/jobs/${id}`,
     skills: (id: string) => `/jobs/${id}/skills`,
     setSkills: (id: string) => `/jobs/${id}/skills`,
@@ -81,6 +82,7 @@ export const endpoints = {
 
   // ---- applications ------------------------------------------------------
   applications: {
+    list: '/applications', // admin: every company's pipeline
     mine: '/applications/mine',
     byId: (id: string) => `/applications/${id}`,
     history: (id: string) => `/applications/${id}/history`,
@@ -137,9 +139,11 @@ export const endpoints = {
   },
   orders: {
     list: '/orders',
+    create: '/orders', // POST: { company_id, service_plan_id, quantity }
     byId: (id: string) => `/orders/${id}`,
     cancel: (id: string) => `/orders/${id}/cancel`,
     initiatePayment: (orderId: string) => `/orders/${orderId}/payments`,
+    payments: (orderId: string) => `/orders/${orderId}/payments`, // GET: payment history
   },
   payments: {
     list: '/payments',
@@ -156,8 +160,17 @@ export const endpoints = {
     create: '/invoices', // admin
   },
 
+  // ---- dashboards --------------------------------------------------------
+  dashboard: {
+    employer: '/dashboard/employer',
+    admin: '/dashboard/admin',
+  },
+
   // ---- administration ----------------------------------------------------
   admin: {
+    users: '/admin/users',
+    userStatus: (id: string) => `/admin/users/${id}/status`,
+    pendingVerifications: '/admin/verifications/pending',
     moderation: {
       moderate: (jobId: string) => `/admin/moderation/jobs/${jobId}`,
       history: (jobId: string) => `/admin/moderation/jobs/${jobId}/history`,
