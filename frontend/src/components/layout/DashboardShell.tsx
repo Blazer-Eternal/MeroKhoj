@@ -8,9 +8,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { useAuth } from '@/context/auth-context';
-import { AREA_HOME, type DashboardArea } from '@/lib/permissions';
+import { type DashboardArea } from '@/lib/permissions';
 import { displayName } from '@/utils/format';
-import { Button } from '@/components/ui';
 import { NavIcon, type NavIconName } from '@/components/ui/icons';
 
 export interface NavItem {
@@ -65,10 +64,11 @@ export const NAV_BY_AREA: Record<DashboardArea, NavItem[]> = {
   ],
 };
 
-const AREA_LABEL: Record<DashboardArea, string> = {
-  jobseeker: 'Jobseeker',
-  employer: 'Employer',
-  admin: 'Administration',
+/** Time-of-day greeting for the topbar (replaces the static area title). */const greetingFor = (date: Date): string => {
+  const hour = date.getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
 };
 
 export function DashboardShell({
@@ -82,7 +82,26 @@ export function DashboardShell({
   const router = useRouter();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const items = NAV_BY_AREA[area];
+
+  const accountName = displayName(user);
+  const firstName = accountName.split(' ')[0] || 'there';
+  const initials =
+    accountName
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0))
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?';
+  const now = new Date();
+  const todayLabel = now.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -126,11 +145,6 @@ export function DashboardShell({
             </span>
           </Link>
         </div>
-        <div className="border-b border-slate-200 px-5 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {AREA_LABEL[area]} area
-          </p>
-        </div>
         {sidebar}
       </aside>
 
@@ -172,33 +186,56 @@ export function DashboardShell({
             </button>
             <div className="hidden sm:block">
               <p className="text-sm font-semibold text-slate-900">
-                {AREA_LABEL[area]} dashboard
+                {greetingFor(now)}, {firstName}
               </p>
-              <p className="text-xs text-slate-400">MeroKhoj platform</p>
+              <p className="text-xs text-slate-400">{todayLabel}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href={AREA_HOME[area]}
-              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:block"
+          {/* Account menu — initials avatar, logout lives inside */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              aria-label="Account menu"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700 hover:bg-brand-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              Home
-            </Link>
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
-                {(displayName(user) || '?').charAt(0).toUpperCase()}
-              </span>
-              <div className="hidden sm:block">
-                <p className="max-w-40 truncate text-sm font-medium text-slate-800">
-                  {displayName(user) || '…'}
-                </p>
-                <p className="max-w-40 truncate text-xs text-slate-400">{user?.email}</p>
-              </div>
-            </div>
-            <Button variant="secondary" size="sm" onClick={() => void handleLogout()}>
-              Log out
-            </Button>
+              {initials}
+            </button>
+            {menuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  aria-hidden
+                  onClick={() => setMenuOpen(false)}
+                />
+                <div
+                  role="menu"
+                  className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl"
+                >
+                  <div className="border-b border-slate-100 px-4 pb-2.5 pt-1.5">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {displayName(user) || 'Account'}
+                    </p>
+                    <p className="truncate text-xs text-slate-400">{user?.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      void handleLogout();
+                    }}
+                    className="mt-1.5 flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    <NavIcon name="logout" className="h-4 w-4" />
+                    Log out
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </header>
 
