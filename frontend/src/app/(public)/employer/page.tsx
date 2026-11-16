@@ -5,13 +5,22 @@ import { RecruitSection } from '@/components/employer/RecruitSection';
 import { EverythingYouNeed } from '@/components/home/EverythingYouNeed';
 import { EmployerLoginCard } from '@/components/home/EmployerLoginCard';
 import { Watermark } from '@/components/home/Watermark';
-import type { Job, JobCategory, Location } from '@/types';
+import { ReachResults } from '@/components/employer/ReachResults';
+import { AtsPipeline } from '@/components/employer/AtsPipeline';
+import { VerifiedBadgeSteps } from '@/components/employer/VerifiedBadgeSteps';
+import { TalentRoster } from '@/components/employer/TalentRoster';
+import { WhyEmployersChoose } from '@/components/employer/WhyEmployersChoose';
+import { TrustedEmployers } from '@/components/employer/TrustedEmployers';
+import { PricingTiers } from '@/components/employer/PricingTiers';
+import { EmployerFaq } from '@/components/employer/EmployerFaq';
+import type { Company, Job, JobCategory, Location, ServicePlan } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'For Employers',
-  description: 'Post jobs, review applicants, and hire with MeroKhoj.',
+  description:
+    'Post jobs, review applicants, verify your company, and hire with MeroKhoj. Your first job post is free.',
 };
 
 const Illustration = () => (
@@ -72,17 +81,19 @@ const Illustration = () => (
 );
 
 async function getEmployerData() {
-  const [jobsRes, companiesRes, categoriesRes, locationsRes] = await Promise.allSettled([
+  const [jobsRes, companiesRes, categoriesRes, locationsRes, plansRes] = await Promise.allSettled([
     serverList<Job>('/jobs', { perPage: 12 }),
-    // Only the total is needed for the "Verified Employers" stat.
-    serverList<unknown>('/companies', { perPage: 1 }),
+    serverList<Company>('/companies', { perPage: 100 }),
     serverList<JobCategory>('/job-categories', { perPage: 100 }),
     serverList<Location>('/locations', { perPage: 100 }),
+    serverList<ServicePlan>('/service-plans'),
   ]);
 
   const jobs = jobsRes.status === 'fulfilled' ? jobsRes.value.data : [];
+  const companies = companiesRes.status === 'fulfilled' ? companiesRes.value.data : [];
   const categories = categoriesRes.status === 'fulfilled' ? categoriesRes.value.data : [];
   const locations = locationsRes.status === 'fulfilled' ? locationsRes.value.data : [];
+  const plans = plansRes.status === 'fulfilled' ? plansRes.value.data : [];
 
   const jobsTotal = Number(
     jobsRes.status === 'fulfilled' ? jobsRes.value.meta.total ?? jobs.length : jobs.length,
@@ -91,11 +102,12 @@ async function getEmployerData() {
     companiesRes.status === 'fulfilled' ? companiesRes.value.meta.total ?? 0 : 0,
   );
 
-  return { categories, locations, jobsTotal, companiesTotal };
+  return { categories, locations, plans, companies, jobsTotal, companiesTotal };
 }
 
 export default async function EmployerZonePage() {
-  const { categories, locations, jobsTotal, companiesTotal } = await getEmployerData();
+  const { categories, locations, plans, companies, jobsTotal, companiesTotal } =
+    await getEmployerData();
 
   return (
     <>
@@ -106,14 +118,23 @@ export default async function EmployerZonePage() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <Illustration />
-              <h1 className="mt-8 text-center font-display text-5xl font-extrabold leading-tight text-slate-900 lg:mt-10 lg:text-left">
+              <h1
+                className="mk-rise mt-8 text-center font-display text-5xl font-extrabold leading-tight text-slate-900 lg:mt-10 lg:text-left"
+                style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+              >
                 Hire the <span className="text-brand-600">Right Fit</span>
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-center text-lg leading-relaxed text-slate-600 lg:mx-0 lg:text-left">
+              <p
+                className="mk-rise mx-auto mt-4 max-w-xl text-center text-lg leading-relaxed text-slate-600 lg:mx-0 lg:text-left"
+                style={{ '--mk-delay': '120ms' } as React.CSSProperties}
+              >
                 Post a role, read real applications, and move every candidate through one
                 pipeline your whole team can see.
               </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
+              <div
+                className="mk-rise mt-6 flex flex-wrap justify-center gap-3 lg:justify-start"
+                style={{ '--mk-delay': '200ms' } as React.CSSProperties}
+              >
                 <Link
                   href="/register"
                   className="rounded-lg bg-brand-600 px-6 py-3 font-display text-sm font-bold text-white transition-colors hover:bg-brand-700"
@@ -129,24 +150,46 @@ export default async function EmployerZonePage() {
               </div>
             </div>
 
-            <div className="mx-auto w-full max-w-md lg:mx-0">
+            <div
+              className="mk-rise mx-auto w-full max-w-md lg:mx-0"
+              style={{ '--mk-delay': '260ms' } as React.CSSProperties}
+            >
               <EmployerLoginCard />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Platform counters */}
+      {/* Platform counters (count up on entry) */}
       <StatsBand
         items={[
-          { value: jobsTotal.toLocaleString('en-US'), label: 'Live Jobs' },
-          { value: companiesTotal.toLocaleString('en-US'), label: 'Verified Employers' },
-          { value: categories.length.toLocaleString('en-US'), label: 'Job Categories' },
-          { value: locations.length.toLocaleString('en-US'), label: 'Locations Covered' },
+          { value: jobsTotal, label: 'Live Jobs' },
+          { value: companiesTotal, label: 'Verified Employers' },
+          { value: categories.length, label: 'Job Categories' },
+          { value: locations.length, label: 'Locations Covered' },
         ]}
       />
 
+      {/* Reach argument: where one posting surfaces */}
+      <ReachResults jobsTotal={jobsTotal} companiesTotal={companiesTotal} />
+
+      {/* How do you like to recruit? tabbed carousel */}
       <RecruitSection />
+
+      {/* ATS: the six real application stages */}
+      <AtsPipeline />
+
+      {/* Verified badge: the real submit → review → badge flow */}
+      <VerifiedBadgeSteps />
+
+      {/* Talent roster: keep the people you almost hired */}
+      <TalentRoster />
+
+      {/* Why leading employers choose MeroKhoj */}
+      <WhyEmployersChoose jobsTotal={jobsTotal} companiesTotal={companiesTotal} />
+
+      {/* Trusted employers logo marquee */}
+      <TrustedEmployers companies={companies} />
 
       {/* Hiring value band */}
       <EverythingYouNeed
@@ -165,6 +208,41 @@ export default async function EmployerZonePage() {
           'Your first job post is free — no card required to start',
         ]}
       />
+
+      {/* Plans from the live service-plan catalogue */}
+      <PricingTiers plans={plans} />
+
+      {/* FAQ accordion */}
+      <EmployerFaq />
+
+      {/* Closing CTA */}
+      <section className="bg-brand-600">
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="font-display text-3xl font-extrabold text-white">
+              Your next teammate is already searching.
+            </h2>
+            <p className="mt-2 max-w-xl text-blue-100">
+              Create an employer account, verify your company, and publish your first role. The
+              first posting is on us.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/register"
+              className="rounded-lg bg-white px-6 py-3 font-display text-sm font-bold text-brand-700 transition-colors hover:bg-brand-50"
+            >
+              Post a job
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded-lg border border-white/40 px-6 py-3 font-display text-sm font-bold text-white transition-colors hover:bg-brand-700"
+            >
+              Talk to our team
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

@@ -17,26 +17,6 @@ const BellIcon = () => (
   </svg>
 );
 
-const BoltIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="h-5 w-5">
-    <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
-  </svg>
-);
-
-const SlidersIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
-    <path strokeLinecap="round" d="M4 7h10M18 7h2M4 17h4M12 17h8" />
-    <circle cx="16" cy="7" r="2" />
-    <circle cx="10" cy="17" r="2" />
-  </svg>
-);
-
-const ALERT_POINTS = [
-  { icon: <BellIcon />, title: 'Never miss a match', text: 'Keyword and location matching runs against every new posting.' },
-  { icon: <BoltIcon />, title: 'Choose your cadence', text: 'Instant, daily, or weekly digests. You decide.' },
-  { icon: <SlidersIcon />, title: 'Full control', text: 'Edit, pause, or delete alerts from your jobseeker dashboard.' },
-];
-
 /**
  * Public job-alert signup. Creating an alert requires a jobseeker session —
  * guests are routed to login with a return path (backend enforces the role).
@@ -106,41 +86,108 @@ export default function JobAlertsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="grid gap-10 lg:grid-cols-2">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Job Alerts</h1>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">
-            Tell us what you&apos;re looking for and MeroKhoj will notify you when matching jobs
-            are published. Alerts land in your notifications and can be managed any time from
-            your dashboard.
+    <>
+      {/* Branded header band */}
+      <div className="border-b border-slate-100 bg-brand-50">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <h1
+            className="mk-rise font-display text-3xl font-extrabold text-slate-900 sm:text-4xl"
+            style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+          >
+            Job alerts that <span className="text-brand-600">come to you</span>
+          </h1>
+          <p
+            className="mk-rise mt-3 max-w-2xl text-lg leading-relaxed text-slate-600"
+            style={{ '--mk-delay': '110ms' } as React.CSSProperties}
+          >
+            Save the search once. When an employer publishes a role that matches your
+            keywords, location and field, MeroKhoj notifies you — so the good ones reach
+            you while they are still fresh instead of after a week of refreshing boards.
           </p>
-
-          <ul className="mt-6 space-y-4">
-            {ALERT_POINTS.map((item) => (
-              <li key={item.title} className="flex gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-                  {item.icon}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                  <p className="text-sm text-slate-500">{item.text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8 rounded-xl bg-brand-50 p-5 text-sm text-brand-800">
-            Already have alerts?{' '}
-            <Link href="/jobseeker/job-alerts" className="font-semibold underline">
-              Manage them in your dashboard
-            </Link>
-            .
-          </div>
         </div>
+      </div>
 
-        <div className="card h-fit">
-          <h2 className="text-lg font-semibold text-slate-900">Create a free alert</h2>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <div>
+            <h2 className="font-display text-xl font-bold text-slate-900">How matching works</h2>
+            <ol className="relative mt-5">
+              <span
+                aria-hidden
+                className="absolute left-[19px] top-10 hidden h-[calc(100%-5rem)] w-0.5 bg-slate-200 sm:block"
+              />
+              {[
+                {
+                  title: 'You describe the role you want',
+                  body: 'Keywords like “react” and “node”, the city you can work from, and the field you want to stay in. Leave any of them open to widen the net.',
+                },
+                {
+                  title: 'Every new posting is checked against it',
+                  body: 'Matching runs each time an employer publishes, comparing your saved criteria against the title, skills, category and location of the role.',
+                },
+                {
+                  title: 'You get one message, not fifty',
+                  body: 'Depending on your cadence, matches arrive as they post or gathered into a single daily or weekly digest with the salary and deadline already visible.',
+                },
+              ].map((step, index) => (
+                <li
+                  key={step.title}
+                  className="mk-rise relative mb-7 flex gap-4 last:mb-0"
+                  style={{ '--mk-delay': `${160 + index * 110}ms` } as React.CSSProperties}
+                >
+                  <span className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-navy-900 font-display text-sm font-black text-white ring-4 ring-white">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 pt-0.5">
+                    <p className="font-display text-[15px] font-bold text-slate-900">
+                      {step.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">{step.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            {/* Example alert notification — decorative mock */}
+            <div
+              className="mk-rise mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_28px_56px_-36px_rgba(15,23,42,0.45)]"
+              style={{ '--mk-delay': '480ms' } as React.CSSProperties}
+              aria-hidden
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+                  <BellIcon />
+                  Alert · React jobs in Kathmandu
+                </span>
+                <span className="text-xs text-slate-400">now</span>
+              </div>
+              <p className="mt-3 font-display text-base font-bold text-slate-900">
+                Senior Frontend Engineer
+              </p>
+              <p className="mt-1 text-sm text-slate-500">Himalayan Digital · Kathmandu</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                  Full-time
+                </span>
+                <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                  Rs. 120,000 – Rs. 160,000
+                </span>
+                <span className="ml-auto text-xs font-bold text-brand-600">View role →</span>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-xl bg-brand-50 p-5 text-sm text-brand-800">
+              Already have alerts?{' '}
+              <Link href="/jobseeker/job-alerts" className="font-semibold underline">
+                Manage them in your dashboard
+              </Link>
+              . Pause one while you are on holiday, or delete it the day you sign an offer —
+              alerts never email you after that.
+            </div>
+          </div>
+
+          <div className="card h-fit lg:sticky lg:top-20">
+            <h2 className="text-lg font-semibold text-slate-900">Create a free alert</h2>
 
           {done ? (
             <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-700">
@@ -239,6 +286,7 @@ export default function JobAlertsPage() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

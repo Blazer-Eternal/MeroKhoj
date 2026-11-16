@@ -129,7 +129,10 @@ export default function InterviewsPage() {
       ) : (
         <>
           {upcoming.length > 0 && (
-            <section className="card">
+            <section
+              className="card lift mk-rise"
+              style={{ '--mk-delay': '0ms' } as React.CSSProperties}
+            >
               <h2 className="mb-2 text-lg font-bold text-slate-900">Upcoming</h2>
               <ul className="divide-y divide-slate-100">
                 {upcoming.map((interview) => (
@@ -140,7 +143,10 @@ export default function InterviewsPage() {
           )}
 
           {past.length > 0 && (
-            <section className="card">
+            <section
+              className="card lift mk-rise"
+              style={{ '--mk-delay': '90ms' } as React.CSSProperties}
+            >
               <h2 className="mb-2 text-lg font-bold text-slate-900">Past</h2>
               <ul className="divide-y divide-slate-100">
                 {past.map((interview) => (

@@ -61,7 +61,10 @@ export default async function CompanyProfilePage({
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Header, pulled up over the cover */}
-        <header className="relative z-10 -mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_28px_56px_-36px_rgba(15,23,42,0.55)]">
+        <header
+          className="mk-rise relative z-10 -mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_28px_56px_-36px_rgba(15,23,42,0.55)]"
+          style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+        >
           <div className="flex flex-wrap items-start gap-5">
             <CompanyLogo
               name={company.name}
@@ -141,7 +144,10 @@ export default async function CompanyProfilePage({
         </header>
 
         {/* Open positions */}
-        <section className="py-10">
+        <section
+          className="mk-rise py-10"
+          style={{ '--mk-delay': '130ms' } as React.CSSProperties}
+        >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="font-display text-xl font-extrabold text-slate-900">

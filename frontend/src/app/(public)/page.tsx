@@ -113,16 +113,25 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <h1 className="font-display text-4xl font-extrabold leading-[1.1] text-slate-900 sm:text-5xl">
+              <h1
+                className="mk-rise font-display text-4xl font-extrabold leading-[1.1] text-slate-900 sm:text-5xl"
+                style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+              >
                 Find the job that fits <span className="text-brand-600">your life</span>
               </h1>
-              <p className="mt-4 max-w-xl text-lg leading-relaxed text-slate-600">
+              <p
+                className="mk-rise mt-4 max-w-xl text-lg leading-relaxed text-slate-600"
+                style={{ '--mk-delay': '120ms' } as React.CSSProperties}
+              >
                 Search verified openings across Nepal, save the ones worth coming back to, and
                 follow every application from submitted to offer.
               </p>
 
               {/* Platform counters */}
-              <div className="mt-8 flex flex-wrap gap-x-10 gap-y-5">
+              <div
+                className="mk-rise mt-8 flex flex-wrap gap-x-10 gap-y-5"
+                style={{ '--mk-delay': '200ms' } as React.CSSProperties}
+              >
                 <HeroStat label="Live Jobs" value={jobsTotal}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden className="h-5 w-5">
                     <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -147,7 +156,8 @@ export default async function HomePage() {
               <form
                 action="/jobs"
                 method="GET"
-                className="mt-8 flex max-w-2xl flex-col gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-900/5 sm:flex-row"
+                className="mk-rise mt-8 flex max-w-2xl flex-col gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-900/5 sm:flex-row"
+                style={{ '--mk-delay': '280ms' } as React.CSSProperties}
               >
                 <input
                   type="search"
@@ -179,7 +189,10 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Product visual: live matches over big brand type */}
+            {/* Product visual: live matches over big brand type. Static on
+                purpose — the left column already staggers in, and animating
+                transform on this shadow-heavy absolute stack costs a frame
+                the hero does not need. */}
             <div className="relative hidden h-[440px] lg:block" aria-hidden>
               <div className="absolute right-0 top-2 select-none text-right font-display text-7xl font-black leading-[0.9] text-brand-200">
                 FIND

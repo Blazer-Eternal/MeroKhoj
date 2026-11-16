@@ -205,8 +205,12 @@ export default function ResumesPage() {
         />
       ) : (
         <ul className="space-y-4">
-          {sorted.map((res) => (
-            <li key={res.id} className="card flex flex-wrap items-center justify-between gap-3">
+          {sorted.map((res, index) => (
+            <li
+              key={res.id}
+              className="card lift mk-rise flex flex-wrap items-center justify-between gap-3"
+              style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+            >
               <div className="flex min-w-0 items-center gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                   <NavIcon name="document" className="h-5 w-5" />

@@ -164,8 +164,12 @@ export default function JobAlertsPage() {
         />
       ) : (
         <ul className="space-y-4">
-          {alerts.data.map((alert) => (
-            <li key={alert.id} className="card flex flex-wrap items-center justify-between gap-3">
+          {alerts.data.map((alert, index) => (
+            <li
+              key={alert.id}
+              className="card lift mk-rise flex flex-wrap items-center justify-between gap-3"
+              style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+            >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-semibold text-slate-900">{alert.name}</h2>

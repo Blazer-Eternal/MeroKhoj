@@ -42,15 +42,21 @@ function StatCard({
   icon,
   href,
   hint,
+  index = 0,
 }: {
   label: string;
   value: number | string;
   icon: ReactNode;
   href?: string;
   hint?: string;
+  /** Position in the card row — drives the mount stagger (mk-rise). */
+  index?: number;
 }) {
   const body = (
-    <div className="card flex items-center gap-4 transition-shadow hover:shadow-md">
+    <div
+      className="card lift mk-rise flex items-center gap-4"
+      style={{ '--mk-delay': `${index * 70}ms` } as React.CSSProperties}
+    >
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
         {icon}
       </span>
@@ -82,7 +88,7 @@ function TrackerRow({
       </div>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-2 rounded-full bg-brand-500 transition-all"
+          className="mk-bar h-2 rounded-full bg-brand-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -176,11 +182,22 @@ export default function JobseekerDashboardPage() {
       <section className="rounded-2xl bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 p-6 text-white sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-brand-100">{today}</p>
-            <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
+            <p
+              className="mk-rise text-sm font-semibold text-brand-100"
+              style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+            >
+              {today}
+            </p>
+            <h1
+              className="mk-rise mt-1 text-2xl font-extrabold sm:text-3xl"
+              style={{ '--mk-delay': '100ms' } as React.CSSProperties}
+            >
               Welcome back, {firstName}
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-brand-100">
+            <p
+              className="mk-rise mt-2 max-w-xl text-sm text-brand-100"
+              style={{ '--mk-delay': '170ms' } as React.CSSProperties}
+            >
               You have{' '}
               <span className="font-bold text-white">{activeCount} active application
               {activeCount === 1 ? '' : 's'}</span>{' '}
@@ -195,7 +212,10 @@ export default function JobseekerDashboardPage() {
               . Keep the search going.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div
+            className="mk-rise flex flex-wrap gap-2"
+            style={{ '--mk-delay': '240ms' } as React.CSSProperties}
+          >
             <Link
               href="/jobs"
               className="rounded-lg bg-white px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
@@ -220,12 +240,14 @@ export default function JobseekerDashboardPage() {
           icon={<NavIcon name="envelope" className="h-5 w-5" />}
           href="/jobseeker/applications"
           hint={`${activeCount} active`}
+          index={0}
         />
         <StatCard
           label="Saved jobs"
           value={saved.data.length}
           icon={<NavIcon name="bookmark" className="h-5 w-5" />}
           href="/jobseeker/saved-jobs"
+          index={1}
         />
         <StatCard
           label="Job alerts"
@@ -233,12 +255,14 @@ export default function JobseekerDashboardPage() {
           icon={<NavIcon name="bell" className="h-5 w-5" />}
           href="/jobseeker/job-alerts"
           hint={`${alerts.data.length} total`}
+          index={2}
         />
         <StatCard
           label="Unread notifications"
           value={unread ?? '—'}
           icon={<NavIcon name="speaker" className="h-5 w-5" />}
           href="/jobseeker/notifications"
+          index={3}
         />
       </section>
 
@@ -270,10 +294,11 @@ export default function JobseekerDashboardPage() {
             />
           ) : (
             <div className="space-y-3">
-              {jobs.data.map((job) => (
+              {jobs.data.map((job, index) => (
                 <article
                   key={job.id}
-                  className="rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-md"
+                  className="lift mk-rise rounded-xl border border-slate-200 bg-white p-4"
+                  style={{ '--mk-delay': `${200 + Math.min(index, 5) * 70}ms` } as React.CSSProperties}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -301,7 +326,10 @@ export default function JobseekerDashboardPage() {
 
         {/* Application tracker */}
         <aside className="h-fit space-y-6">
-          <section className="card">
+          <section
+            className="card lift mk-rise"
+            style={{ '--mk-delay': '240ms' } as React.CSSProperties}
+          >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">Application tracker</h2>
               <Link
@@ -340,7 +368,10 @@ export default function JobseekerDashboardPage() {
           </section>
 
           {/* Recent activity */}
-          <section className="card">
+          <section
+            className="card lift mk-rise"
+            style={{ '--mk-delay': '310ms' } as React.CSSProperties}
+          >
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">Recent applications</h2>
             </div>
@@ -369,7 +400,10 @@ export default function JobseekerDashboardPage() {
           </section>
 
           {/* Profile completeness nudge */}
-          <section className="card bg-brand-50">
+          <section
+            className="card lift mk-rise bg-brand-50"
+            style={{ '--mk-delay': '380ms' } as React.CSSProperties}
+          >
             <div className="flex items-start gap-3">
               <span className="text-brand-600">
                 <NavIcon name="bulb" className="h-5 w-5" />

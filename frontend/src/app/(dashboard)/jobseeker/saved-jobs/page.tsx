@@ -67,10 +67,14 @@ export default function SavedJobsPage() {
         />
       ) : (
         <ul className="space-y-4">
-          {saved.data.map((entry) => {
+          {saved.data.map((entry, index) => {
             const job = entry.job;
             return (
-              <li key={entry.id} className="card">
+              <li
+                key={entry.id}
+                className="card lift mk-rise"
+                style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">

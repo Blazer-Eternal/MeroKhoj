@@ -133,12 +133,13 @@ export default function NotificationsPage() {
         />
       ) : (
         <ul className="space-y-3">
-          {items.map((n) => (
+          {items.map((n, index) => (
             <li
               key={n.id}
-              className={`card flex items-start justify-between gap-3 ${
+              className={`card lift mk-rise flex items-start justify-between gap-3 ${
                 n.is_read ? '' : 'border-l-4 border-l-brand-500 bg-brand-50/40'
               }`}
+              style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
             >
               <div className="flex min-w-0 gap-3">
                 <span className="text-brand-600">

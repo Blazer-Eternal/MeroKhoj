@@ -118,7 +118,10 @@ export default async function JobDetailsPage({
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Header, pulled up over the cover */}
-        <div className="relative z-10 -mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_28px_56px_-36px_rgba(15,23,42,0.55)]">
+        <div
+          className="mk-rise relative z-10 -mt-16 rounded-xl border border-slate-200 bg-white p-6 shadow-[0_28px_56px_-36px_rgba(15,23,42,0.55)]"
+          style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+        >
           <div className="flex flex-wrap items-start gap-5">
             <CompanyLogo
               name={company?.name}
@@ -163,7 +166,10 @@ export default async function JobDetailsPage({
           {/* Main */}
           <article className="space-y-6">
             {/* Vertical icon meta list */}
-            <section className="card">
+            <section
+              className="mk-rise card"
+              style={{ '--mk-delay': '120ms' } as React.CSSProperties}
+            >
               <h2 className="text-lg font-semibold text-slate-900">Job details</h2>
               <dl className="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
                 {details.map((row) => (
@@ -238,7 +244,10 @@ export default async function JobDetailsPage({
 
           {/* Sidebar */}
           <aside className="h-fit space-y-4 lg:sticky lg:top-20">
-            <div className="card space-y-3">
+            <div
+              className="mk-rise card space-y-3"
+              style={{ '--mk-delay': '180ms' } as React.CSSProperties}
+            >
               <ApplyToJobButton jobId={job.id} disabled={!accepting} />
               <p className="text-center text-xs text-slate-400">
                 Applies directly through MeroKhoj

@@ -33,7 +33,17 @@ export function Navbar() {
   const { user, loading, logout, area, roles } = useAuth();
   const [open, setOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const areas = useMemo(() => areasForRoles(roles).map((a) => AREA_HOME[a]), [roles]);
+
+  // Lift the header off the page once content scrolls beneath it — a
+  // shadow swap only (no layout shift), throttled to rAF via the browser.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // The mega panel is fixed-positioned below the header, so a sliver of page
   // sits between the trigger and the panel. Closing instantly on mouse-leave
@@ -74,7 +84,13 @@ export function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
+    <header
+      className={`sticky top-0 z-50 border-b bg-white transition-shadow duration-300 ${
+        scrolled
+          ? 'border-slate-200 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]'
+          : 'border-slate-200'
+      }`}
+    >
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="MeroKhoj home">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 font-display text-lg font-black text-white">
@@ -217,9 +233,10 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — mounts with a short drop so it reads as attached to
+          the header rather than appearing from nowhere. */}
       {open && (
-        <div className="border-t border-slate-200 bg-white px-4 py-3 lg:hidden">
+        <div className="mk-menu border-t border-slate-200 bg-white px-4 py-3 lg:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             <Link href="/jobs" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Browse Jobs

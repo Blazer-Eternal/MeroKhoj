@@ -143,7 +143,12 @@ export default function JobseekerProfilePage() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="card space-y-5" noValidate>
+      <form
+        onSubmit={onSubmit}
+        className="card lift mk-rise space-y-5"
+        style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+        noValidate
+      >
         <Field label="Headline" hint="One line shown to employers" htmlFor="p-headline">
           <Input
             id="p-headline"

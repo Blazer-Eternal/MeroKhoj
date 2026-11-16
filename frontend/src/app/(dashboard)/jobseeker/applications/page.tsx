@@ -121,10 +121,14 @@ export default function ApplicationsPage() {
         />
       ) : (
         <ul className="space-y-4">
-          {filtered.map((app) => {
+          {filtered.map((app, index) => {
             const canWithdraw = WITHDRAWABLE.includes(app.status);
             return (
-              <li key={app.id} className="card">
+              <li
+                key={app.id}
+                className="card lift mk-rise"
+                style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">

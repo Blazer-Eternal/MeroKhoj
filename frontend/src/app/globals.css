@@ -105,15 +105,29 @@ h6 {
   .mk-skeleton {
     animation: none;
   }
+  .btn:active:not(:disabled),
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-danger:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* Buttons — base styles shared by every variant (Tailwind 4 @apply cannot
-   reference custom classes, so all selectors are grouped here). */
+   reference custom classes, so all selectors are grouped here). Press
+   feedback (scale down 2%) and a consistent focus ring make every click
+   feel tactile across the site. */
 .btn,
 .btn-primary,
 .btn-secondary,
 .btn-danger {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-display text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-display text-sm font-semibold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.btn-danger:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .btn-primary {
   @apply bg-brand-600 text-white hover:bg-brand-700;
@@ -174,6 +188,97 @@ h6 {
 }
 @media (prefers-reduced-motion: reduce) {
   .mk-marquee-track {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accordion — grid-rows 0fr → 1fr so the wrapper animates its own height
+   without measuring pixels in JS. The inner div needs `min-h-0 overflow-hidden`
+   for the trick to clip correctly. Transition lives on the grid, not opacity,
+   so content is never half-visible mid-collapse.
+--------------------------------------------------------------------------- */
+.mk-accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mk-accordion-panel[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+.mk-accordion-panel > div {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Stagger — children enter on a delayed rise. Applied by index via inline
+   `--mk-delay`, so a list of any length shares one class. Not a generic
+   fade-in-on-scroll: it runs on mount (CSS animation), never on viewport
+   entry, and reduced-motion paints everything immediately. */
+@keyframes mk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.mk-rise {
+  opacity: 0;
+  animation: mk-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--mk-delay, 0ms);
+}
+
+/* Marquee band for the employer logo wall — slower than the jobseeker strip
+   so two rows on one page never read as the same effect. */
+.mk-marquee-slow .mk-marquee-track {
+  animation-duration: 80s;
+}
+
+/* Progress bars — grow from zero to their specified width on mount. The
+   `to` keyframe is implicit, so it resolves to the element's own inline
+   width; `both` holds width:0 for any stagger delay before it starts. */
+@keyframes mk-bar {
+  from {
+    width: 0;
+  }
+}
+.mk-bar {
+  animation: mk-bar 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--mk-delay, 0ms);
+}
+
+/* Header dropdowns (mobile menu, mega panel) — a short drop from the
+   header edge so the panel reads as attached rather than materialised. */
+@keyframes mk-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.mk-menu {
+  animation: mk-drop 0.18s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-accordion-panel {
+    transition: none;
+  }
+  .mk-rise {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+  .mk-menu {
+    animation: none;
+  }
+  .mk-bar {
     animation: none;
   }
 }

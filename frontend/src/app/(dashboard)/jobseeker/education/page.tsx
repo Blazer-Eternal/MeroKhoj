@@ -189,8 +189,12 @@ export default function EducationPage() {
         />
       ) : (
         <ul className="space-y-4">
-          {sorted.map((edu) => (
-            <li key={edu.id} className="card">
+          {sorted.map((edu, index) => (
+            <li
+              key={edu.id}
+              className="card lift mk-rise"
+              style={{ '--mk-delay': `${Math.min(index, 8) * 60}ms` } as React.CSSProperties}
+            >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">

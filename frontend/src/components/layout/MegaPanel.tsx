@@ -179,7 +179,7 @@ export function MegaPanel({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-x-0 top-[72px] z-50 hidden px-4 lg:block">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-b-2xl border border-t-0 border-slate-200 bg-white shadow-2xl">
+      <div className="mk-menu mx-auto max-w-7xl overflow-hidden rounded-b-2xl border border-t-0 border-slate-200 bg-white shadow-2xl">
         <div className="grid grid-cols-[260px_1fr]">
           <nav className="border-r border-slate-100 py-6 pl-6 pr-3" aria-label="Browse jobs by">
             {TABS.map((tab) => (

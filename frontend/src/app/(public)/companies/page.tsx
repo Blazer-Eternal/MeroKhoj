@@ -52,10 +52,16 @@ export default async function CompaniesPage({
     <>
       <section className="border-b border-brand-100 bg-brand-50">
         <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6">
-          <h1 className="font-display text-3xl font-extrabold text-slate-900 sm:text-4xl">
+          <h1
+            className="mk-rise font-display text-3xl font-extrabold text-slate-900 sm:text-4xl"
+            style={{ '--mk-delay': '40ms' } as React.CSSProperties}
+          >
             Company Directory
           </h1>
-          <p className="mt-2 max-w-2xl text-slate-600">
+          <p
+            className="mk-rise mt-2 max-w-2xl text-slate-600"
+            style={{ '--mk-delay': '100ms' } as React.CSSProperties}
+          >
             {meta.total != null
               ? `${meta.total} employer${meta.total === 1 ? '' : 's'} hiring on MeroKhoj — browse by name, industry, or city.`
               : 'Explore employers on MeroKhoj'}
@@ -64,7 +70,8 @@ export default async function CompaniesPage({
           <form
             method="GET"
             action="/companies"
-            className="mt-6 flex max-w-xl gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-900/5"
+            className="mk-rise mt-6 flex max-w-xl gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-slate-900/5"
+            style={{ '--mk-delay': '160ms' } as React.CSSProperties}
           >
             <input
               type="search"
@@ -96,13 +103,14 @@ export default async function CompaniesPage({
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {companies.map((company) => {
+              {companies.map((company, index) => {
                 const count = openings.get(company.id) ?? 0;
                 return (
                   <Link
                     key={company.id}
                     href={`/companies/${company.id}`}
-                    className="group lift flex flex-col rounded-xl border border-slate-200 bg-white p-5"
+                    className="group lift mk-rise flex flex-col rounded-xl border border-slate-200 bg-white p-5"
+                    style={{ '--mk-delay': `${220 + (index % 3) * 80 + Math.floor(index / 3) * 60}ms` } as React.CSSProperties}
                   >
                     <div className="flex items-center gap-3">
                       <CompanyLogo

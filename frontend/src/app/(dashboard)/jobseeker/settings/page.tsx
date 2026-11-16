@@ -111,7 +111,12 @@ export default function SettingsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Account details */}
-        <form onSubmit={saveAccount} className="card space-y-4" noValidate>
+        <form
+          onSubmit={saveAccount}
+          className="card lift mk-rise space-y-4"
+          style={{ '--mk-delay': '0ms' } as React.CSSProperties}
+          noValidate
+        >
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-slate-900">Account details</h2>
             <Badge tone="slate">{user.status}</Badge>
@@ -170,7 +175,12 @@ export default function SettingsPage() {
         </form>
 
         {/* Password */}
-        <form onSubmit={savePassword} className="card space-y-4" noValidate>
+        <form
+          onSubmit={savePassword}
+          className="card lift mk-rise space-y-4"
+          style={{ '--mk-delay': '90ms' } as React.CSSProperties}
+          noValidate
+        >
           <h2 className="text-lg font-bold text-slate-900">Change password</h2>
 
           <Field label="Current password" required htmlFor="s-current">
@@ -221,7 +231,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Session info */}
-      <section className="card">
+      <section
+        className="card lift mk-rise"
+        style={{ '--mk-delay': '180ms' } as React.CSSProperties}
+      >
         <h2 className="text-lg font-bold text-slate-900">Session</h2>
         <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
           <div>
