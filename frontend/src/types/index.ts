@@ -246,6 +246,8 @@ export interface JobseekerProfile {
   expected_salary: number | null;
   availability: Availability | null;
   profile_visibility: ProfileVisibility;
+  /** Populated by GET /users/me/profile (not sent on save). */
+  skills?: { id: string; name: string }[];
   created_at: string;
   updated_at: string;
 }

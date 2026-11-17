@@ -1,25 +1,20 @@
 import type { QueryInterface } from 'sequelize';
-import bcrypt from 'bcryptjs';
 
 /**
- * Base seeder — the single entry point run by `sequelize-cli db:seed:all`.
+ * Base seeder — reference data only: platform roles, taxonomy and the
+ * purchasable service-plan catalog. Run by `sequelize-cli db:seed:all`.
  *
  * This file is intentionally SELF-CONTAINED: sequelize-cli loads `.ts` seeders
  * via dynamic `import()` (ESM), which cannot resolve directory/index imports
  * like `../enums` or `../config`. All values are therefore inlined here, and
- * only third-party packages are imported.
+ * only third-party type imports are used.
  *
- * Seeds, in order:
- *   1. Platform roles
- *   2. A SUPER_ADMIN platform account
- *   3. A demo VERIFIED company owned by that admin
+ * Accounts live in `adminSeeder.ts`; the demo dataset lives in
+ * `demo/seedDemo.ts` (run via `npm run seed:demo`).
  *
- * Idempotent: each step is skipped if its data already exists.
+ * Idempotent: every block inserts only rows whose id is missing, so repeated
+ * runs (and runs against databases seeded before the taxonomy grew) are safe.
  */
-
-const ADMIN_ID = '00000000-0000-4000-8000-000000000001';
-const DEMO_COMPANY_ID = '00000000-0000-4000-8000-000000000003';
-const ADMIN_COMPANY_MEMBER_ID = '00000000-0000-4000-8000-000000000004';
 
 /** Deterministic UUIDs for seeded taxonomy so FKs stay stable across runs. */
 const TAXONOMY_ID = (n: number) =>
@@ -34,6 +29,9 @@ const SEEDED_CATEGORIES = [
   { id: TAXONOMY_ID(106), name: 'Finance & Accounting', slug: 'finance-accounting', parent_id: null },
   { id: TAXONOMY_ID(107), name: 'Healthcare', slug: 'healthcare', parent_id: null },
   { id: TAXONOMY_ID(108), name: 'Education', slug: 'education', parent_id: null },
+  { id: TAXONOMY_ID(109), name: 'Human Resources', slug: 'human-resources', parent_id: null },
+  { id: TAXONOMY_ID(110), name: 'Graphic Design', slug: 'graphic-design', parent_id: null },
+  { id: TAXONOMY_ID(111), name: 'Project Management', slug: 'project-management', parent_id: null },
 ];
 
 const SEEDED_INDUSTRIES = [
@@ -43,6 +41,9 @@ const SEEDED_INDUSTRIES = [
   { id: TAXONOMY_ID(204), name: 'Education', slug: 'education-industry' },
   { id: TAXONOMY_ID(205), name: 'Telecommunications', slug: 'telecommunications' },
   { id: TAXONOMY_ID(206), name: 'Retail & E-Commerce', slug: 'retail-ecommerce' },
+  { id: TAXONOMY_ID(207), name: 'Digital Marketing', slug: 'digital-marketing' },
+  { id: TAXONOMY_ID(208), name: 'Construction', slug: 'construction' },
+  { id: TAXONOMY_ID(209), name: 'Consulting', slug: 'consulting' },
 ];
 
 const SEEDED_LOCATIONS = [
@@ -52,6 +53,9 @@ const SEEDED_LOCATIONS = [
   { id: TAXONOMY_ID(304), country: 'Nepal', province: 'Gandaki', district: 'Kaski', city: 'Pokhara' },
   { id: TAXONOMY_ID(305), country: 'Nepal', province: 'Lumbini', district: 'Rupandehi', city: 'Bhairahawa' },
   { id: TAXONOMY_ID(306), country: 'Nepal', province: 'Koshi', district: 'Morang', city: 'Biratnagar' },
+  { id: TAXONOMY_ID(307), country: 'Nepal', province: 'Bagmati', district: 'Chitwan', city: 'Chitwan' },
+  { id: TAXONOMY_ID(308), country: 'Nepal', province: 'Lumbini', district: 'Rupandehi', city: 'Butwal' },
+  { id: TAXONOMY_ID(309), country: 'Nepal', province: 'Koshi', district: 'Sunsari', city: 'Dharan' },
 ];
 
 /** Starter catalog of purchasable packages (entity 33). Free fixed-ID range 401+. */
@@ -106,219 +110,132 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   SUPER_ADMIN: 'Top-level administrator, including other admins.',
 };
 
-const seedRoles = async (queryInterface: QueryInterface): Promise<void> => {
-  const [existing] = (await queryInterface.sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM roles',
-  )) as unknown as [Array<{ count: number }>];
+/** Insert only the rows whose id is not already present. */
+const insertMissing = async <T extends { id: string }>(
+  queryInterface: QueryInterface,
+  table: string,
+  rows: T[],
+): Promise<number> => {
+  const sequelize = queryInterface.sequelize;
+  const ids = rows.map((row) => row.id);
+  const [existing] = (await sequelize.query(
+    `SELECT id FROM "${table}" WHERE id IN (:ids)`,
+    { replacements: { ids } },
+  )) as unknown as [Array<{ id: string }>];
 
-  if (existing[0].count > 0) {
+  const present = new Set(existing.map((row) => row.id));
+  const missing = rows.filter((row) => !present.has(row.id));
+  if (missing.length === 0) return 0;
+
+  await queryInterface.bulkInsert(table, missing);
+  return missing.length;
+};
+
+const seedRoles = async (queryInterface: QueryInterface): Promise<void> => {
+  const sequelize = queryInterface.sequelize;
+  const [existing] = (await sequelize.query(
+    `SELECT name FROM roles WHERE name IN (:names)`,
+    { replacements: { names: [...ROLE_NAMES] } },
+  )) as unknown as [Array<{ name: string }>];
+
+  const present = new Set(existing.map((row) => row.name));
+  const missing = ROLE_NAMES.filter((name) => !present.has(name));
+  if (missing.length === 0) {
     console.log('  • roles already seeded, skipping');
     return;
   }
 
   const now = new Date();
-  const rows = ROLE_NAMES.map((name) => ({
-    name,
-    description: ROLE_DESCRIPTIONS[name] ?? null,
-    created_at: now,
-    updated_at: now,
-  }));
-
-  await queryInterface.bulkInsert('roles', rows);
-  console.log(`  • seeded ${rows.length} roles`);
-};
-
-const seedAdmin = async (queryInterface: QueryInterface): Promise<void> => {
-  const sequelize = queryInterface.sequelize;
-
-  // Skip if the admin already exists.
-  const [users] = (await sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM users WHERE email = :email',
-    { replacements: { email: 'admin@merokhoj.com' } },
-  )) as unknown as [Array<{ count: number }>];
-  if (users[0].count > 0) {
-    console.log('  • admin already seeded, skipping');
-    return;
-  }
-
-  const now = new Date();
-  const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS || 10);
-  const passwordHash = await bcrypt.hash('Admin@123', saltRounds);
-
-  // 1. The admin user.
-  await queryInterface.bulkInsert('users', [
-    {
-      id: ADMIN_ID,
-      email: 'admin@merokhoj.com',
-      password_hash: passwordHash,
-      first_name: 'MeroKhoj',
-      last_name: 'Administrator',
-      phone: null,
-      status: 'ACTIVE',
-      email_verified: true,
-      last_login_at: null,
+  await queryInterface.bulkInsert(
+    'roles',
+    missing.map((name) => ({
+      name,
+      description: ROLE_DESCRIPTIONS[name] ?? null,
       created_at: now,
       updated_at: now,
-    },
-  ]);
-
-  // 2. Resolve role ids and grant SUPER_ADMIN + ADMIN.
-  const [roles] = (await sequelize.query(
-    `SELECT id, name FROM roles WHERE name IN ('SUPER_ADMIN','ADMIN')`,
-  )) as unknown as [Array<{ id: string; name: string }>];
-
-  const userRoleRows = roles.map((role, index) => ({
-    id: `00000000-0000-4000-8000-00000000002${index}`,
-    user_id: ADMIN_ID,
-    role_id: role.id,
-    created_at: now,
-    updated_at: now,
-  }));
-  await queryInterface.bulkInsert('user_roles', userRoleRows);
-
-  // 3. A demo VERIFIED company.
-  await queryInterface.bulkInsert('companies', [
-    {
-      id: DEMO_COMPANY_ID,
-      name: 'MeroKhoj Labs',
-      slug: 'merokhoj-labs',
-      description: 'Demo verified company used for local development.',
-      logo_url: null,
-      website: 'https://merokhoj.com',
-      email: 'hello@merokhoj.com',
-      phone: null,
-      industry: 'Technology',
-      company_size: 'SMALL',
-      address: null,
-      city: 'Kathmandu',
-      country: 'Nepal',
-      verification_status: 'VERIFIED',
-      status: 'ACTIVE',
-      created_at: now,
-      updated_at: now,
-    },
-  ]);
-
-  // 4. The admin becomes OWNER of the demo company.
-  await queryInterface.bulkInsert('company_members', [
-    {
-      id: ADMIN_COMPANY_MEMBER_ID,
-      company_id: DEMO_COMPANY_ID,
-      user_id: ADMIN_ID,
-      role: 'OWNER',
-      status: 'ACTIVE',
-      joined_at: now,
-      created_at: now,
-      updated_at: now,
-    },
-  ]);
-
-  console.log('  • seeded admin account + demo company');
+    })),
+  );
+  console.log(`  • seeded ${missing.length} roles`);
 };
 
 const seedTaxonomy = async (queryInterface: QueryInterface): Promise<void> => {
-  const sequelize = queryInterface.sequelize;
   const now = new Date();
 
-  // ---- Job categories ---------------------------------------------------
-  const [catCount] = (await sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM job_categories',
-  )) as unknown as [Array<{ count: number }>];
-  if (catCount[0].count === 0) {
-    await queryInterface.bulkInsert(
-      'job_categories',
-      SEEDED_CATEGORIES.map((c) => ({
-        ...c,
-        description: null,
-        status: 'ACTIVE',
-        created_at: now,
-        updated_at: now,
-      })),
-    );
-    console.log(`  • seeded ${SEEDED_CATEGORIES.length} job categories`);
-  } else {
-    console.log('  • job categories already seeded, skipping');
-  }
+  const categories = await insertMissing(
+    queryInterface,
+    'job_categories',
+    SEEDED_CATEGORIES.map((c) => ({
+      ...c,
+      description: null,
+      status: 'ACTIVE',
+      created_at: now,
+      updated_at: now,
+    })),
+  );
+  console.log(
+    categories > 0 ? `  • seeded ${categories} job categories` : '  • job categories already seeded, skipping',
+  );
 
-  // ---- Industries -------------------------------------------------------
-  const [indCount] = (await sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM industries',
-  )) as unknown as [Array<{ count: number }>];
-  if (indCount[0].count === 0) {
-    await queryInterface.bulkInsert(
-      'industries',
-      SEEDED_INDUSTRIES.map((i) => ({
-        ...i,
-        description: null,
-        status: 'ACTIVE',
-        created_at: now,
-        updated_at: now,
-      })),
-    );
-    console.log(`  • seeded ${SEEDED_INDUSTRIES.length} industries`);
-  } else {
-    console.log('  • industries already seeded, skipping');
-  }
+  const industries = await insertMissing(
+    queryInterface,
+    'industries',
+    SEEDED_INDUSTRIES.map((i) => ({
+      ...i,
+      description: null,
+      status: 'ACTIVE',
+      created_at: now,
+      updated_at: now,
+    })),
+  );
+  console.log(
+    industries > 0 ? `  • seeded ${industries} industries` : '  • industries already seeded, skipping',
+  );
 
-  // ---- Locations --------------------------------------------------------
-  const [locCount] = (await sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM locations',
-  )) as unknown as [Array<{ count: number }>];
-  if (locCount[0].count === 0) {
-    await queryInterface.bulkInsert(
-      'locations',
-      SEEDED_LOCATIONS.map((l) => ({
-        ...l,
-        address: null,
-        postal_code: null,
-        latitude: null,
-        longitude: null,
-        created_at: now,
-        updated_at: now,
-      })),
-    );
-    console.log(`  • seeded ${SEEDED_LOCATIONS.length} locations`);
-  } else {
-    console.log('  • locations already seeded, skipping');
-  }
-  // ---- Service plans ----------------------------------------------------
-  const [planCount] = (await sequelize.query(
-    'SELECT COUNT(*)::int AS count FROM service_plans',
-  )) as unknown as [Array<{ count: number }>];
-  if (planCount[0].count === 0) {
-    await queryInterface.bulkInsert(
-      'service_plans',
-      SEEDED_SERVICE_PLANS.map((p) => ({
-        ...p,
-        status: 'ACTIVE',
-        created_at: now,
-        updated_at: now,
-      })),
-    );
-    console.log(`  • seeded ${SEEDED_SERVICE_PLANS.length} service plans`);
-  } else {
-    console.log('  • service plans already seeded, skipping');
-  }
+  const locations = await insertMissing(
+    queryInterface,
+    'locations',
+    SEEDED_LOCATIONS.map((l) => ({
+      ...l,
+      address: null,
+      postal_code: null,
+      latitude: null,
+      longitude: null,
+      created_at: now,
+      updated_at: now,
+    })),
+  );
+  console.log(
+    locations > 0 ? `  • seeded ${locations} locations` : '  • locations already seeded, skipping',
+  );
+
+  const plans = await insertMissing(
+    queryInterface,
+    'service_plans',
+    SEEDED_SERVICE_PLANS.map((p) => ({
+      ...p,
+      status: 'ACTIVE',
+      created_at: now,
+      updated_at: now,
+    })),
+  );
+  console.log(
+    plans > 0 ? `  • seeded ${plans} service plans` : '  • service plans already seeded, skipping',
+  );
 };
 
 export const up = async (queryInterface: QueryInterface): Promise<void> => {
   console.log('Seeding MeroKhoj reference data...');
   await seedRoles(queryInterface);
-  await seedAdmin(queryInterface);
   await seedTaxonomy(queryInterface);
 };
 
 export const down = async (queryInterface: QueryInterface): Promise<void> => {
-  // Remove seeded demo data (children first to satisfy FK order).
-  await queryInterface.bulkDelete('company_members', { id: ADMIN_COMPANY_MEMBER_ID });
-  await queryInterface.bulkDelete('companies', { id: DEMO_COMPANY_ID });
-  await queryInterface.bulkDelete('user_roles', { user_id: ADMIN_ID });
-  await queryInterface.bulkDelete('users', { id: ADMIN_ID });
-  await queryInterface.bulkDelete('roles', {});
+  // Reference data only — safe to remove wholesale when nothing depends on it.
+  await queryInterface.bulkDelete('service_plans', {});
   await queryInterface.bulkDelete('locations', {});
   await queryInterface.bulkDelete('industries', {});
   await queryInterface.bulkDelete('job_categories', {});
-  await queryInterface.bulkDelete('service_plans', {});
+  await queryInterface.bulkDelete('roles', {});
 };
 
 export default { up, down };

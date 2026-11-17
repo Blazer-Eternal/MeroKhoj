@@ -17,7 +17,9 @@
     "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "db:seed": "sequelize-cli db:seed:all",
     "db:seed:undo": "sequelize-cli db:seed:undo:all",
-    "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all"
+    "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "seed:demo": "ts-node src/seeders/demo/seedDemo.ts",
+    "seed:demo:reset": "ts-node src/seeders/demo/seedDemo.ts --reset"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

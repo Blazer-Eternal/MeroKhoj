@@ -109,6 +109,8 @@ export default function JobseekerProfilePage() {
     }
   };
 
+  const skills = profile?.skills ?? [];
+
   if (loading) {
     return (
       <div className="card flex items-center gap-3 text-sm text-slate-500">
@@ -271,6 +273,28 @@ export default function JobseekerProfilePage() {
           </Button>
         </div>
       </form>
+
+      {skills.length > 0 && (
+        <section
+          className="card lift mk-rise"
+          style={{ '--mk-delay': '80ms' } as React.CSSProperties}
+        >
+          <h2 className="text-lg font-semibold text-slate-900">Skills</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Shown to employers and used to rank the jobs recommended to you.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span
+                key={skill.id}
+                className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

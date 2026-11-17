@@ -56,6 +56,7 @@ export const endpoints = {
   // ---- job & taxonomy ----------------------------------------------------
   jobs: {
     search: '/jobs',
+    recommended: '/jobs/recommended', // jobseeker feed, ranked by profile fit
     create: '/jobs', // POST: employer job draft
     byId: (id: string) => `/jobs/${id}`,
     skills: (id: string) => `/jobs/${id}/skills`,

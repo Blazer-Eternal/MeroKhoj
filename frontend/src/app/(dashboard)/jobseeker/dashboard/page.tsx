@@ -9,7 +9,9 @@
  *   - saved jobs   → GET /saved-jobs
  *   - alerts       → GET /job-alerts
  *   - notifications→ GET /notifications/unread-count
- *   - recommended  → GET /jobs (published board)
+ *   - recommended  → GET /jobs/recommended (ranked by profile fit, applied
+ *                    jobs excluded; falls back to the published board if the
+ *                    endpoint errors)
  */
 import Link from 'next/link';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -145,10 +147,14 @@ export default function JobseekerDashboardPage() {
   const alerts = useApiList<JobAlert>(endpoints.jobAlerts.list, {
     query: { perPage: 100 },
   });
-  const jobs = useApiList<Job>(endpoints.jobs.search, {
-    query: { perPage: 6, status: 'PUBLISHED' },
-    anonymous: true,
+  const recommended = useApiList<Job>(endpoints.jobs.recommended, {
+    query: { perPage: 6 },
   });
+  // If the ranked feed fails (e.g. profile incomplete), show the plain board.
+  const board = useApiList<Job>(recommended.error ? endpoints.jobs.search : null, {
+    query: { perPage: 6, status: 'PUBLISHED' },
+  });
+  const jobs = recommended.error ? board : recommended;
 
   // Unread notifications — separate tiny fetch (count endpoint).
   const [unread, setUnread] = useState<number | null>(null);
@@ -272,7 +278,7 @@ export default function JobseekerDashboardPage() {
           <div className="mb-4 flex items-end justify-between">
             <div>
               <h2 className="text-lg font-bold text-slate-900">Recommended for you</h2>
-              <p className="text-sm text-slate-500">Fresh published roles on the board</p>
+              <p className="text-sm text-slate-500">Ranked by your skills, headline and location</p>
             </div>
             <Link href="/jobs" className="text-sm font-semibold text-brand-600 hover:text-brand-700">
               View all →
@@ -289,8 +295,8 @@ export default function JobseekerDashboardPage() {
             </div>
           ) : jobs.data.length === 0 ? (
             <EmptyState
-              title="No jobs posted yet"
-              description="Check back soon. New roles are added daily."
+              title="No recommendations yet"
+              description="Add skills to your profile and matching roles will appear here."
             />
           ) : (
             <div className="space-y-3">
