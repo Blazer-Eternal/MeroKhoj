@@ -4,6 +4,7 @@ import User from './user/userModel';
 import Role from './administration/roleModel';
 import UserRole from './administration/userRoleModel';
 import JobseekerProfile from './jobseeker/jobseekerProfileModel';
+import JobseekerProfileSkill from './jobseeker/jobseekerProfileSkillModel';
 import Company from './company/companyModel';
 import CompanyMember from './company/companyMemberModel';
 import Job from './job/jobModel';
@@ -145,6 +146,25 @@ export const defineAssociations = (sequelize: Sequelize): void => {
 
   JobseekerProfile.hasMany(Resume, { foreignKey: 'jobseeker_id', as: 'resumes' });
   Resume.belongsTo(JobseekerProfile, { foreignKey: 'jobseeker_id', as: 'jobseeker_profile' });
+
+  // ---- JobseekerProfile ↔ Skill (many-to-many via jobseeker_profile_skills)
+  JobseekerProfile.belongsToMany(Skill, {
+    through: JobseekerProfileSkill,
+    foreignKey: 'jobseeker_id',
+    otherKey: 'skill_id',
+    as: 'skills',
+  });
+  Skill.belongsToMany(JobseekerProfile, {
+    through: JobseekerProfileSkill,
+    foreignKey: 'skill_id',
+    otherKey: 'jobseeker_id',
+    as: 'jobseeker_profiles',
+  });
+  JobseekerProfileSkill.belongsTo(JobseekerProfile, {
+    foreignKey: 'jobseeker_id',
+    as: 'jobseeker_profile',
+  });
+  JobseekerProfileSkill.belongsTo(Skill, { foreignKey: 'skill_id', as: 'skill' });
 
   // ---- JobCategory (self-referential hierarchy) -----------------------
   JobCategory.belongsTo(JobCategory, { foreignKey: 'parent_id', as: 'parent' });

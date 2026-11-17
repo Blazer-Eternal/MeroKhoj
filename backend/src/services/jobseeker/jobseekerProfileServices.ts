@@ -1,6 +1,7 @@
 import { AppError } from '../../utils';
 import { IJobseekerProfile, IJobseekerProfileUpdate } from '../../interfaces';
-import { jobseekerProfileRepository } from '../../repositories';
+import { jobseekerProfileRepository, jobseekerProfileSkillRepository } from '../../repositories';
+import type { IProfileSkill } from '../../repositories/jobseeker/jobseekerProfileSkillRepository';
 import { assertOwnsJobseekerProfile } from '../shared/accessControl';
 import { IAuthUser } from '../../interfaces';
 
@@ -50,6 +51,27 @@ export const getPublicProfile = async (
   return profile;
 };
 
-export const jobseekerProfileServices = { getProfileByUserId, ensureProfile, updateOwnProfile, getPublicProfile };
+/** Skills listed on the caller's profile (`{ id, name }[]`). */
+export const getProfileSkills = async (userId: string): Promise<IProfileSkill[]> =>
+  jobseekerProfileSkillRepository.listByUserId(userId);
+
+/** Replace the caller's skills after validating every id exists in the catalog. */
+export const setProfileSkills = async (userId: string, skillIds: string[]): Promise<void> => {
+  const unique = [...new Set(skillIds)];
+  const missing = await jobseekerProfileSkillRepository.missingSkillIds(unique);
+  if (missing.length > 0) {
+    throw AppError.unprocessable(`Unknown skill id(s): ${missing.join(', ')}`);
+  }
+  await jobseekerProfileSkillRepository.replaceByUserId(userId, unique);
+};
+
+export const jobseekerProfileServices = {
+  getProfileByUserId,
+  ensureProfile,
+  updateOwnProfile,
+  getPublicProfile,
+  getProfileSkills,
+  setProfileSkills,
+};
 
 export default jobseekerProfileServices;

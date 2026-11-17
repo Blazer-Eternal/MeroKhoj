@@ -8,6 +8,7 @@ import {
   changeJobStatusSchema,
   setJobSkillsSchema,
   jobSearchQuerySchema,
+  recommendedJobsQuerySchema,
 } from '../../../validators';
 import { parseId } from '../../../utils';
 import { JobStatus } from '../../../enums';
@@ -26,6 +27,13 @@ export const createJob = asyncHandler(async (req: ICustomRequest, res: Response)
 export const searchJobs = asyncHandler(async (req: ICustomRequest, res: Response) => {
   const query = jobSearchQuerySchema.parse(req.query);
   const result = await jobServices.searchJobs(query);
+  return res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
+
+/** GET /api/jobs/recommended — personalized ranking for a jobseeker. */
+export const getRecommendedJobs = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const query = recommendedJobsQuerySchema.parse(req.query);
+  const result = await jobServices.getRecommendedJobs(req.user!, query);
   return res.status(200).json({ success: true, data: result.data, meta: result.meta });
 });
 
@@ -85,6 +93,7 @@ export const deleteJob = asyncHandler(async (req: ICustomRequest, res: Response)
 export default {
   createJob,
   searchJobs,
+  getRecommendedJobs,
   getJob,
   updateJob,
   changeJobStatus,

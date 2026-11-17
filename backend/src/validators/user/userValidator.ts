@@ -24,6 +24,7 @@ export const updateJobseekerProfileSchema = z.object({
   expected_salary: z.number().min(0).optional().nullable(),
   availability: z.nativeEnum(Availability).optional().nullable(),
   profile_visibility: z.nativeEnum(ProfileVisibility).optional(),
+  skill_ids: z.array(z.string().uuid()).max(30).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

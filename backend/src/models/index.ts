@@ -20,6 +20,10 @@ import { initInterviewModel, default as Interview } from './interview/interviewM
 import { initEducationModel, default as Education } from './jobseeker/educationModel';
 import { initWorkExperienceModel, default as WorkExperience } from './jobseeker/workExperienceModel';
 import { initResumeModel, default as Resume } from './jobseeker/resumeModel';
+import {
+  initJobseekerProfileSkillModel,
+  default as JobseekerProfileSkill,
+} from './jobseeker/jobseekerProfileSkillModel';
 import { initJobCategoryModel, default as JobCategory } from './job/jobCategoryModel';
 import { initIndustryModel, default as Industry } from './job/industryModel';
 import { initLocationModel, default as Location } from './job/locationModel';
@@ -60,6 +64,7 @@ export {
   Education,
   WorkExperience,
   Resume,
+  JobseekerProfileSkill,
   JobCategory,
   Industry,
   Location,
@@ -100,6 +105,7 @@ export interface DBModels {
   Education: typeof Education;
   WorkExperience: typeof WorkExperience;
   Resume: typeof Resume;
+  JobseekerProfileSkill: typeof JobseekerProfileSkill;
   JobCategory: typeof JobCategory;
   Industry: typeof Industry;
   Location: typeof Location;
@@ -143,6 +149,7 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
   initEducationModel(sequelize);
   initWorkExperienceModel(sequelize);
   initResumeModel(sequelize);
+  initJobseekerProfileSkillModel(sequelize);
   initJobCategoryModel(sequelize);
   initIndustryModel(sequelize);
   initLocationModel(sequelize);
@@ -184,6 +191,7 @@ export const initializeModels = (sequelize: Sequelize = getSequelize()): DBModel
     Education,
     WorkExperience,
     Resume,
+    JobseekerProfileSkill,
     JobCategory,
     Industry,
     Location,

@@ -79,3 +79,11 @@ export type UpdateJobInput = z.infer<typeof updateJobSchema>;
 export type ChangeJobStatusInput = z.infer<typeof changeJobStatusSchema>;
 export type SetJobSkillsInput = z.infer<typeof setJobSkillsSchema>;
 export type JobSearchQuery = z.infer<typeof jobSearchQuerySchema>;
+
+/** GET /api/jobs/recommended - pagination only; ranking happens server-side. */
+export const recommendedJobsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional(),
+  perPage: z.coerce.number().int().min(1).max(20).optional(),
+});
+
+export type RecommendedJobsQuery = z.infer<typeof recommendedJobsQuerySchema>;

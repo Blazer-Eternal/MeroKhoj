@@ -18,6 +18,8 @@ const router = Router();
 
 // Public read endpoints
 router.get('/', jobControllers.searchJobs);
+// Personalized ranking must precede '/:id' or "recommended" reads as an id.
+router.get('/recommended', requireAuth, requireJobseeker, jobControllers.getRecommendedJobs);
 router.get('/:id', jobControllers.getJob);
 router.get('/:id/skills', jobControllers.getJobSkills);
 // Latest moderation decision (job's company or admin — scoped in the service)

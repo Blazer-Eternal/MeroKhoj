@@ -28,16 +28,23 @@ export const updateMe = asyncHandler(async (req: ICustomRequest, res: Response) 
 
 /** GET /api/users/me/profile — the jobseeker professional profile. */
 export const getMyJobseekerProfile = asyncHandler(async (req: ICustomRequest, res: Response) => {
-  const profile = await jobseekerProfileServices.ensureProfile(req.user!.id);
-  return ok(res, { profile });
+  const [profile, skills] = await Promise.all([
+    jobseekerProfileServices.ensureProfile(req.user!.id),
+    jobseekerProfileServices.getProfileSkills(req.user!.id),
+  ]);
+  return ok(res, { profile: { ...profile, skills } });
 });
 
 /** PUT /api/users/me/profile */
 export const upsertMyJobseekerProfile = asyncHandler(
   async (req: ICustomRequest, res: Response) => {
-    const input = updateJobseekerProfileSchema.parse(req.body);
-    const profile = await jobseekerProfileServices.updateOwnProfile(req.user!, input);
-    return ok(res, { profile });
+    const { skill_ids, ...updates } = updateJobseekerProfileSchema.parse(req.body);
+    const profile = await jobseekerProfileServices.updateOwnProfile(req.user!, updates);
+    if (skill_ids !== undefined) {
+      await jobseekerProfileServices.setProfileSkills(req.user!.id, skill_ids);
+    }
+    const skills = await jobseekerProfileServices.getProfileSkills(req.user!.id);
+    return ok(res, { profile: { ...profile, skills } });
   },
 );
 

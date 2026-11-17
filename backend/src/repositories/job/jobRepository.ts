@@ -4,6 +4,7 @@ import Company from '../../models/company/companyModel';
 import JobCategory from '../../models/job/jobCategoryModel';
 import Industry from '../../models/job/industryModel';
 import Location from '../../models/job/locationModel';
+import Skill from '../../models/job/skillModel';
 import { IJob, IJobCreation, IJobSearchQuery } from '../../interfaces';
 import { JobStatus, EmploymentType, ExperienceLevel } from '../../enums';
 import { plain, IPaginationParams, buildPaginationMeta } from '../../utils';
@@ -107,6 +108,59 @@ class JobRepository {
       data: plain<IJob[]>(rows as unknown as Record<string, unknown>[]),
       meta: buildPaginationMeta(count, pagination.page, pagination.perPage),
     };
+  }
+
+  /**
+   * Published jobs open for applications (optionally excluding ones the
+   * candidate already applied to), with everything needed to score them:
+   * company, classification, location and the job's skills.
+   */
+  async listOpenForCandidate(
+    excludeJobIds: string[],
+  ): Promise<
+    Array<
+      IJob & {
+        category?: { id: string; name: string } | null;
+        skills?: Array<{ id: string; name: string }>;
+      }
+    >
+  > {
+    const where: Record<string, unknown> = {
+      status: JobStatus.PUBLISHED,
+      [Op.or as unknown as string]: [
+        { application_deadline: null },
+        { application_deadline: { [Op.gte]: new Date() } },
+      ],
+    };
+    if (excludeJobIds.length > 0) where.id = { [Op.notIn]: excludeJobIds };
+
+    const rows = await Job.findAll({
+      where,
+      include: [
+        { model: Company, as: 'company', attributes: ['id', 'name', 'slug', 'logo_url'] },
+        { model: JobCategory, as: 'category', attributes: ['id', 'name', 'slug'] },
+        { model: Industry, as: 'industry', attributes: ['id', 'name', 'slug'] },
+        {
+          model: Location,
+          as: 'job_location',
+          attributes: ['id', 'country', 'province', 'district', 'city'],
+        },
+        {
+          model: Skill,
+          as: 'skills',
+          attributes: ['id', 'name'],
+          through: { attributes: [] },
+        },
+      ],
+      order: [['published_at', 'DESC']],
+    });
+
+    return plain(rows as unknown as Record<string, unknown>[]) as Array<
+      IJob & {
+        category?: { id: string; name: string } | null;
+        skills?: Array<{ id: string; name: string }>;
+      }
+    >;
   }
 
   /** List jobs belonging to a company (any status), with pagination. */

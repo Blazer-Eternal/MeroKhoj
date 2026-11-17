@@ -194,6 +194,16 @@ class ApplicationRepository {
     });
     return rows.map((r) => r.id);
   }
+
+  /** Job ids a candidate already applied to (used to filter recommendations). */
+  async findAppliedJobIds(jobseekerId: string): Promise<string[]> {
+    const rows = await Application.findAll({
+      where: { jobseeker_id: jobseekerId },
+      attributes: ['job_id'],
+      raw: true,
+    });
+    return rows.map((r) => r.job_id);
+  }
 }
 
 export default new ApplicationRepository();
