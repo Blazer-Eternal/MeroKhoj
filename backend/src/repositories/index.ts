@@ -11,3 +11,4 @@ export * from './payment';
 export * from './administration';
 export * from './dashboard';
 export * from './analytics';
+export * from './ai';

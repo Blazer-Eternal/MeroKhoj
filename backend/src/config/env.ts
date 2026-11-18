@@ -117,6 +117,19 @@ export const env = {
     maxFileSizeMb: optionalInt('MAX_FILE_SIZE_MB', 5),
   },
 
+  ai: {
+    // OpenAI-compatible provider. An empty key disables every generative
+    // feature with a clear 503 (AI_NOT_CONFIGURED); semantic search degrades
+    // to keyword ranking instead of failing.
+    apiKey: optional('OPENAI_API_KEY', ''),
+    baseUrl: optional('OPENAI_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, ''),
+    chatModel: optional('OPENAI_CHAT_MODEL', 'gpt-4o-mini'),
+    embeddingModel: optional('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small'),
+    embeddingDimensions: optionalInt('OPENAI_EMBEDDING_DIMENSIONS', 1536),
+    timeoutMs: optionalInt('OPENAI_TIMEOUT_MS', 30000),
+    maxTokens: optionalInt('OPENAI_MAX_TOKENS', 2048),
+  },
+
   payment: {
     // HMAC-SHA256 secret for verifying provider webhook signatures.
     // Empty = webhook endpoint fails closed (503) until configured.
