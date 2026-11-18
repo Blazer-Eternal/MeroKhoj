@@ -118,6 +118,34 @@ class ApplicationRepository {
     };
   }
 
+  /**
+   * Every application to a company's jobs, unpaginated (match-score sorting).
+   * The scorer ranks the full set in memory, then paginates — fine at demo
+   * scale and the only way to sort by a computed score.
+   */
+  async listAllByCompany(
+    companyId: string,
+    filters: { job_id?: string; status?: ApplicationStatus },
+  ): Promise<IApplication[]> {
+    const where: Record<string, unknown> = {};
+    if (filters.job_id) where.job_id = filters.job_id;
+    if (filters.status) where.status = filters.status;
+
+    const rows = await Application.findAll({
+      where,
+      order: [['applied_at', 'DESC']],
+      include: [
+        { model: Job, as: 'job', attributes: ['id', 'title', 'company_id'], where: { company_id: companyId } },
+        {
+          model: User,
+          as: 'jobseeker',
+          attributes: ['id', 'first_name', 'last_name', 'email'],
+        },
+      ],
+    });
+    return plain<IApplication[]>(rows as unknown as Record<string, unknown>[]);
+  }
+
   /** Admin: every application across companies (job + applicant attached). */
   async listAll(
     filters: { job_id?: string; status?: ApplicationStatus },

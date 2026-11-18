@@ -21,6 +21,16 @@ class WorkExperienceRepository {
     return plain<IWorkExperience[]>(rows as unknown as Record<string, unknown>[]);
   }
 
+  /** Batch load (matching): experiences for many profiles in one query. */
+  async listByJobseekerIds(jobseekerIds: string[]): Promise<IWorkExperience[]> {
+    if (jobseekerIds.length === 0) return [];
+    const rows = await WorkExperience.findAll({
+      where: { jobseeker_id: { [Op.in]: jobseekerIds } },
+      order: [['start_date', 'DESC']],
+    });
+    return plain<IWorkExperience[]>(rows as unknown as Record<string, unknown>[]);
+  }
+
   async create(payload: IWorkExperienceCreation): Promise<IWorkExperience> {
     const row = await WorkExperience.create(payload);
     return plain(row) as IWorkExperience;

@@ -19,6 +19,9 @@ const router = Router();
 router.use(requireAuth, requireEmployer);
 
 // Rosters
+// Candidate search is company-scoped like the rosters, but it ranks profiles
+// rather than roster rows, so it lives on its own subpath.
+router.get('/companies/:companyId/candidates', talentRosterControllers.searchCandidates);
 router.get('/companies/:companyId/rosters', talentRosterControllers.listRosters);
 router.post(
   '/companies/:companyId/rosters',

@@ -16,6 +16,7 @@ import { applicationRoutes, answersRoutes } from './application';
 import { interviewRoutes, feedbackRoutes } from './interview';
 import { hiringDecisionRoutes } from './hiring';
 import { talentRosterRoutes } from './talent';
+import { analyticsRoutes } from './analytics';
 import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notification';
 import { jobModerationRoutes, reportRoutes, auditLogRoutes, adminUserRoutes } from './administration';
 import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './payment';
@@ -67,6 +68,9 @@ router.use('/saved-jobs', savedJobRoutes);
 router.use('/job-alerts', jobAlertRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/dashboard', dashboardRoutes);
+// Phase 1 analytics: namespaced router, so it can sit anywhere — but it must
+// stay ABOVE the talentRosterRoutes root guard mounted at '/' below.
+router.use('/analytics', analyticsRoutes);
 router.use('/', talentRosterRoutes);
 
 export default router;

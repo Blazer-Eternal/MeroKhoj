@@ -32,6 +32,31 @@ class JobSkillRepository {
     >;
   }
 
+  /** Batch load (matching): job skills keyed by job id — one query. */
+  async mapByJobIds(jobIds: string[]): Promise<Map<string, Array<IJobSkill & { skill: { name: string } }>>> {
+    const map = new Map<string, Array<IJobSkill & { skill: { name: string } }>>();
+    if (jobIds.length === 0) return map;
+
+    const rows = await JobSkill.findAll({
+      where: { job_id: { [Op.in]: jobIds } },
+      include: [{ model: Skill, as: 'skill', attributes: ['id', 'name'] }],
+      order: [
+        ['importance', 'ASC'],
+        ['minimum_experience', 'DESC'],
+      ],
+    });
+    const joined = plain(rows as unknown as Record<string, unknown>[]) as Array<
+      IJobSkill & { skill: { name: string } }
+    >;
+
+    for (const row of joined) {
+      const list = map.get(row.job_id) ?? [];
+      list.push(row);
+      map.set(row.job_id, list);
+    }
+    return map;
+  }
+
   /** Replace a job's skill set in one shot (delete + bulk create). */
   async replaceForJob(
     jobId: string,

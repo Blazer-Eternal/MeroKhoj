@@ -19,6 +19,8 @@ export const withdrawApplicationSchema = z.object({
 export const applicationListQuerySchema = z.object({
   status: z.nativeEnum(ApplicationStatus).optional(),
   job_id: z.string().uuid().optional(),
+  /** `match` sorts the pipeline by the computed candidate-job match score. */
+  sort: z.enum(['recent', 'match']).optional(),
   page: z.coerce.number().int().min(1).optional(),
   perPage: z.coerce.number().int().min(1).max(100).optional(),
 });

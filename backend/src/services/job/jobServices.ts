@@ -1,4 +1,4 @@
-import { AppError, slugify, ensureUniqueSlug, getPaginationParams, IPaginationQuery, buildPaginationMeta } from '../../utils';
+import { AppError, slugify, ensureUniqueSlug, getPaginationParams, IPaginationQuery } from '../../utils';
 import { IJob, IJobCreation, IJobUpdate, IJobSearchQuery, IJobSkillCreation } from '../../interfaces';
 import { JobStatus, JOB_STATUS_TRANSITIONS, JOB_VISIBLE_STATUSES, CompanyVerificationStatus } from '../../enums';
 import {
@@ -8,16 +8,15 @@ import {
   jobCategoryRepository,
   industryRepository,
   locationRepository,
-  applicationRepository,
-  educationRepository,
-  workExperienceRepository,
-  jobseekerProfileRepository,
-  jobseekerProfileSkillRepository,
 } from '../../repositories';
 import { assertCanManageJobs, loadJobOrThrow } from '../shared/accessControl';
 // Same-layer service edge (documented in STRUCTURE.md §6.2): publishing a
 // job consults the payment feature's plan-entitlement check.
 import { assertPublishAllowed } from '../payment/entitlementServices';
+// Phase 1 intelligence lives under services/algorithms and is delegated to
+// from here so the controller surface stays unchanged.
+import { getRecommendedJobs } from '../algorithms/recommendation/jobRecommendationService';
+import { notifyInstantAlerts } from '../algorithms/recommendation/smartJobAlertService';
 import { IAuthUser } from '../../interfaces';
 
 /**
@@ -139,6 +138,15 @@ export const changeJobStatus = async (
 
   const updated = await jobRepository.update(jobId, updates);
   if (!updated) throw AppError.notFound('Job not found');
+
+  // First publish: wake up INSTANT job alerts whose filters accept this job.
+  // Failures are swallowed so a notification hiccup can't fail the publish.
+  if (newStatus === JobStatus.PUBLISHED && !job.published_at) {
+    await notifyInstantAlerts(updated).catch((error) =>
+      console.error('[job-alerts] instant dispatch failed:', error),
+    );
+  }
+
   return updated;
 };
 
@@ -201,110 +209,11 @@ export const isJobAcceptingApplications = (job: IJob): boolean => {
 
 // ---------------------------------------------------------------------------
 // Personalized recommendations (GET /jobs/recommended)
+// The algorithm itself lives in services/recommendation/jobRecommendationService;
+// this stays as a thin delegate so existing controllers keep working.
 // ---------------------------------------------------------------------------
 
-const STOPWORDS = new Set([
-  'the', 'and', 'for', 'with', 'that', 'this', 'these', 'those', 'your', 'you',
-  'are', 'our', 'will', 'can', 'has', 'have', 'had', 'was', 'were', 'been',
-  'from', 'into', 'their', 'they', 'them', 'who', 'what', 'when', 'where',
-  'work', 'team', 'role', 'jobs', 'join', 'about', 'over', 'under', 'more',
-  'most', 'some', 'such', 'than', 'then', 'also', 'able', 'must', 'per',
-]);
-
-/** Lowercase word tokens of length >= 4 that are not stopwords. */
-const keywords = (text: string | null | undefined): string[] => {
-  if (!text) return [];
-  return text
-    .toLowerCase()
-    .split(/[^a-z0-9+#.]+/)
-    .filter((word) => word.length >= 4 && !STOPWORDS.has(word));
-};
-
-type ScoredJob = IJob & {
-  score: number;
-  category?: { name?: string } | null;
-  skills?: Array<{ id: string; name: string }>;
-};
-
-/**
- * Rank open jobs for a candidate by profile fit:
- *   +4 per skill overlap (cap 12), +3 same city, +2 per headline/summary
- *   keyword in the title (cap 6), +1 category matches education/experience.
- * Falls back to newest-first when the profile carries no signals yet.
- */
-export const getRecommendedJobs = async (
-  user: IAuthUser,
-  query: IPaginationQuery,
-) => {
-  const pagination = getPaginationParams(query);
-  const appliedJobIds = await applicationRepository.findAppliedJobIds(user.id);
-  const jobs = await jobRepository.listOpenForCandidate(appliedJobIds);
-
-  const profile = await jobseekerProfileRepository.findByUserId(user.id);
-  if (!profile) {
-    const sliced = jobs.slice(pagination.offset, pagination.offset + pagination.limit);
-    return {
-      data: sliced as IJob[],
-      meta: buildPaginationMeta(jobs.length, pagination.page, pagination.perPage),
-    };
-  }
-
-  const [profileSkills, educations, experiences] = await Promise.all([
-    jobseekerProfileSkillRepository.listByUserId(user.id),
-    educationRepository.listByJobseeker(profile.id),
-    workExperienceRepository.listByJobseeker(profile.id),
-  ]);
-
-  const skillNames = new Set(profileSkills.map((skill) => skill.name.toLowerCase()));
-  const titleKeywords = new Set(keywords(profile.headline));
-  const summaryKeywords = new Set(keywords(profile.professional_summary));
-  const profileCity = (profile.city ?? '').trim().toLowerCase();
-  const background = [
-    ...educations.map((entry) => `${entry.degree} ${entry.field_of_study ?? ''}`),
-    ...experiences.map((entry) => entry.job_title),
-  ]
-    .join(' ')
-    .toLowerCase();
-
-  const scored: ScoredJob[] = jobs.map((job) => {
-    let score = 0;
-
-    // Skill overlap: +4 each, capped at 12.
-    const jobSkillNames = (job.skills ?? []).map((skill) => skill.name.toLowerCase());
-    const overlaps = jobSkillNames.filter((name) => skillNames.has(name)).length;
-    score += Math.min(overlaps * 4, 12);
-
-    // Same city: +3.
-    const jobCity = (job.location ?? '').trim().toLowerCase();
-    if (profileCity && jobCity && profileCity === jobCity) score += 3;
-
-    // Headline/summary keywords appearing in the title: +2 each, capped at 6.
-    const titleWords = new Set(keywords(job.title));
-    const keywordHits =
-      [...titleKeywords].filter((word) => titleWords.has(word)).length +
-      [...summaryKeywords].filter((word) => titleWords.has(word)).length;
-    score += Math.min(keywordHits * 2, 6);
-
-    // Category matches the candidate's education or experience: +1.
-    const categoryName = (job.category?.name ?? '').trim().toLowerCase();
-    if (categoryName && categoryName.length >= 4 && background.includes(categoryName)) score += 1;
-
-    return { ...job, score };
-  });
-
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    const aTime = a.published_at ? new Date(a.published_at).getTime() : 0;
-    const bTime = b.published_at ? new Date(b.published_at).getTime() : 0;
-    return bTime - aTime;
-  });
-
-  const sliced = scored.slice(pagination.offset, pagination.offset + pagination.limit);
-  return {
-    data: sliced as IJob[],
-    meta: buildPaginationMeta(scored.length, pagination.page, pagination.perPage),
-  };
-};
+export { getRecommendedJobs };
 
 export const jobServices = {
   createJob,

@@ -7,13 +7,37 @@ import {
   updateRosterSchema,
   addRosterMemberSchema,
   updateRosterMemberSchema,
+  candidateSearchQuerySchema,
 } from '../../../validators';
 import { parseId } from '../../../utils';
+import { candidateRecommendationService } from '../../../services';
 
 const ok = (res: Response, data: unknown, statusCode = 200) =>
   res.status(statusCode).json({ success: true, data });
 
 // ---- Rosters -------------------------------------------------------------
+
+/** GET /api/companies/:companyId/candidates — ranked talent pool. */
+export const searchCandidates = asyncHandler(async (req: ICustomRequest, res: Response) => {
+  const companyId = parseId(req.params.companyId);
+  const query = candidateSearchQuerySchema.parse(req.query);
+  const filters = {
+    q: query.q,
+    skills: query.skills
+      ? query.skills.split(',').map((skill) => skill.trim()).filter(Boolean)
+      : undefined,
+    location: query.location,
+    min_experience: query.min_experience,
+    sort: query.sort,
+  };
+  const result = await candidateRecommendationService.searchCandidates(
+    req.user!,
+    companyId,
+    filters,
+    query,
+  );
+  return res.status(200).json({ success: true, data: result.data, meta: result.meta });
+});
 
 /** GET /api/companies/:companyId/rosters */
 export const listRosters = asyncHandler(async (req: ICustomRequest, res: Response) => {
@@ -92,6 +116,7 @@ export const removeMember = asyncHandler(async (req: ICustomRequest, res: Respon
 });
 
 export default {
+  searchCandidates,
   listRosters,
   createRoster,
   getRoster,

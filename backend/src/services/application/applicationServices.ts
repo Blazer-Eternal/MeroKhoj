@@ -1,4 +1,4 @@
-import { AppError, getPaginationParams, IPaginationQuery } from '../../utils';
+import { AppError, buildPaginationMeta, getPaginationParams, IPaginationQuery } from '../../utils';
 import { IApplication, IApplicationCreation, IStatusChangeInput } from '../../interfaces';
 import {
   ApplicationStatus,
@@ -14,6 +14,7 @@ import {
 } from '../../repositories';
 import { assertCanAccessApplication, assertCanManageJobs, isPlatformAdmin } from '../shared/accessControl';
 import { isJobAcceptingApplications } from '../job/jobServices';
+import { scoreApplications } from '../algorithms/matching/jobMatchingService';
 import { IAuthUser } from '../../interfaces';
 
 /**
@@ -178,12 +179,36 @@ export const listMyApplications = async (
 export const listCompanyApplications = async (
   user: IAuthUser,
   companyId: string,
-  filters: { job_id?: string; status?: ApplicationStatus },
+  filters: { job_id?: string; status?: ApplicationStatus; sort?: 'recent' | 'match' },
   query: IPaginationQuery,
 ) => {
   await assertCanManageJobs(user, companyId);
   const pagination = getPaginationParams(query);
-  return applicationRepository.listByCompany(companyId, filters, pagination);
+
+  // `sort=match` needs the score of EVERY row to rank correctly, so the full
+  // set is loaded, scored, sorted and only then paginated (demo scale).
+  if (filters.sort === 'match') {
+    const all = await applicationRepository.listAllByCompany(companyId, {
+      job_id: filters.job_id,
+      status: filters.status,
+    });
+    const scored = await scoreApplications(all);
+    scored.sort((a, b) => {
+      const scoreA = a.match_score ?? -1;
+      const scoreB = b.match_score ?? -1;
+      if (scoreA !== scoreB) return scoreB - scoreA;
+      return new Date(b.applied_at).getTime() - new Date(a.applied_at).getTime();
+    });
+    const sliced = scored.slice(pagination.offset, pagination.offset + pagination.limit);
+    return {
+      data: sliced,
+      meta: buildPaginationMeta(scored.length, pagination.page, pagination.perPage),
+    };
+  }
+
+  const result = await applicationRepository.listByCompany(companyId, filters, pagination);
+  const scored = await scoreApplications(result.data);
+  return { data: scored, meta: result.meta };
 };
 
 /** Full status-transition log for an application. */

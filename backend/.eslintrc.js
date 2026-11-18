@@ -16,7 +16,7 @@ module.exports = {
   overrides: [
     {
       // Allow console.log in bootstrap/logger-style files.
-      files: ['src/server.ts', 'src/config/**/*.ts', 'src/seeders/**/*.ts'],
+      files: ['src/server.ts', 'src/config/**/*.ts', 'src/seeders/**/*.ts', 'src/scripts/**/*.ts'],
       rules: { 'no-console': 'off' },
     },
   ],

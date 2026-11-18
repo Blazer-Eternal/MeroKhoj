@@ -34,6 +34,18 @@ class JobRepository {
     return job ? (plain(job) as IJob) : null;
   }
 
+  /** Batch load (for scoring): returns a map keyed by job id. */
+  async findByIds(ids: string[]): Promise<Map<string, IJob>> {
+    if (ids.length === 0) return new Map();
+    const rows = await Job.findAll({ where: { id: { [Op.in]: ids } } });
+    const map = new Map<string, IJob>();
+    for (const row of rows as unknown as Record<string, unknown>[]) {
+      const job = plain<IJob>(row);
+      map.set(job.id, job);
+    }
+    return map;
+  }
+
   async findBySlug(slug: string): Promise<IJob | null> {
     const job = await Job.findOne({ where: { slug } });
     return job ? (plain(job) as IJob) : null;
@@ -161,6 +173,44 @@ class JobRepository {
         skills?: Array<{ id: string; name: string }>;
       }
     >;
+  }
+
+  /**
+   * Published jobs matching an alert's filter set (smart job alerts).
+   * Unlike `search`, free-text `terms` are OR'd word-by-word: a saved search
+   * for "react typescript frontend" should match any job containing at least
+   * one of those words, not the single literal phrase.
+   */
+  async findPublishedMatching(filters: {
+    terms?: string[];
+    category_id?: string | null;
+    location_id?: string | null;
+    employment_type?: string | null;
+    since?: Date | null;
+    excludeJobIds?: string[];
+  }): Promise<IJob[]> {
+    const where: Record<string, unknown> = { status: JobStatus.PUBLISHED };
+
+    if (filters.terms && filters.terms.length > 0) {
+      const termWhere = filters.terms.map((term) => {
+        const pattern = `%${term}%`;
+        return [
+          { title: { [Op.iLike]: pattern } },
+          { description: { [Op.iLike]: pattern } },
+        ];
+      });
+      where[Op.or as unknown as string] = termWhere.flat();
+    }
+    if (filters.category_id) where.category_id = filters.category_id;
+    if (filters.location_id) where.location_id = filters.location_id;
+    if (filters.employment_type) where.employment_type = filters.employment_type;
+    if (filters.since) where.published_at = { [Op.gte]: filters.since };
+    if (filters.excludeJobIds && filters.excludeJobIds.length > 0) {
+      where.id = { [Op.notIn]: filters.excludeJobIds };
+    }
+
+    const rows = await Job.findAll({ where, order: [['published_at', 'DESC']] });
+    return plain<IJob[]>(rows as unknown as Record<string, unknown>[]);
   }
 
   /** List jobs belonging to a company (any status), with pagination. */

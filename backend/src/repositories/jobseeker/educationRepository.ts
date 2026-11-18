@@ -21,6 +21,16 @@ class EducationRepository {
     return plain<IEducation[]>(rows as unknown as Record<string, unknown>[]);
   }
 
+  /** Batch load (matching): educations for many profiles in one query. */
+  async listByJobseekerIds(jobseekerIds: string[]): Promise<IEducation[]> {
+    if (jobseekerIds.length === 0) return [];
+    const rows = await Education.findAll({
+      where: { jobseeker_id: { [Op.in]: jobseekerIds } },
+      order: [['start_date', 'DESC']],
+    });
+    return plain<IEducation[]>(rows as unknown as Record<string, unknown>[]);
+  }
+
   async create(payload: IEducationCreation): Promise<IEducation> {
     const row = await Education.create(payload);
     return plain(row) as IEducation;

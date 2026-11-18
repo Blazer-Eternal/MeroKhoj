@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { JobseekerProfile, JobseekerProfileSkill, Skill } from '../../models';
 import { plain } from '../../utils';
 
@@ -36,6 +37,42 @@ class JobseekerProfileSkillRepository {
   async idsByUserId(userId: string): Promise<string[]> {
     const skills = await this.listByUserId(userId);
     return skills.map((skill) => skill.id);
+  }
+
+  /**
+   * Batch load (search/ranking): every candidate's skills keyed by user id.
+   * One query instead of N so the talent-pool scorer stays O(1) queries.
+   */
+  async mapByUserIds(userIds: string[]): Promise<Map<string, IProfileSkill[]>> {
+    const map = new Map<string, IProfileSkill[]>();
+    if (userIds.length === 0) return map;
+
+    const profiles = await JobseekerProfile.findAll({
+      where: { user_id: { [Op.in]: userIds } },
+      attributes: ['id', 'user_id'],
+      raw: true,
+    });
+    const profileToUser = new Map(profiles.map((p) => [p.id, p.user_id]));
+    if (profiles.length === 0) return map;
+
+    const rows = await JobseekerProfileSkill.findAll({
+      where: { jobseeker_id: { [Op.in]: profiles.map((p) => p.id) } },
+      include: [{ model: Skill, as: 'skill', attributes: ['id', 'name'] }],
+      order: [['skill_id', 'ASC']],
+    });
+    const joined = plain(rows as unknown as Record<string, unknown>[]) as Array<{
+      jobseeker_id: string;
+      skill?: { id: string; name: string } | null;
+    }>;
+
+    for (const row of joined) {
+      const userId = profileToUser.get(row.jobseeker_id);
+      if (!userId || !row.skill) continue;
+      const list = map.get(userId) ?? [];
+      list.push({ id: row.skill.id, name: row.skill.name });
+      map.set(userId, list);
+    }
+    return map;
   }
 
   /** Replace a candidate's skills in one shot (delete + bulk create). */
