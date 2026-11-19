@@ -2,7 +2,7 @@ import { AppError } from '../../../utils';
 import { IResumeSuggestion, ResumeImprovementArea } from '../../../interfaces';
 import { requireAI } from '../shared/aiConfig';
 import { chatJSON } from '../shared/openaiClient';
-import { asObjectArray, asString, asStringArray } from '../shared/coerce';
+import { asObjectArray, asString } from '../shared/coerce';
 
 /**
  * AI resume improvement (Phase 2, feature 2).

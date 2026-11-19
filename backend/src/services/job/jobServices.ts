@@ -17,6 +17,9 @@ import { assertPublishAllowed } from '../payment/entitlementServices';
 // from here so the controller surface stays unchanged.
 import { getRecommendedJobs } from '../algorithms/recommendation/jobRecommendationService';
 import { notifyInstantAlerts } from '../algorithms/recommendation/smartJobAlertService';
+// Phase 2: keep semantic-search embeddings fresh on job writes (no-op
+// without OPENAI_API_KEY; failures never block the employer's request).
+import { scheduleJobEmbed } from '../ai/semantic-search/jobEmbeddingService';
 import { IAuthUser } from '../../interfaces';
 
 /**
@@ -63,6 +66,7 @@ export const createJob = async (
     status: JobStatus.DRAFT,
   });
 
+  scheduleJobEmbed(job);
   return job;
 };
 
@@ -93,6 +97,12 @@ export const updateJob = async (
 
   const updated = await jobRepository.update(jobId, updates);
   if (!updated) throw AppError.notFound('Job not found');
+
+  // Text-bearing fields changed → refresh the semantic-search embedding.
+  const textFields = ['title', 'description', 'location', 'experience_requirement', 'education_requirement'];
+  if (textFields.some((field) => field in updates)) {
+    scheduleJobEmbed(updated);
+  }
   return updated;
 };
 
@@ -138,6 +148,11 @@ export const changeJobStatus = async (
 
   const updated = await jobRepository.update(jobId, updates);
   if (!updated) throw AppError.notFound('Job not found');
+
+  // First publish: refresh the semantic-search embedding for the new listing.
+  if (newStatus === JobStatus.PUBLISHED && !job.published_at) {
+    scheduleJobEmbed(updated);
+  }
 
   // First publish: wake up INSTANT job alerts whose filters accept this job.
   // Failures are swallowed so a notification hiccup can't fail the publish.
@@ -187,6 +202,10 @@ export const setJobSkills = async (
   const job = await loadJobOrThrow(jobId);
   await assertCanManageJobs(user, job.company_id);
   await jobSkillRepository.replaceForJob(jobId, skills);
+  // Skills are part of the embedding text — refresh if the job is live.
+  if (job.status === JobStatus.PUBLISHED) {
+    scheduleJobEmbed(job);
+  }
 };
 
 /** Delete a job — only allowed while it is still a draft. */

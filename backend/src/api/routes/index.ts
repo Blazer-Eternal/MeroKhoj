@@ -21,6 +21,7 @@ import { savedJobRoutes, jobAlertRoutes, notificationRoutes } from './notificati
 import { jobModerationRoutes, reportRoutes, auditLogRoutes, adminUserRoutes } from './administration';
 import { servicePlanRoutes, orderRoutes, invoiceRoutes, paymentRoutes } from './payment';
 import { dashboardRoutes } from './dashboard';
+import { aiRoutes } from './ai';
 
 /**
  * Central route hub mounted under /api.
@@ -71,6 +72,9 @@ router.use('/dashboard', dashboardRoutes);
 // Phase 1 analytics: namespaced router, so it can sit anywhere — but it must
 // stay ABOVE the talentRosterRoutes root guard mounted at '/' below.
 router.use('/analytics', analyticsRoutes);
+// Phase 2 AI features: namespaced router — must also stay ABOVE the
+// talentRosterRoutes root guard mounted at '/' below.
+router.use('/ai', aiRoutes);
 router.use('/', talentRosterRoutes);
 
 export default router;

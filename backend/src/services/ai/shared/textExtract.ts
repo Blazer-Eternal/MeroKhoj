@@ -65,28 +65,36 @@ export const extractResumeText = async (
   }
 
   let text = '';
-  switch (kind) {
-    case '.txt':
-    case '.md': {
-      text = buffer.toString('utf-8');
-      break;
+  try {
+    switch (kind) {
+      case '.txt':
+      case '.md': {
+        text = buffer.toString('utf-8');
+        break;
+      }
+      case '.pdf': {
+        const parser = new PDFParse({ data: new Uint8Array(buffer) });
+        const result = await parser.getText();
+        text = result.text;
+        break;
+      }
+      case '.docx': {
+        const result = await mammoth.extractRawText({ buffer });
+        text = result.value;
+        break;
+      }
+      case '.doc': {
+        const document = await new WordExtractor().extract(buffer);
+        text = document.getBody();
+        break;
+      }
     }
-    case '.pdf': {
-      const parser = new PDFParse({ data: new Uint8Array(buffer) });
-      const result = await parser.getText();
-      text = result.text;
-      break;
-    }
-    case '.docx': {
-      const result = await mammoth.extractRawText({ buffer });
-      text = result.value;
-      break;
-    }
-    case '.doc': {
-      const document = await new WordExtractor().extract(buffer);
-      text = document.getBody();
-      break;
-    }
+  } catch (error) {
+    // Corrupt/truncated file: surface a client error, not a stack trace.
+    throw AppError.badRequest(
+      `Could not read "${fileName}". The file may be corrupt or password-protected.`,
+      { reason: error instanceof Error ? error.message.slice(0, 200) : 'unreadable file' },
+    );
   }
 
   const cleaned = text

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { jobControllers, applicationControllers, jobModerationControllers } from '../../controllers';
+import { jobControllers, applicationControllers, jobModerationControllers, aiControllers } from '../../controllers';
 import { requireAuth, requireEmployer, requireJobseeker, validate, applicationLimiter } from '../../../middleware';
 import {
   createJobSchema,
@@ -18,6 +18,9 @@ const router = Router();
 
 // Public read endpoints
 router.get('/', jobControllers.searchJobs);
+// Phase 2 semantic search (natural language) — before '/:id' so "semantic"
+// is not read as an id. Works without an AI key (keyword fallback mode).
+router.get('/semantic', aiControllers.semanticSearch);
 // Personalized ranking must precede '/:id' or "recommended" reads as an id.
 router.get('/recommended', requireAuth, requireJobseeker, jobControllers.getRecommendedJobs);
 router.get('/:id', jobControllers.getJob);

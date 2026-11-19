@@ -10,3 +10,4 @@ export * from './notification';
 export * from './payment';
 export * from './administration';
 export * from './analytics';
+export * from './ai';

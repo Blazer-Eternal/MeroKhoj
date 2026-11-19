@@ -7,7 +7,6 @@ import {
 } from '../../../repositories';
 import { requireAI } from '../shared/aiConfig';
 import { chatText } from '../shared/openaiClient';
-import { asString } from '../shared/coerce';
 
 /**
  * AI career assistant (Phase 2, feature 4).

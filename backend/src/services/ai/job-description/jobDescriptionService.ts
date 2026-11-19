@@ -2,7 +2,7 @@ import { AppError } from '../../../utils';
 import { IJobDescriptionDraft, JDTone, JD_TONES } from '../../../interfaces';
 import { requireAI } from '../shared/aiConfig';
 import { chatJSON } from '../shared/openaiClient';
-import { asObjectArray, asString, asStringArray } from '../shared/coerce';
+import { asString, asStringArray } from '../shared/coerce';
 
 /**
  * AI job description generator (Phase 2, feature 3).

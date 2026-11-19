@@ -233,7 +233,8 @@ export const applyParsedResume = async (
       field_of_study: entry.field_of_study,
       start_date: parseLooseDate(entry.start_date),
       end_date: parseLooseDate(entry.end_date),
-      is_current: entry.is_current,
+      // Education has no end date yet → still in progress.
+      is_current: !entry.end_date,
     });
     result.educations_added += 1;
   }

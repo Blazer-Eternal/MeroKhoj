@@ -20,7 +20,9 @@
     "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
     "seed:demo": "ts-node src/seeders/demo/seedDemo.ts",
     "seed:demo:reset": "ts-node src/seeders/demo/seedDemo.ts --reset",
-    "test:algo": "ts-node src/scripts/algoTest.ts"
+    "test:algo": "ts-node src/scripts/algoTest.ts",
+    "test:ai": "ts-node src/scripts/aiTest.ts",
+    "embed:jobs": "ts-node src/scripts/embedJobs.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

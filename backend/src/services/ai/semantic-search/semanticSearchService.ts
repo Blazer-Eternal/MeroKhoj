@@ -148,6 +148,9 @@ export const searchJobsSemantic = async (
       const jobVector = stored.get(job.id);
       if (jobVector && jobVector.length === queryVector.length) {
         scores.set(job.id, normalizeSimilarity(cosineSimilarity(queryVector, jobVector)));
+      } else if (intent.keywords.length === 0) {
+        // No embedding yet AND no keywords to fall back on → neutral score.
+        scores.set(job.id, 40);
       } else {
         // No embedding yet (or dimension drift): keyword fallback for this row.
         scores.set(
@@ -158,9 +161,15 @@ export const searchJobsSemantic = async (
     }
   } else {
     scores = new Map();
-    for (const job of candidates) {
-      const overlap = keywordOverlap(intent.keywords, haystacks.get(job.id) ?? '');
-      scores.set(job.id, Math.round(overlap * 100));
+    if (intent.keywords.length === 0) {
+      // Filters-only query ("remote full time"): every job passing the hard
+      // filters is a candidate — give them a neutral score instead of none.
+      for (const job of candidates) scores.set(job.id, 40);
+    } else {
+      for (const job of candidates) {
+        const overlap = keywordOverlap(intent.keywords, haystacks.get(job.id) ?? '');
+        scores.set(job.id, Math.round(overlap * 100));
+      }
     }
   }
 
